@@ -27,5 +27,7 @@ void AStackedCrates::OnInteract_Implementation(AActor* _actor)
 	Super::OnInteract_Implementation(_actor);
 
 	Receive_PlayCrateAnim();
+
+	GetSkeletalMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BlockVolume->Activate(true);
 }
