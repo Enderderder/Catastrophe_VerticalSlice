@@ -10,4 +10,5 @@ UQuest::UQuest()
 void UQuest::SetQuestState(EQuestState _questState)
 {
 	QuestState = _questState;
+
 }

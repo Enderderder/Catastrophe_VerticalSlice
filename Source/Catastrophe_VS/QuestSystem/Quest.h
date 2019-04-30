@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Engine/DataTable.h"
 #include "Quest.generated.h"
 
 /**
@@ -24,20 +25,26 @@ enum EQuestState
  * A struct that contains information of the quest
  */
 USTRUCT(BlueprintType)
-struct FQuestInfo
+struct FQuestInfo : public FTableRowBase
 {
 	GENERATED_BODY()
 
-		UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FString QuestName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = true))
-		FString QuestDescription;
+public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 RewardExp;
+	int32 QuestID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString QuestName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = true))
+	FString QuestDescription;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 RewardExp;
 
 	FQuestInfo() :
+		QuestID(0),
 		QuestName("DefaultName"),
 		QuestDescription("DefaultDescription"),
 		RewardExp(0)
@@ -48,7 +55,7 @@ struct FQuestInfo
  * This object class contains all the information of a quest
  * Quest functionality is also included in here
  */
-UCLASS(Blueprintable)
+UCLASS()
 class CATASTROPHE_VS_API UQuest : public UObject
 {
 	GENERATED_BODY()
@@ -57,18 +64,33 @@ public:
 	// Default Constructor
 	UQuest();
 
-
 protected:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Quest")
+	
+	// The Information of the quest
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest")
 	FQuestInfo QuestInfo;
 
+	// The state of the quest
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Quest")
 	TEnumAsByte<EQuestState> QuestState;
 
+
+	/** Quest Tree */
+
+	// Contains all the parent quest of this quest
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest")
+	TArray<UQuest*> ParentQuests;
+
+	// Contains all the child quest of this quest
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest")
+	TArray<UQuest*> ChildQuests;
+
+	/** QUest Tree End */
+
+
 public:
 
-	// Sets the Quest State
+	/** Set the state of the quest */
 	void SetQuestState(EQuestState _questState);
 
 	/** Getter */
