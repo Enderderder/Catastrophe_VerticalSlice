@@ -11,7 +11,7 @@
  * An enum which define the state of the quest
  */
 UENUM(BlueprintType)
-enum EQuestState
+enum class EQuestState : uint8
 {
 	Locked = 0,
 	Avaliable,
@@ -72,7 +72,7 @@ protected:
 
 	// The state of the quest
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Quest")
-	TEnumAsByte<EQuestState> QuestState;
+	EQuestState QuestState;
 
 
 	/** Quest Tree */
@@ -90,12 +90,16 @@ protected:
 
 public:
 
+	/** Loads the data for the quest */
+	void LoadQuestData(FQuestInfo _questInfo);
+
 	/** Set the state of the quest */
 	void SetQuestState(EQuestState _questState);
 
 	/** Getter */
 	FORCEINLINE FQuestInfo GetQuestInfo() const { return QuestInfo; }
-	FORCEINLINE TEnumAsByte<EQuestState> GetState() const { return QuestState; }
+	FORCEINLINE EQuestState GetState() const { return QuestState; }
+	class UQuestSubsystem* GetQuestSystem() const;
 	/** Getter End */
 
 };

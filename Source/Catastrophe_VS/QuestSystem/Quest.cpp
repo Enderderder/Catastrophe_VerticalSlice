@@ -2,13 +2,25 @@
 
 #include "Quest.h"
 
+#include "Catastrophe_VS.h"
+#include "QuestSubsystem.h"
+
 UQuest::UQuest()
 {
 	
 }
 
+void UQuest::LoadQuestData(FQuestInfo _questInfo)
+{
+
+}
+
 void UQuest::SetQuestState(EQuestState _questState)
 {
 	QuestState = _questState;
+}
 
+UQuestSubsystem* UQuest::GetQuestSystem() const
+{
+	return Cast<UQuestSubsystem>(GetOuter());
 }
