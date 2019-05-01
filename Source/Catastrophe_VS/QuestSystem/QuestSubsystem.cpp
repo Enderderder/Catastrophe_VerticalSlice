@@ -5,9 +5,13 @@
 
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/DataTable.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/GameInstance.h"
 
 #include "Catastrophe_VS.h"
 #include "Quest.h"
+#include "SaveGameSystem/SaveGameSubsystem.h"
+#include "SaveGameSystem/CatastropheSaveGame.h"
 
 UQuestSubsystem::UQuestSubsystem()
 	: UGameInstanceSubsystem()
@@ -24,6 +28,7 @@ UQuestSubsystem::UQuestSubsystem()
 		UE_LOG(LogQuestSystem, Warning,
 			TEXT("Cannot locate QuestDataTableObject, check content folder path"));
 	}
+
 }
 
 void UQuestSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -42,16 +47,34 @@ void UQuestSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		quest->LoadQuestData(QuestInfos[index]);
 		Quests[index] = quest;
 	}
+
+	// Binds the delegate
+	//UGameInstance* gameInst = UGameplayStatics::GetGameInstance(this);
+	//USaveGameSubsystem* saveGameSystem = gameInst->GetSubsystem<USaveGameSubsystem>();
+	//saveGameSystem->OnSavedGameLoaded.AddDynamic(this, &UQuestSubsystem::OnSaveGameLoaded);
 }
 
 void UQuestSubsystem::Deinitialize()
 {
 	Super::Deinitialize();
 	
+}
+
+void UQuestSubsystem::OnSaveGameLoaded(class UCatastropheSaveGame* _saveGameInst)
+{
+	int32 saveGameInstQuestCount = _saveGameInst->SavedQuestState.Num();
+	if (saveGameInstQuestCount != Quests.Num())
+	{
+		UE_LOG(LogQuestSystem, Error,
+			TEXT("The saved game quest count is not the same as the total quest count"));
+		return;
+	}
+
+	//TODO
 
 }
 
-UQuest* UQuestSubsystem::GetQuest(FString _name) const
+UQuest* UQuestSubsystem::GetQuestByName(FString _name) const
 {
 	for (UQuest* quest : Quests)
 	{
@@ -67,7 +90,7 @@ UQuest* UQuestSubsystem::GetQuest(FString _name) const
 	return nullptr;
 }
 
-UQuest* UQuestSubsystem::GetQuest(int32 _id) const
+UQuest* UQuestSubsystem::GetQuestByID(int32 _id) const
 {
 	for (UQuest* quest : Quests)
 	{

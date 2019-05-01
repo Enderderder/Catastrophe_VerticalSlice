@@ -11,7 +11,7 @@ class UQuest;
 struct FQuestInfo;
 
 /**
- * 
+ * The quest system of the game that loads quest by data table
  */
 UCLASS()
 class CATASTROPHE_VS_API UQuestSubsystem : public UGameInstanceSubsystem
@@ -39,19 +39,30 @@ public:
 	/** Implement this for deinitialization of instances of the system */
 	virtual void Deinitialize() override;
 
+	/** Delagate binding function, receive call when a new save is loaded */
+	UFUNCTION()
+	void OnSaveGameLoaded(class UCatastropheSaveGame* _saveGameInst);
+
 	/**
 	 * Call to get the quest class
 	 * @param The name of the quest
 	 * @return The UQuest class object
 	 */
-	class UQuest* GetQuest(FString _name) const;
+	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
+	UQuest* GetQuestByName(FString _name) const;
 
 	/**
 	 * Call to get the quest class
 	 * @param The ID of the quest
 	 * @return The UQuest class object
 	 */
-	class UQuest* GetQuest(int32 _id) const;
+	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
+	UQuest* GetQuestByID(int32 _id) const;
+
+	/** Getter */
+	FORCEINLINE TArray<UQuest*> GetAllQuests() const { return Quests; }
+	FORCEINLINE int32 GetTotalQuestCount() const { return Quests.Num(); }
+	/** Getter End */
 
 protected:
 

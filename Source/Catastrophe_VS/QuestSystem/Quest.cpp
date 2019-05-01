@@ -12,7 +12,7 @@ UQuest::UQuest()
 
 void UQuest::LoadQuestData(FQuestInfo _questInfo)
 {
-
+	//TODO
 }
 
 void UQuest::SetQuestState(EQuestState _questState)

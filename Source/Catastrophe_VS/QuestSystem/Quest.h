@@ -67,22 +67,22 @@ public:
 protected:
 	
 	// The Information of the quest
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuestSystem")
 	FQuestInfo QuestInfo;
 
 	// The state of the quest
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Quest")
-	EQuestState QuestState;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "QuestSystem")
+	EQuestState QuestState = EQuestState::Locked;
 
 
 	/** Quest Tree */
 
 	// Contains all the parent quest of this quest
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuestSystem")
 	TArray<UQuest*> ParentQuests;
 
 	// Contains all the child quest of this quest
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuestSystem")
 	TArray<UQuest*> ChildQuests;
 
 	/** QUest Tree End */
@@ -94,6 +94,7 @@ public:
 	void LoadQuestData(FQuestInfo _questInfo);
 
 	/** Set the state of the quest */
+	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void SetQuestState(EQuestState _questState);
 
 	/** Getter */
