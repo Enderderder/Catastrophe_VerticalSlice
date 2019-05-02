@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "GameInstance/CatastropheGameInstanceSubsystem.h"
 #include "SaveGameSubSystem.generated.h"
 
 #define SLOT_NAME_BASE "Slot"
@@ -17,13 +17,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSaveSystemDelegateOneParam, class U
  * Save and load different data
  */
 UCLASS()
-class CATASTROPHE_VS_API USaveGameSubsystem : public UGameInstanceSubsystem
+class CATASTROPHE_VS_API USaveGameSubsystem : public UCatastropheGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
 public:
 	USaveGameSubsystem();
 
+	/** Delegate variable that boardcast when there is a save game successfullly loaded */
 	UPROPERTY(BlueprintAssignable, Category = "SaveGameSystem")
 	FSaveSystemDelegateOneParam OnSavedGameLoaded;
 
@@ -37,6 +38,9 @@ public:
 
 	/** Implement this for initialization of instances of the system */
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	/** Implement this for post initilization after all subsystem has initialized */
+	virtual void PostInitialize() override;
 
 	/** Implement this for deinitialization of instances of the system */
 	virtual void Deinitialize() override;

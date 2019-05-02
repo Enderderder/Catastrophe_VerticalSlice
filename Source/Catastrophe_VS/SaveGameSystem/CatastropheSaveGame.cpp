@@ -27,6 +27,4 @@ void UCatastropheSaveGame::InitializeSaveGameInst(UGameInstance* _gameInst)
 			SavedQuestState.Add(index, EQuestState::Locked);
 		}
 	}
-
-	//TODO
 }

@@ -12,7 +12,7 @@
 #include "QuestSystem/Quest.h"
 
 USaveGameSubsystem::USaveGameSubsystem()
-	: UGameInstanceSubsystem()
+	: UCatastropheGameInstanceSubsystem()
 {
 	LoadedSaveGameInst = nullptr;
 }
@@ -21,6 +21,13 @@ void USaveGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	
+}
+
+void USaveGameSubsystem::PostInitialize()
+{
+	Super::PostInitialize();
+
+
 }
 
 void USaveGameSubsystem::Deinitialize()
@@ -71,6 +78,7 @@ void USaveGameSubsystem::LoadSavedGame(int32 _slotIndex)
 		// Check to see if this slot has data saved in it
 		if (UGameplayStatics::DoesSaveGameExist(slotName, 0))
 		{
+			// Load the active
 			UCatastropheSaveGame* saveGameInst = Cast<UCatastropheSaveGame>(
 					UGameplayStatics::LoadGameFromSlot(slotName, 0));
 			if (!saveGameInst)

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "GameInstance/CatastropheGameInstanceSubsystem.h"
 #include "QuestSubsystem.generated.h"
 
 /** Forward Delare */
@@ -14,7 +14,7 @@ struct FQuestInfo;
  * The quest system of the game that loads quest by data table
  */
 UCLASS()
-class CATASTROPHE_VS_API UQuestSubsystem : public UGameInstanceSubsystem
+class CATASTROPHE_VS_API UQuestSubsystem : public UCatastropheGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
@@ -35,6 +35,9 @@ public:
 
 	/** Implement this for initialization of instances of the system */
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	/** Implement this for post initilization after all subsystem has initialized */
+	virtual void PostInitialize() override;
 
 	/** Implement this for deinitialization of instances of the system */
 	virtual void Deinitialize() override;

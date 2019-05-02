@@ -22,8 +22,9 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	
+	//TODO Check
 	// Update animation data
-	if (CustomPlayerCharacter->IsValidLowLevelFast())
+	if (CustomPlayerCharacter->IsValidLowLevel())
 	{
 		if (UCharacterMovementComponent* PlayerMovementComponent 
 			= CustomPlayerCharacter->GetCharacterMovement())

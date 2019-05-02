@@ -5,7 +5,6 @@
 
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/DataTable.h"
-#include "Kismet/GameplayStatics.h"
 #include "Engine/GameInstance.h"
 
 #include "Catastrophe_VS.h"
@@ -14,7 +13,7 @@
 #include "SaveGameSystem/CatastropheSaveGame.h"
 
 UQuestSubsystem::UQuestSubsystem()
-	: UGameInstanceSubsystem()
+	: UCatastropheGameInstanceSubsystem()
 {
 	// Locate the data table in the content folder
 	static ConstructorHelpers::FObjectFinder<UDataTable> QuestDataTableObject(
@@ -47,11 +46,15 @@ void UQuestSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		quest->LoadQuestData(QuestInfos[index]);
 		Quests[index] = quest;
 	}
+}
+
+void UQuestSubsystem::PostInitialize()
+{
+	Super::PostInitialize();
 
 	// Binds the delegate
-	//UGameInstance* gameInst = UGameplayStatics::GetGameInstance(this);
-	//USaveGameSubsystem* saveGameSystem = gameInst->GetSubsystem<USaveGameSubsystem>();
-	//saveGameSystem->OnSavedGameLoaded.AddDynamic(this, &UQuestSubsystem::OnSaveGameLoaded);
+	USaveGameSubsystem* saveGameSystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	saveGameSystem->OnSavedGameLoaded.AddDynamic(this, &UQuestSubsystem::OnSaveGameLoaded);
 }
 
 void UQuestSubsystem::Deinitialize()
