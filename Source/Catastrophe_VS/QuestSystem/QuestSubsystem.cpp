@@ -5,6 +5,7 @@
 
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/DataTable.h"
+#include "Kismet/GameplayStatics.h"
 #include "Engine/GameInstance.h"
 
 #include "Catastrophe_VS.h"
@@ -27,7 +28,6 @@ UQuestSubsystem::UQuestSubsystem()
 		UE_LOG(LogQuestSystem, Warning,
 			TEXT("Cannot locate QuestDataTableObject, check content folder path"));
 	}
-
 }
 
 void UQuestSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -43,7 +43,7 @@ void UQuestSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	for (int32 index = 0; index < Quests.Num(); ++index)
 	{
 		UQuest* quest = NewObject<UQuest>(this);
-		quest->LoadQuestData(QuestInfos[index]);
+		quest->SetQuestData(QuestInfos[index]);
 		Quests[index] = quest;
 	}
 }
@@ -53,7 +53,7 @@ void UQuestSubsystem::PostInitialize()
 	Super::PostInitialize();
 
 	// Binds the delegate
-	USaveGameSubsystem* saveGameSystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	USaveGameSubsystem* saveGameSystem = USaveGameSubsystem::GetInst(this);
 	saveGameSystem->OnSavedGameLoaded.AddDynamic(this, &UQuestSubsystem::OnSaveGameLoaded);
 }
 
@@ -65,16 +65,29 @@ void UQuestSubsystem::Deinitialize()
 
 void UQuestSubsystem::OnSaveGameLoaded(class UCatastropheSaveGame* _saveGameInst)
 {
+	// Check to see if there's any number difference between saved game quest 
+	// state and the loaded quest
 	int32 saveGameInstQuestCount = _saveGameInst->SavedQuestState.Num();
 	if (saveGameInstQuestCount != Quests.Num())
 	{
+		// Might need to delete the saved game manually and recreate them
 		UE_LOG(LogQuestSystem, Error,
 			TEXT("The saved game quest count is not the same as the total quest count"));
 		return;
 	}
 
-	//TODO
+	// Load the state of the quest from the saved game
+	for (int32 index = 0; index < saveGameInstQuestCount; ++index)
+	{
+		EQuestState questState = _saveGameInst->SavedQuestState[index];
+		Quests[index]->SetQuestState(questState);
+	}
 
+	// Always make the root of the quest avaliable or in other state
+	if (Quests[0]->GetState() == EQuestState::Locked)
+	{
+		Quests[0]->SetQuestState(EQuestState::Avaliable);
+	}
 }
 
 UQuest* UQuestSubsystem::GetQuestByName(FString _name) const
@@ -106,6 +119,16 @@ UQuest* UQuestSubsystem::GetQuestByID(int32 _id) const
 	// When the quest cannot be find
 	UE_LOG(LogQuestSystem, Warning,
 		TEXT("No quest can be find by ID: %s"), _id);
+	return nullptr;
+}
+
+UQuestSubsystem* UQuestSubsystem::GetInst(const UObject* _worldContextObject)
+{
+	if (UGameInstance* gameInst 
+		= UGameplayStatics::GetGameInstance(_worldContextObject))
+	{
+		return gameInst->GetSubsystem<UQuestSubsystem>();
+	}
 	return nullptr;
 }
 

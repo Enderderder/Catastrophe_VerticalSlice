@@ -67,6 +67,9 @@ public:
 	FORCEINLINE int32 GetTotalQuestCount() const { return Quests.Num(); }
 	/** Getter End */
 
+	/** Gets the instance without going through the GameInstance */
+	static UQuestSubsystem* GetInst(const UObject* _worldContextObject);
+
 protected:
 
 	/** Loads all the data from data table into struct array */

@@ -5,11 +5,6 @@
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
-#include "Engine/GameInstance.h"
-#include "Kismet/GameplayStatics.h"
-
-#include "SaveGameSystem/SaveGameSubsystem.h"
-
 // Set default values
 AStackedCrates::AStackedCrates()
 {
@@ -25,9 +20,6 @@ void AStackedCrates::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UGameInstance* gameInst = UGameplayStatics::GetGameInstance(this);
-	USaveGameSubsystem* saveGameSystemInst = gameInst->GetSubsystem<USaveGameSubsystem>();
-	saveGameSystemInst->CreateSavedGame(0);
 }
 
 void AStackedCrates::OnInteract_Implementation(AActor* _actor)

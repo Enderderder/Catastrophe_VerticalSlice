@@ -23,9 +23,19 @@ public:
 	virtual void PostInitialize();
 
 	/// There is no reason to link blueprint subsytem yet
-// 	/** Blueprint version of the PostInitialization() */
-// 	UFUNCTION(BlueprintImplementableEvent, Category = "GameInstanceSubsystem",
-// 		meta = (DisplayName = "PostInitialize"))
-// 	void Receive_PostInitialize();
+	/** Blueprint version of the PostInitialization() */
+	/*UFUNCTION(BlueprintImplementableEvent, Category = "GameInstanceSubsystem",
+		meta = (DisplayName = "PostInitialize"))
+	void Receive_PostInitialize();*/
+
+protected:
+
+	/** Get another subsystem by its type through a subsystem */
+	template <typename TSubsystemClass>
+	TSubsystemClass* GetOtherSubsytem() const 
+	{
+		UGameInstance* inst = GetGameInstance();
+		return GetGameInstance()->GetSubsystem<TSubsystemClass>();
+	}
 
 };

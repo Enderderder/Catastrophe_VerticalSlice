@@ -10,9 +10,9 @@ UQuest::UQuest()
 	
 }
 
-void UQuest::LoadQuestData(FQuestInfo _questInfo)
+void UQuest::SetQuestData(FQuestInfo _questInfo)
 {
-	//TODO
+	QuestInfo = _questInfo;
 }
 
 void UQuest::SetQuestState(EQuestState _questState)

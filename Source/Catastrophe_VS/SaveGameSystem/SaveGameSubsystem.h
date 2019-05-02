@@ -65,11 +65,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void DeleteAllSavedGame();
 
+	/** Check if there is any existing saved game in the slot */
+	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
+	bool DoesSlotHasSavedGame(int32 _slotIndex) const;
+
 	/** Getter */
 	FORCEINLINE class UCatastropheSaveGame* GetLoadedSaveGameInst() const { 
 		return LoadedSaveGameInst; 
 	}
 	/** Getter End */
+
+	/** Gets the instance without going through the GameInstance */
+	static USaveGameSubsystem* GetInst(const UObject* _worldContextObject);
 
 protected:
 

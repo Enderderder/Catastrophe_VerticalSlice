@@ -91,7 +91,7 @@ protected:
 public:
 
 	/** Loads the data for the quest */
-	void LoadQuestData(FQuestInfo _questInfo);
+	void SetQuestData(FQuestInfo _questInfo);
 
 	/** Set the state of the quest */
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")

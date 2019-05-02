@@ -11,6 +11,7 @@
 #include "QuestSystem/QuestSubsystem.h"
 #include "QuestSystem/Quest.h"
 
+// Set default value
 USaveGameSubsystem::USaveGameSubsystem()
 	: UCatastropheGameInstanceSubsystem()
 {
@@ -46,11 +47,11 @@ void USaveGameSubsystem::CreateSavedGame(int32 _slotIndex)
 		if (!UGameplayStatics::DoesSaveGameExist(slotName, 0))
 		{
 			// Create the save game instance and initialize it
-			UCatastropheSaveGame* saveGameInst = Cast<UCatastropheSaveGame>(
+			UCatastropheSaveGame* savedGame = Cast<UCatastropheSaveGame>(
 				UGameplayStatics::CreateSaveGameObject(UCatastropheSaveGame::StaticClass()));
-			saveGameInst->SaveGameSlotName = slotName;
-			saveGameInst->InitializeSaveGameInst(GetGameInstance());
-			UGameplayStatics::SaveGameToSlot(saveGameInst, slotName, 0);
+			savedGame->SaveGameSlotName = slotName;
+			savedGame->InitializeSaveGameInst(GetGameInstance());
+			UGameplayStatics::SaveGameToSlot(savedGame, slotName, 0);
 		}
 		else
 		{
@@ -177,4 +178,22 @@ void USaveGameSubsystem::DeleteAllSavedGame()
 			UGameplayStatics::DeleteGameInSlot(slotName, 0);
 		}
 	}
+}
+
+bool USaveGameSubsystem::DoesSlotHasSavedGame(int32 _slotIndex) const
+{
+	FString slotName = SLOT_NAME_BASE + FString::FromInt(_slotIndex);
+	return UGameplayStatics::DoesSaveGameExist(slotName, 0);
+}
+
+USaveGameSubsystem* USaveGameSubsystem::GetInst(const UObject* _worldContextObject)
+{
+	// Try to get the game instance and search for the USaveGameSubsystem instance
+	if (UGameInstance* GameInst
+		= UGameplayStatics::GetGameInstance(_worldContextObject))
+	{
+		return GameInst->GetSubsystem<USaveGameSubsystem>();
+	}
+	
+	return nullptr;
 }
