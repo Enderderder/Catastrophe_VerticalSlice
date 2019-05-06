@@ -302,7 +302,7 @@ void APlayerCharacter::ShootTomato()
 
 void APlayerCharacter::InteractAction()
 {
-	if (InteractTarget)
+	if (InteractTarget && !InteractTarget->IsPendingKill())
 	{
 		if (InteractTarget->GetClass()->ImplementsInterface(UInteractableObject::StaticClass()))
 		{

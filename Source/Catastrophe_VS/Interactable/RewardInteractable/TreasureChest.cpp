@@ -35,12 +35,12 @@ void ATreasureChest::Tick(float DeltaTime)
 
 }
 
-void ATreasureChest::OnInteract_Implementation(AActor* _actor)
+void ATreasureChest::OnInteract_Implementation(class APlayerCharacter* _actor)
 {
 	
 }
 
-void ATreasureChest::OnUnInteract_Implementation(AActor* _actor)
+void ATreasureChest::OnUnInteract_Implementation(class APlayerCharacter* _actor)
 {
 
 }

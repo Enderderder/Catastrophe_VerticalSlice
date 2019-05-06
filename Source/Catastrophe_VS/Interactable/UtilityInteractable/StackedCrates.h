@@ -32,6 +32,6 @@ protected:
 public:
 
 	/** Interactable Object Interface */
-	virtual void OnInteract_Implementation(AActor* _actor) override;
+	virtual void OnInteract_Implementation(class APlayerCharacter* _actor) override;
 	/** Interface End */
 };

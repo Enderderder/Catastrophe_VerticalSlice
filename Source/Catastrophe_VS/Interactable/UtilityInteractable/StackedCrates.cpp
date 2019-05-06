@@ -19,10 +19,9 @@ AStackedCrates::AStackedCrates()
 void AStackedCrates::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-void AStackedCrates::OnInteract_Implementation(AActor* _actor)
+void AStackedCrates::OnInteract_Implementation(class APlayerCharacter* _actor)
 {
 	Super::OnInteract_Implementation(_actor);
 

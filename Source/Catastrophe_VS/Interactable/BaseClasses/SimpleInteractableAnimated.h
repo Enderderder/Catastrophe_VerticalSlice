@@ -9,7 +9,7 @@
 
 /**
  * This is a base class of an interactable object 
- * that contant a skeletal mesh component and a box component
+ * that contain a skeletal mesh component and a box component
  */
 UCLASS()
 class CATASTROPHE_VS_API ASimpleInteractableAnimated : public ASkeletalMeshActor, public IInteractableObject
@@ -28,7 +28,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// Trigger component overlap functinon
+	// Trigger component overlap function
 	UFUNCTION()
 	virtual void OnInteractionTriggerOverlapBegin(class UPrimitiveComponent* _overlappedComponent, class AActor* _otherActor, class UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult);
 	UFUNCTION()

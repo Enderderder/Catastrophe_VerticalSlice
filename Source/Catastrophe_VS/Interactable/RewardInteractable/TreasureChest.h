@@ -37,8 +37,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/** InteractableObject Interface */
-	virtual void OnInteract_Implementation(AActor* _actor) override;
-	virtual void OnUnInteract_Implementation(AActor* _actor) override;
+	virtual void OnInteract_Implementation(class APlayerCharacter* _actor) override;
+	virtual void OnUnInteract_Implementation(class APlayerCharacter* _actor) override;
 	/** Interface End */
 
 	/** Getter */
