@@ -6,6 +6,8 @@
 //#include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 
+#include "Interactable/BaseClasses/InteractableComponent.h"
+
 // Sets default values
 ATreasureChest::ATreasureChest()
 {
@@ -19,6 +21,10 @@ ATreasureChest::ATreasureChest()
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
 	//TriggerBox->SetCollisionProfileName("Trigger");
 	TriggerBox->SetupAttachment(RootComponent);
+
+	InteractableCompoenent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableCompoenent"));
+	InteractableCompoenent->RegisterTriggerVolume(TriggerBox);
+	InteractableCompoenent->OnInteract.AddDynamic(this, &ATreasureChest::OnPlayerInteract);
 }
 
 // Called when the game starts or when spawned
@@ -35,13 +41,9 @@ void ATreasureChest::Tick(float DeltaTime)
 
 }
 
-void ATreasureChest::OnInteract_Implementation(class APlayerCharacter* _actor)
-{
-	
-}
-
-void ATreasureChest::OnUnInteract_Implementation(class APlayerCharacter* _actor)
+void ATreasureChest::OnPlayerInteract(class APlayerCharacter* _playerCharacter)
 {
 
+	// One time use
+	InteractableCompoenent->bCanInteract = false;
 }
-

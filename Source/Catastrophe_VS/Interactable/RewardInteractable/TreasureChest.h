@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interactable/BaseClasses/InteractableObject.h"
 #include "TreasureChest.generated.h"
 
 UCLASS()
-class CATASTROPHE_VS_API ATreasureChest : public AActor, public IInteractableObject
+class CATASTROPHE_VS_API ATreasureChest : public AActor
 {
 	GENERATED_BODY()
 	
@@ -24,6 +23,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* TriggerBox;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UInteractableComponent* InteractableCompoenent;
+	
 public:	
 	// Sets default values for this actor's properties
 	ATreasureChest();
@@ -36,15 +38,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	/** InteractableObject Interface */
-	virtual void OnInteract_Implementation(class APlayerCharacter* _actor) override;
-	virtual void OnUnInteract_Implementation(class APlayerCharacter* _actor) override;
-	/** Interface End */
+	/** Called on player interact */
+	UFUNCTION()
+	void OnPlayerInteract(class APlayerCharacter* _playerCharacter);
 
 	/** Getter */
 	FORCEINLINE class UStaticMeshComponent* GetMesh() { return ChestMesh; }
 	///FORCEINLINE class USkeletalMeshComponent* GetMesh() { return ChestMesh; }
-
 	/** Getter End */
 
 };

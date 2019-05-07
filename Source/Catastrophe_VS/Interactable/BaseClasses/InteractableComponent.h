@@ -17,19 +17,17 @@ class CATASTROPHE_VS_API UInteractableComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-private:
-
-	/** Even called when the player interact with this component */
-	FInteractSingture OnInteract;
-
 public:	
 	// Sets default values for this component's properties
 	UInteractableComponent();
 
-protected:
+	/** Even called when the player interact with this component */
+	FInteractSingture OnInteract;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bCanInteract = true;
+
+protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
 	int32 TriggerCounter = 0;
@@ -40,9 +38,11 @@ protected:
 protected:
 
 	/** Called when registered component overlap event triggers */
+	UFUNCTION()
 	void OnTriggerWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	/** Called when registered componnet end overlap event triggers*/
+	UFUNCTION()
 	void OnTriggerEndWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:	
@@ -55,4 +55,5 @@ public:
 	/** Register a component that has some trigger volume */
 	void RegisterTriggerVolume(class UPrimitiveComponent* _component);
 
+	
 };

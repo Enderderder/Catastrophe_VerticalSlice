@@ -16,6 +16,7 @@
 
 #include "Interactable/InteractActor.h"
 #include "Interactable/BaseClasses/InteractableObject.h"
+#include "Interactable/BaseClasses/InteractableComponent.h"
 
 //#include "Engine.h"
 
@@ -305,10 +306,16 @@ void APlayerCharacter::InteractAction()
 {
 	if (InteractTarget && !InteractTarget->IsPendingKill())
 	{
-		if (InteractTarget->GetClass()->ImplementsInterface(UInteractableObject::StaticClass()))
+		if (InteractTarget->GetClass()->ImplementsInterface(
+			UInteractableObject::StaticClass()))
 		{
 			IInteractableObject::Execute_OnInteract(InteractTarget, this);
 			RemoveInteractionTarget(InteractTarget);
+		}
+		else if (UInteractableComponent* interactableComp = 
+			InteractTarget->FindComponentByClass<UInteractableComponent>())
+		{
+			interactableComp->Interact(this);
 		}
 	}
 }
@@ -338,7 +345,8 @@ void APlayerCharacter::GrabbingFish()
 
 void APlayerCharacter::SetInteractionTarget(class AActor* _interactTarget)
 {
-	if (auto interactableInterface = Cast<IInteractableObject>(_interactTarget))
+	if (auto interactableInterface = Cast<IInteractableObject>(_interactTarget)
+		|| _interactTarget->FindComponentByClass<UInteractableComponent>())
 	{
 		InteractTarget = _interactTarget;
 	}

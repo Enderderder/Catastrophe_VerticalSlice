@@ -30,9 +30,9 @@ void UInteractableComponent::OnTriggerWithPlayer(class UPrimitiveComponent* Over
 			TriggerCounter++;
 		}
 	}
-	else if (APlayerCharacter* playerRef = Cast<APlayerCharacter>(OtherActor))
+	else if (OtherActor->IsA<APlayerCharacter>())
 	{
-		PlayerRef = playerRef;
+		PlayerRef = Cast<APlayerCharacter>(OtherActor);
 		PlayerRef->SetInteractionTarget(GetOwner());
 		TriggerCounter++;
 	}
