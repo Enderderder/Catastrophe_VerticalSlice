@@ -4,7 +4,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
-
 #include "Characters/PlayerCharacter/PlayerCharacter.h"
 
 ATomatoBox::ATomatoBox()

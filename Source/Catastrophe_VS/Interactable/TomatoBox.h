@@ -28,6 +28,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Pickup logic which is called when player interacts
 	UFUNCTION(BlueprintCallable, Category = "Interaction", meta = (DisplayName = "PickUpTomatoCheck"))
 	void PickUpTomato();
 
