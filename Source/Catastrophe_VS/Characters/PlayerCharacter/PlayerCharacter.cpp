@@ -22,7 +22,8 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  
+	// You can turn this off to improve performance if you don't need it.
 	//PrimaryActorTick.bCanEverTick = true;
 
 	// Set the tomato that will show inside players hand
@@ -83,7 +84,6 @@ void APlayerCharacter::BeginPlay()
 	bIsBirdEyeCamera = false;
 
 	// Default Interaction state
-	bOpenToInteract = false;
 	bAbleToShootTomato = true;
 
 	CheckTomatoInHand();
@@ -122,6 +122,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	// Player other action (Interactions and Functionalities)
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::InteractAction);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::InteractActionEnd);
 	PlayerInputComponent->BindAction("BirdViewToggle", IE_Pressed, this, &APlayerCharacter::CameraToggle);
 	PlayerInputComponent->BindAction("AimDownSight", IE_Pressed, this, &APlayerCharacter::AimDownSight);
 	PlayerInputComponent->BindAction("AimDownSight", IE_Released, this, &APlayerCharacter::ExitAimDownSight);
@@ -312,6 +313,11 @@ void APlayerCharacter::InteractAction()
 	}
 }
 
+void APlayerCharacter::InteractActionEnd()
+{
+
+}
+
 void APlayerCharacter::RestoreAllTomatos()
 {
 	TomatoCurrentCount = TomatoTotalCount;
@@ -344,16 +350,5 @@ void APlayerCharacter::RemoveInteractionTarget(class AActor* _interactTarget)
 	{
 		InteractTarget = nullptr;
 	}
-}
-
-void APlayerCharacter::OpenToInteraction()
-{
-	bOpenToInteract = true;
-}
-
-void APlayerCharacter::CloseInteraction()
-{
-	bOpenToInteract = false;
-	bInteracting = false;
 }
 
