@@ -21,7 +21,7 @@ void UQuestObjectiveComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//UQuestSubsystem::GetInst(this)->Register
+	UQuestSubsystem::GetInst(this)->RegisterObjectiveToQuest(this, QuestID);
 	
 	
 }
@@ -45,7 +45,7 @@ void UQuestObjectiveComponent::ActivateObjective()
 
 void UQuestObjectiveComponent::CompleteObjective()
 {
-
+	
 
 	// Boradcast the message
 	OnObjectiveComplete.Broadcast();
@@ -54,6 +54,9 @@ void UQuestObjectiveComponent::CompleteObjective()
 void UQuestObjectiveComponent::FailObjective()
 {
 
+
+	// Broadcast the message
+	OnObjectiveFailed.Broadcast();
 }
 
 void UQuestObjectiveComponent::SetOwningQuest(class UQuest* _quest)

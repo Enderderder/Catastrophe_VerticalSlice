@@ -9,10 +9,19 @@
 /**  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FObjectiveActivateSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FObjectiveCompleteSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FObjectiveFailedSignature);
 
-
-
-
+/**
+ * State of the quest objectives
+ */
+UENUM(BlueprintType)
+enum class EObjectiveState : uint8
+{
+	Inactive = 0,
+	Active,
+	Completed,
+	Failed,
+};
 
 /**
  * This component is for customize objectives
@@ -27,25 +36,40 @@ public:
 	UQuestObjectiveComponent();
 
 	/** Called when a quest activate the objective */
+	UPROPERTY(BlueprintAssignable)
 	FObjectiveActivateSignature OnObjectiveActivate;
 
 	/** Called when the player complete the objective */
+	UPROPERTY(BlueprintAssignable)
 	FObjectiveCompleteSignature OnObjectiveComplete;
+
+	/** Called when the player fail the objective */
+	UPROPERTY(BlueprintAssignable)
+	FObjectiveFailedSignature OnObjectiveFailed;
 
 protected:
 
+	/** The ID of the quest that this objective is belong to */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestSystem")
 	int32 QuestID = 0;
 
+	/** The pointer to the quest that this objective is belong to */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestSystem")
 	class UQuest* OwningQuest;
 
+	/** The order of the objective in the quest */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestSystem")
 	int32 ObjectiveOrder = 0;
 
+	/** A short description of the objective */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestSystem")
 	FString ShortDescription = "Default Description";
 
+	/** The state of the objective */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	EObjectiveState ObjectiveState = EObjectiveState::Inactive;
+
+	/** Will this objective complete upon activate? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestSystem")
 	bool bAutoComplete = false;
 
@@ -58,12 +82,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+
+	/**
+	 * Objective actions
+	 */
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void ActivateObjective();
-
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void CompleteObjective();
-
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void FailObjective();
 
