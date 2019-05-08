@@ -7,7 +7,7 @@
 #include "InteractableComponent.generated.h"
 
 // Delegate that has one parameter
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractSingture, class APlayerCharacter*, _playerCharacter);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractSingature, class APlayerCharacter*, _playerCharacter);
 
 /**
  * This component control and sends out signal when player is interacting
@@ -22,7 +22,8 @@ public:
 	UInteractableComponent();
 
 	/** Even called when the player interact with this component */
-	FInteractSingture OnInteract;
+	UPROPERTY(BlueprintAssignable)
+	FInteractSingature OnInteract;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bCanInteract = true;

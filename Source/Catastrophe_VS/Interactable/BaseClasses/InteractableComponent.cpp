@@ -60,7 +60,10 @@ void UInteractableComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UInteractableComponent::Interact(class APlayerCharacter* _playerCharacter)
 {
-	OnInteract.Broadcast(_playerCharacter);
+	if (bCanInteract)
+	{
+		OnInteract.Broadcast(_playerCharacter);
+	}
 }
 
 void UInteractableComponent::RegisterTriggerVolume(class UPrimitiveComponent* _component)

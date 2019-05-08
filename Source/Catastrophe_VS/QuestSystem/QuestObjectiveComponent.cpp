@@ -3,6 +3,8 @@
 
 #include "QuestObjectiveComponent.h"
 
+#include "QuestSubsystem.h"
+
 // Sets default values for this component's properties
 UQuestObjectiveComponent::UQuestObjectiveComponent()
 {
@@ -19,10 +21,8 @@ void UQuestObjectiveComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	GetOwner();
-
-	// ...
+	//UQuestSubsystem::GetInst(this)->Register
+	
 	
 }
 
@@ -33,5 +33,31 @@ void UQuestObjectiveComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UQuestObjectiveComponent::ActivateObjective()
+{
+
+
+	//Broadcast the message
+	OnObjectiveActivate.Broadcast();
+}
+
+void UQuestObjectiveComponent::CompleteObjective()
+{
+
+
+	// Boradcast the message
+	OnObjectiveComplete.Broadcast();
+}
+
+void UQuestObjectiveComponent::FailObjective()
+{
+
+}
+
+void UQuestObjectiveComponent::SetOwningQuest(class UQuest* _quest)
+{
+	OwningQuest = _quest;
 }
 

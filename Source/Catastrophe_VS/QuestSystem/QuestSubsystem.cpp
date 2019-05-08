@@ -90,6 +90,12 @@ void UQuestSubsystem::OnSaveGameLoaded(class UCatastropheSaveGame* _saveGameInst
 	}
 }
 
+void UQuestSubsystem::RegisterObjectiveToQuest(class UQuestObjectiveComponent* _objective, int32 _questID)
+{
+	UQuest* quest = GetQuestByID(_questID);
+	quest->RegisterObjective(_objective);
+}
+
 UQuest* UQuestSubsystem::GetQuestByName(FString _name) const
 {
 	for (UQuest* quest : Quests)

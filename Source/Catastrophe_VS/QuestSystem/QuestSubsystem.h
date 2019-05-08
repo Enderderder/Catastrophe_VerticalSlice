@@ -46,6 +46,10 @@ public:
 	UFUNCTION()
 	void OnSaveGameLoaded(class UCatastropheSaveGame* _saveGameInst);
 
+	/** Register objective into the objective slot */
+	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
+	void RegisterObjectiveToQuest(class UQuestObjectiveComponent* _objective, int32 _questID);
+
 	/**
 	 * Call to get the quest class
 	 * @param The name of the quest
