@@ -6,7 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Characters/PlayerCharacter/PlayerCharacter.h"
 
-#include "Interactable/BaseClasses//InteractableComponent.h"
+#include "Interactable/BaseClasses/InteractableComponent.h"
 
 AHidingUrn::AHidingUrn()
 {

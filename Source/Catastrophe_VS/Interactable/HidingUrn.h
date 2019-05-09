@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interactable/BaseClasses/SimpleInteractableStatic.h"
+#include "GameFramework/Actor.h"
 #include "HidingUrn.generated.h"
 
 /**
