@@ -22,7 +22,7 @@ public:
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
-		class APlayerCharacter* PlayerReference;
+	class APlayerCharacter* PlayerReference;
 
 protected:
 	// Called when the game starts or when spawned

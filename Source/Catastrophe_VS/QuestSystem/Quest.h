@@ -66,22 +66,25 @@ public:
 
 protected:
 	
-	// The Information of the quest
+	/** The Information of the quest */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuestSystem")
 	FQuestInfo QuestInfo;
 
-	// The state of the quest
+	/** The state of the quest */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "QuestSystem")
 	EQuestState QuestState = EQuestState::Locked;
 
+	/** The objectives that need to be acheive to complete the quest */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuestSystem")
+	TArray<class UQuestObjectiveComponent*> QuestObjectives;
 
 	/** Quest Tree */
 
-	// Contains all the parent quest of this quest
+	/** Contains all the parent quest of this quest */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuestSystem")
 	TArray<UQuest*> ParentQuests;
 
-	// Contains all the child quest of this quest
+	/** Contains all the child quest of this quest */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuestSystem")
 	TArray<UQuest*> ChildQuests;
 
@@ -94,10 +97,15 @@ public:
 	void SetQuestData(FQuestInfo _questInfo);
 
 	/** Set the state of the quest */
-	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
+	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void SetQuestState(EQuestState _questState);
 
+	/** Register objective into the objective slot */
+	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
+	void RegisterObjective(class UQuestObjectiveComponent* _objective);
+
 	/** Getter */
+	FORCEINLINE TArray<class UQuestObjectiveComponent*> GetObjectives() const { return QuestObjectives; }
 	FORCEINLINE FQuestInfo GetQuestInfo() const { return QuestInfo; }
 	FORCEINLINE EQuestState GetState() const { return QuestState; }
 	class UQuestSubsystem* GetQuestSystem() const;
