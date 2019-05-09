@@ -6,15 +6,33 @@
 #include "Components/BoxComponent.h"
 #include "Characters/PlayerCharacter/PlayerCharacter.h"
 
+#include "Interactable/BaseClasses//InteractableComponent.h"
+
 AHidingUrn::AHidingUrn()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = root;
+
+	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
+	TriggerBox->SetCollisionProfileName("Trigger");
+	TriggerBox->SetupAttachment(root);
+
+	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
+	InteractableComponent->RegisterTriggerVolume(TriggerBox);
+	InteractableComponent->OnInteract.AddDynamic(this, &AHidingUrn::OnPlayerInteract);
 }
 
 void AHidingUrn::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+void AHidingUrn::Tick(float _deltaTime)
+{
+	Super::Tick(_deltaTime);
 }
 
 void AHidingUrn::HideInUrn()
@@ -35,12 +53,18 @@ void AHidingUrn::HideInUrn()
 	}
 }
 
-void AHidingUrn::OnInteract_Implementation(class APlayerCharacter* _actor)
+void AHidingUrn::OnPlayerInteract(class APlayerCharacter* _playerCharacter)
 {
-	Super::OnInteract_Implementation(_actor);
-
+	PlayerReference = _playerCharacter;
 	HideInUrn();
 }
+
+//void AHidingUrn::OnInteract_Implementation(class APlayerCharacter* _actor)
+//{
+//	Super::OnInteract_Implementation(_actor);
+//
+//	HideInUrn();
+//}
 
 void AHidingUrn::JumpIn()
 {

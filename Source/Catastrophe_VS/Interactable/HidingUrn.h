@@ -10,7 +10,7 @@
  * This is an interactable object that allows the player to hide in urn to avoid detection
  */
 UCLASS()
-class CATASTROPHE_VS_API AHidingUrn : public ASimpleInteractableStatic
+class CATASTROPHE_VS_API AHidingUrn : public AActor
 {
 	GENERATED_BODY()
 	
@@ -27,6 +27,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HideInUrn")
 	bool bPlayerIn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* root;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* TriggerBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UInteractableComponent* InteractableComponent;
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,7 +55,13 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "HideInUrn", meta = (DisplayName = "OnJumpOut"))
 	void Receive_JumpOut();
 public:
+	// Called every frame
+	virtual void Tick(float DeltaTime);
+
+	UFUNCTION()
+		void OnPlayerInteract(class APlayerCharacter* _playerCharacter);
+
 	/* Interactable Object Interface */
-	virtual void OnInteract_Implementation(class APlayerCharacter* _actor) override;
+	//virtual void OnInteract_Implementation(class APlayerCharacter* _actor) override;
 	/* Interface End */
 };
