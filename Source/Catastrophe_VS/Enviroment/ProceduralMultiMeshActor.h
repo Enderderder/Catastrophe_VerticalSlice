@@ -17,7 +17,7 @@ struct FRandomMeshSlot
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FString MeshSlotName;
+	FName MeshSlotName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<class UStaticMesh*> RandomMeshes;
@@ -62,13 +62,19 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	
-	/** Called when there is a property changed in editor */
+	/** Called when construction happen */
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	/** Called when property changed */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 private:
 
 	/** Called to refresh the meshes */
 	void ReloadMeshes();
+
+	///** Called to create new component */
+	//class UStaticMeshComponent* CreateNewMeshComponent(FName _name);
+
 
 };
