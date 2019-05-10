@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Interactable/BaseClasses/InteractableComponent.h"
 
 #include "Characters/PlayerCharacter/PlayerCharacter.h"
 
@@ -15,7 +16,16 @@ AClimbableStall::AClimbableStall()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetGenerateOverlapEvents(false);
-	Mesh->SetupAttachment(RootComponent);
+	RootComponent = Mesh;
+	//Mesh->SetupAttachment(RootComponent);
+
+	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
+	TriggerBox->SetCollisionProfileName("Trigger");
+	TriggerBox->SetupAttachment(RootComponent);
+
+	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
+	InteractableComponent->RegisterTriggerVolume(TriggerBox);
+	InteractableComponent->OnInteract.AddDynamic(this, &AClimbableStall::InteractionStarting);
 
 	// Set the default state
 	WayPointCount = 0;
@@ -83,7 +93,7 @@ void AClimbableStall::Tick(float DeltaTime)
 			if (WayPointCount >= WayPointArray.Num())
 			{
 				// End the interaction and unlock player movement
-				OnInteractionEnd();
+				InteractionEnd();
 			}
 			else
 			{
@@ -97,39 +107,43 @@ void AClimbableStall::Tick(float DeltaTime)
 	}
 }
 
-void AClimbableStall::OnInteractionStart()
+void AClimbableStall::InteractionStarting(class APlayerCharacter* _playerCharacter)
 {
-	Super::OnInteractionStart();
+	PlayerReference = _playerCharacter;
+	if (bUsable)
+	{
+		Recieve_InteractionStart();
 
-	// Set the first way point for the action
-	CurrentWayPointLoc = PlayerReference->GetActorLocation();
-	DestinationLoc = WayPointArray[0]->GetComponentLocation();
-	TotalDistanceTravel = FindTotalDistance();
-	CurrentPathLength = FVector::Distance(CurrentWayPointLoc, DestinationLoc);
-	TimeForCurrentPath = (CurrentPathLength / TotalDistanceTravel) * TotalTransferTime;
+		// Set the first way point for the action
+		CurrentWayPointLoc = PlayerReference->GetActorLocation();
+		DestinationLoc = WayPointArray[0]->GetComponentLocation();
+		TotalDistanceTravel = FindTotalDistance();
+		CurrentPathLength = FVector::Distance(CurrentWayPointLoc, DestinationLoc);
+		TimeForCurrentPath = (CurrentPathLength / TotalDistanceTravel) * TotalTransferTime;
 
-	// Initiate the interaction
-	bHasSetPath = true;
-	bInUse = true;
-	LerpDelta = 0.0f;
+		// Initiate the interaction
+		bHasSetPath = true;
+		bInUse = true;
+		LerpDelta = 0.0f;
 
-	// Disable the player action
-	PlayerReference->DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	PlayerReference->RemoveInteractionTarget(this);
+		// Disable the player action
+		PlayerReference->DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		PlayerReference->RemoveInteractionTarget(this);
+	}
 }
 
-void AClimbableStall::OnInteractionEnd()
+void AClimbableStall::InteractionEnd()
 {
-	Super::OnInteractionEnd();
+	Recieve_InteractionEnd();
 
 	// Re-Enable the player action
 	PlayerReference->EnableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 
 	// Disable the interaction ability for this interactable actor
-	bUseable = false;
+	bUsable = false;
 	bHasUsed = true;
 	bInUse = false;
 
 	// Disable the tick function for this actor
-	DisableInteractActor();
+	//DisableInteractActor();
 }

@@ -7,7 +7,6 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/PlayerCharacter/PlayerCharacter.h"
-#include "Interactable/BaseClasses/InteractableObject.h"
 #include "Interactable/BaseClasses/InteractableComponent.h"
 
 // Sets default values

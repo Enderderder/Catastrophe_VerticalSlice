@@ -21,7 +21,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
 	class APlayerCharacter* PlayerReference;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HideInUrn")
 	bool bHasUsed;
 

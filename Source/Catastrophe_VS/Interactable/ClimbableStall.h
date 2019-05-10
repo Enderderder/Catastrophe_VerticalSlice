@@ -3,24 +3,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractActor.h"
+#include "GameFramework/Actor.h"
 #include "ClimbableStall.generated.h"
 
 /**
- * This is an interactabe object that allow player precisionly climb up to the top of the stall
+ * This is an interactable object that allow player climb up to the top of the stall with precision
  */
 UCLASS()
-class CATASTROPHE_VS_API AClimbableStall : public AInteractActor
+class CATASTROPHE_VS_API AClimbableStall : public AActor
 {
 	GENERATED_BODY()
 
-public:
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
+	class APlayerCharacter* PlayerReference;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* Mesh;
 
 	UPROPERTY(Category = "Interaction", VisibleAnywhere, BlueprintReadOnly)
 	TArray<class USceneComponent*> WayPointArray;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* TriggerBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UInteractableComponent* InteractableComponent;
 
 public:
 	// Sets default values for this actor's properties
@@ -38,6 +46,9 @@ public:
 	/** Determent if the player has interact with this or not  */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
 	bool bInUse;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
+	bool bUsable;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
 	bool bInWayPointTransit;
@@ -76,10 +87,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	// Called as the player is interacting with this actor (C++)
-	virtual void OnInteractionStart() override;
-
-	// Called as the player is interacting with this actor (C++)
-	virtual void OnInteractionEnd() override;
-
+	UFUNCTION()
+	void InteractionStarting(class APlayerCharacter* _playerCharacter);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta = (DisplayName = "OnInteractionStart"))
+	void Recieve_InteractionStart();
+	
+	UFUNCTION()
+	void InteractionEnd();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta = (DisplayName = "OnInteractionEnd"))
+	void Recieve_InteractionEnd();
 };

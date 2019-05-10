@@ -42,7 +42,7 @@ protected:
 	UFUNCTION()
 	void OnTriggerWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	/** Called when registered componnet end overlap event triggers*/
+	/** Called when registered component end overlap event triggers*/
 	UFUNCTION()
 	void OnTriggerEndWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
