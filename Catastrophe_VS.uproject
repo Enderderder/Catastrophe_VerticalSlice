@@ -22,6 +22,10 @@
 		{
 			"Name": "ConcertFrontend",
 			"Enabled": true
+		},
+		{
+			"Name": "HoudiniEngine",
+			"Enabled": true
 		}
 	]
 }
