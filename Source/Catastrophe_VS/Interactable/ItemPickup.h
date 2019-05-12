@@ -25,6 +25,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UInteractableComponent* InteractableComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	FString Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	int StackSize;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
