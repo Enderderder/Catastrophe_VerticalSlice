@@ -34,13 +34,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	/** Called on player interact */
 	UFUNCTION()
 	void OnPlayerInteract(class APlayerCharacter* _playerCharacter);
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 	/** Getter */
 	FORCEINLINE class UStaticMeshComponent* GetMesh() { return ChestMesh; }

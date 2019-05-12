@@ -39,75 +39,70 @@ void USaveGameSubsystem::Deinitialize()
 
 void USaveGameSubsystem::CreateSavedGame(int32 _slotIndex)
 {
-	if (_slotIndex >= 0 && _slotIndex < MAX_SLOT_NUM)
-	{
-		// Forge the name of the slot
-		FString slotName = SLOT_NAME_BASE + FString::FromInt(_slotIndex);
-
-		if (!UGameplayStatics::DoesSaveGameExist(slotName, 0))
-		{
-			// Create the save game instance and initialize it
-			UCatastropheSaveGame* savedGame = Cast<UCatastropheSaveGame>(
-				UGameplayStatics::CreateSaveGameObject(UCatastropheSaveGame::StaticClass()));
-			savedGame->SaveGameSlotName = slotName;
-			savedGame->InitializeSaveGameInst(GetGameInstance());
-			UGameplayStatics::SaveGameToSlot(savedGame, slotName, 0);
-		}
-		else
-		{
-			UE_LOG(LogSaveGameSystem, Warning,
-				TEXT("The slot is been used, try another slot"));
-			return;
-		}
-	}
-	else
+	// Check if the index is in acceptable range
+	if (_slotIndex < 0 || _slotIndex > MAX_SLOT_NUM)
 	{
 		UE_LOG(LogSaveGameSystem, Warning,
 			TEXT("Slot number out of bound, acceptable slot number is between 0 and %s"),
 			*FString::FromInt(MAX_SLOT_NUM));
 		return;
 	}
+
+	// Forge the name of the slot
+	FString slotName = SLOT_NAME_BASE + FString::FromInt(_slotIndex);
+
+	// Check if there is already a saved game exists in the slot
+	if (UGameplayStatics::DoesSaveGameExist(slotName, 0))
+	{
+		UE_LOG(LogSaveGameSystem, Warning,
+			TEXT("The slot is been used, try another slot"));
+		return;
+	}
+
+	// Create the save game instance and initialize it
+	UCatastropheSaveGame* savedGame = Cast<UCatastropheSaveGame>(
+		UGameplayStatics::CreateSaveGameObject(UCatastropheSaveGame::StaticClass()));
+	savedGame->SaveGameSlotName = slotName;
+	savedGame->InitializeSaveGameInst(GetGameInstance());
+	UGameplayStatics::SaveGameToSlot(savedGame, slotName, 0);
 }
 
 void USaveGameSubsystem::LoadSavedGame(int32 _slotIndex)
 {
-	if (_slotIndex >= 0 && _slotIndex < MAX_SLOT_NUM)
-	{
-		// Forge the name of the slot
-		FString slotName = SLOT_NAME_BASE + FString::FromInt(_slotIndex);
-
-		// Check to see if this slot has data saved in it
-		if (UGameplayStatics::DoesSaveGameExist(slotName, 0))
-		{
-			// Load the active
-			UCatastropheSaveGame* saveGameInst = Cast<UCatastropheSaveGame>(
-					UGameplayStatics::LoadGameFromSlot(slotName, 0));
-			if (!saveGameInst)
-			{
-				UE_LOG(LogSaveGameSystem, Warning, 
-					TEXT("Cannot get the save game instance by type: UCatastropheSaveGame"));
-				return;
-			}
-			LoadedSaveGameInst = saveGameInst;
-
-			// Broadcast this message
-			OnSavedGameLoaded.Broadcast(LoadedSaveGameInst);
-		}
-		else 
-		{
-			UE_LOG(LogSaveGameSystem, Warning,
-				TEXT("Cannot load saved game from %s, slot is empty, make sure create the a saved game first"),
-				*slotName);
-			return;
-		}
-	}
-	else
+	// Check if the index is in acceptable range
+	if (_slotIndex < 0 || _slotIndex > MAX_SLOT_NUM)
 	{
 		UE_LOG(LogSaveGameSystem, Warning,
 			TEXT("Slot number out of bound, acceptable slot number is between 0 and %s"),
 			*FString::FromInt(MAX_SLOT_NUM));
 		return;
 	}
+
+	// Forge the name of the slot
+	FString slotName = SLOT_NAME_BASE + FString::FromInt(_slotIndex);
+
+	// Check to see if this slot has data saved in it
+	if (!UGameplayStatics::DoesSaveGameExist(slotName, 0))
+	{
+		UE_LOG(LogSaveGameSystem, Warning,
+			TEXT("Cannot load saved game from %s, slot is empty, make sure create the a saved game first"),
+			*slotName);
+		return;
+	}
+	
+	// Load the active
+	UCatastropheSaveGame* saveGameInst = Cast<UCatastropheSaveGame>(
+			UGameplayStatics::LoadGameFromSlot(slotName, 0));
+	if (!saveGameInst)
+	{
+		UE_LOG(LogSaveGameSystem, Warning, 
+			TEXT("Cannot get the save game instance by type: UCatastropheSaveGame"));
+		return;
+	}
+	LoadedSaveGameInst = saveGameInst;
+
+	// Broadcast this message
+	OnSavedGameLoaded.Broadcast(LoadedSaveGameInst);
 }
 
 void USaveGameSubsystem::DeleteSavedGameByIndex(int32 _slotIndex)
@@ -115,45 +110,28 @@ void USaveGameSubsystem::DeleteSavedGameByIndex(int32 _slotIndex)
 	// Forge the name of the slot
 	FString slotName = SLOT_NAME_BASE + FString::FromInt(_slotIndex);
 
-	if (UGameplayStatics::DoesSaveGameExist(slotName, 0))
-	{
-		if (LoadedSaveGameInst && LoadedSaveGameInst->SaveGameSlotName == slotName)
-		{
-			UE_LOG(LogSaveGameSystem, Warning,
-				TEXT("Cannot delete the save game while it is loaded, unload them first"));
-			return;
-		}
-
-		UGameplayStatics::DeleteGameInSlot(slotName, 0);
-	}
-	else
-	{
-		UE_LOG(LogSaveGameSystem, Warning,
-			TEXT("Cannot delete the save game, there is no data saved in the slot"));
-		return;
-	}
+	DeleteSavedGameByName(slotName);
 }
 
 void USaveGameSubsystem::DeleteSavedGameByName(FString _slotName)
 {
-	if (UGameplayStatics::DoesSaveGameExist(_slotName, 0))
-	{
-		// Check if the save game is running
-		if (LoadedSaveGameInst && LoadedSaveGameInst->SaveGameSlotName == _slotName)
-		{
-			UE_LOG(LogSaveGameSystem, Warning,
-				TEXT("Cannot delete the save game while it is loaded, unload them first"));
-			return;
-		}
-
-		UGameplayStatics::DeleteGameInSlot(_slotName, 0);
-	}
-	else
+	// Check to see if the save game in the slot actually exist
+	if (!UGameplayStatics::DoesSaveGameExist(_slotName, 0))
 	{
 		UE_LOG(LogSaveGameSystem, Warning,
 			TEXT("Cannot delete the save game, there is no data saved in the slot"));
+		return;	
+	}
+
+	// Check if the save game is running
+	if (LoadedSaveGameInst && LoadedSaveGameInst->SaveGameSlotName == _slotName)
+	{
+		UE_LOG(LogSaveGameSystem, Warning,
+			TEXT("Cannot delete the save game while it is loaded, unload them first"));
 		return;
 	}
+
+	UGameplayStatics::DeleteGameInSlot(_slotName, 0);
 }
 
 void USaveGameSubsystem::DeleteAllSavedGame()

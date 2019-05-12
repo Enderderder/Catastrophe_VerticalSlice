@@ -43,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 RewardExp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<int32> ChildQuestIDs;
+
 	FQuestInfo() :
 		QuestID(0),
 		QuestName("DefaultName"),
@@ -96,6 +99,16 @@ public:
 	/** Loads the data for the quest */
 	void SetQuestData(FQuestInfo _questInfo);
 
+	/** Set the child quest */
+	void AppendChildQuest(UQuest* _childQuest);
+
+	/** Append a parent quest in here */
+	void AppendParentQuest(UQuest* _parentQuest);
+
+	/** Called when the quest that the objective has completed */
+	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
+	void CompleteObjective(class UQuestObjectiveComponent* _objective);
+
 	/** Set the state of the quest */
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void SetQuestState(EQuestState _questState);
@@ -110,5 +123,21 @@ public:
 	FORCEINLINE EQuestState GetState() const { return QuestState; }
 	class UQuestSubsystem* GetQuestSystem() const;
 	/** Getter End */
+
+	
+private:
+
+	/** Quest action | Unlock */
+	UFUNCTION()
+	void UnlockQuest();
+
+	/** Quest action | Activate */
+	UFUNCTION()
+	void ActivateQuest();
+
+	/** Quest action | Complete */
+	UFUNCTION()
+	void CompleteQuest();
+
 
 };

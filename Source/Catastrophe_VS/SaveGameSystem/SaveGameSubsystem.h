@@ -49,19 +49,34 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void CreateSavedGame(int32 _slotIndex);
 
-	/** Loads the save game instance using the name and index */
+	/**
+	 * Loads the save game instance using the name and index
+	 * @param Slot index of the save game
+	 * @note This will overwrite the currently loaded save game
+	 */
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void LoadSavedGame(int32 _slotIndex);
 
-	/** Delete a saved game profile using slot index */
+	/**
+	 * Delete a saved game profile using slot index
+	 * @param Slot index of the save game
+	 * @note Dont call this function when there is any saved game loaded
+	 */
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void DeleteSavedGameByIndex(int32 _slotIndex);
 
-	/** Delete a saved game profile using slot name */
+	/**
+	 * Delete a saved game profile using slot name
+	 * @param Slot name of the save game
+	 * @note Dont call this function when there is any saved game loaded
+	 */
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void DeleteSavedGameByName(FString _slotName);
 
-	/** Delete all saved game, use with caution */
+	/**
+	 * Delete all saved game
+	 * @note Use with caution
+	 */
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void DeleteAllSavedGame();
 
