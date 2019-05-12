@@ -16,13 +16,15 @@
 
 #include "Interactable/InteractActor.h"
 #include "Interactable/BaseClasses/InteractableObject.h"
+#include "Interactable/BaseClasses/InteractableComponent.h"
 
 //#include "Engine.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  
+	// You can turn this off to improve performance if you don't need it.
 	//PrimaryActorTick.bCanEverTick = true;
 
 	// Set the tomato that will show inside players hand
@@ -83,7 +85,6 @@ void APlayerCharacter::BeginPlay()
 	bIsBirdEyeCamera = false;
 
 	// Default Interaction state
-	bOpenToInteract = false;
 	bAbleToShootTomato = true;
 
 	CheckTomatoInHand();
@@ -122,6 +123,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	// Player other action (Interactions and Functionalities)
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::InteractAction);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::InteractActionEnd);
 	PlayerInputComponent->BindAction("BirdViewToggle", IE_Pressed, this, &APlayerCharacter::CameraToggle);
 	PlayerInputComponent->BindAction("AimDownSight", IE_Pressed, this, &APlayerCharacter::AimDownSight);
 	PlayerInputComponent->BindAction("AimDownSight", IE_Released, this, &APlayerCharacter::ExitAimDownSight);
@@ -302,14 +304,25 @@ void APlayerCharacter::ShootTomato()
 
 void APlayerCharacter::InteractAction()
 {
-	if (InteractTarget)
+	if (InteractTarget && !InteractTarget->IsPendingKill())
 	{
-		if (InteractTarget->GetClass()->ImplementsInterface(UInteractableObject::StaticClass()))
+		if (InteractTarget->GetClass()->ImplementsInterface(
+			UInteractableObject::StaticClass()))
 		{
 			IInteractableObject::Execute_OnInteract(InteractTarget, this);
 			RemoveInteractionTarget(InteractTarget);
 		}
+		else if (UInteractableComponent* interactableComp = 
+			InteractTarget->FindComponentByClass<UInteractableComponent>())
+		{
+			interactableComp->Interact(this);
+		}
 	}
+}
+
+void APlayerCharacter::InteractActionEnd()
+{
+
 }
 
 void APlayerCharacter::RestoreAllTomatos()
@@ -332,7 +345,8 @@ void APlayerCharacter::GrabbingFish()
 
 void APlayerCharacter::SetInteractionTarget(class AActor* _interactTarget)
 {
-	if (auto interactableInterface = Cast<IInteractableObject>(_interactTarget))
+	if (auto interactableInterface = Cast<IInteractableObject>(_interactTarget)
+		|| _interactTarget->FindComponentByClass<UInteractableComponent>())
 	{
 		InteractTarget = _interactTarget;
 	}
@@ -344,16 +358,5 @@ void APlayerCharacter::RemoveInteractionTarget(class AActor* _interactTarget)
 	{
 		InteractTarget = nullptr;
 	}
-}
-
-void APlayerCharacter::OpenToInteraction()
-{
-	bOpenToInteract = true;
-}
-
-void APlayerCharacter::CloseInteraction()
-{
-	bOpenToInteract = false;
-	bInteracting = false;
 }
 

@@ -15,17 +15,15 @@ ASimpleInteractableAnimated::ASimpleInteractableAnimated()
 	InteractionTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionTrigger"));
 	InteractionTrigger->SetCollisionProfileName(TEXT("Trigger"));
 	InteractionTrigger->SetupAttachment(RootComponent);
-
+	// Bind the func to the component
+	InteractionTrigger->OnComponentBeginOverlap.AddDynamic(this, &ASimpleInteractableAnimated::OnInteractionTriggerOverlapBegin);
+	InteractionTrigger->OnComponentEndOverlap.AddDynamic(this, &ASimpleInteractableAnimated::OnInteractionTriggerOverlapEnd);
 }
 
 void ASimpleInteractableAnimated::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// Bind the func to the component
-	InteractionTrigger->OnComponentBeginOverlap.AddDynamic(this, &ASimpleInteractableAnimated::OnInteractionTriggerOverlapBegin);
-	InteractionTrigger->OnComponentEndOverlap.AddDynamic(this, &ASimpleInteractableAnimated::OnInteractionTriggerOverlapEnd);
-
 }
 
 void ASimpleInteractableAnimated::OnInteractionTriggerOverlapBegin(class UPrimitiveComponent* _overlappedComponent, class AActor* _otherActor, class UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult)

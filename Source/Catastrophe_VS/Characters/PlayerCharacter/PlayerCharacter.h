@@ -36,14 +36,15 @@ class CATASTROPHE_VS_API APlayerCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	/** Where the follow camera is going to be focused on */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* FollowCameraFocusPoint;
+
 #pragma endregion CameraComponents
 
 	/** Spawn loaction for the shuriken */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* TomatoSpawnPoint;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USceneComponent* FollowCameraFocusPoint;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* AimDownSightFocusPoint;
@@ -76,10 +77,10 @@ public:
 	TSubclassOf<class APawn> TomatoObject;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill_Tomato")
-	int TomatoTotalCount;
+	int32 TomatoTotalCount;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato")
-	int TomatoCurrentCount;
+	int32 TomatoCurrentCount = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato")
 	bool AimDownSightState;
@@ -98,13 +99,7 @@ public:
 	class AActor* InteractTarget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
-	bool bAbleToInterate;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
-	bool bOpenToInteract;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
-	bool bInteracting;
+	bool bCanInterate = true;
 
 #pragma endregion Interaction
 
@@ -120,7 +115,6 @@ protected:
 
 	/** Toggle the camera */
 	void CameraToggle();
-
 	UFUNCTION(BlueprintImplementableEvent, Category = Camera, meta = (DisplayName = "OnCameraToggle"))
 	void ReceiveCameraToggle();
 
@@ -159,8 +153,11 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Skill_Tomato")
 	void ShootTomato();
 
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	/** Called when the interacation button pressed */
 	void InteractAction();
+
+	/** Called when the interaction button released */
+	void InteractActionEnd();
 
 public:	
 	// Called every frame
@@ -191,19 +188,5 @@ public:
 	/** Try to remove the interaction target if it exists */
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void RemoveInteractionTarget(class AActor* _interactTarget);
-
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	void OpenToInteraction();
-
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	void CloseInteraction();
-
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	bool IsOpenToInteract() { return bOpenToInteract; }
-
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	bool IsPlayerInteracting() { return bInteracting; }
-
-
 
 };

@@ -24,11 +24,10 @@ class CATASTROPHE_VS_API IInteractableObject
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	void OnInteract(AActor* _actor);
-	virtual void OnInteract_Implementation(AActor* _actor);
+	void OnInteract(class APlayerCharacter* _actor);
+	virtual void OnInteract_Implementation(class APlayerCharacter* _actor);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	void OnUnInteract(AActor* _actor);
-	virtual void OnUnInteract_Implementation(AActor* _actor);
-	
+	void OnUnInteract(class APlayerCharacter* _actor);
+	virtual void OnUnInteract_Implementation(class APlayerCharacter* _actor);
 };

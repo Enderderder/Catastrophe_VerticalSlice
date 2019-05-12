@@ -9,23 +9,22 @@
 
 /**
  * This is a base class of an interactable object
- * that contant a static mesh component and a box component
+ * that constant a static mesh component and a box component
  */
 UCLASS()
 class CATASTROPHE_VS_API ASimpleInteractableStatic : public AStaticMeshActor, public IInteractableObject
 {
 	GENERATED_BODY()
 
-	private:
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* InteractionTrigger;
+private:
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	//class UBoxComponent* InteractionTrigger;
 
 public:
 	// Sets default values for this actor's properties
 	ASimpleInteractableStatic();
 
 	/** Getter */
-	FORCEINLINE class UBoxComponent* GetTriggerBox() { return InteractionTrigger; }
+	//FORCEINLINE class UBoxComponent* GetTriggerBox() { return InteractionTrigger; }
 	/** Getter End */
 };
