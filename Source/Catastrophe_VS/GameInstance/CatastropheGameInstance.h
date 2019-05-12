@@ -17,6 +17,11 @@ class CATASTROPHE_VS_API UCatastropheGameInstance : public UGameInstance
 public:
 	UCatastropheGameInstance(const FObjectInitializer& ObjectInitializer);
 
+	/** Temp | Store where to spawn in the hub level */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Temp")
+	FString HubSpawnLocation;
+
+public:
 	/** virtual function to allow custom GameInstances an opportunity to set up what it needs */
 	virtual void Init() override;
 
