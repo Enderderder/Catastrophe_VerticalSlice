@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ItemPickup.generated.h"
+#include "NPC.generated.h"
 
 UCLASS()
-class CATASTROPHE_VS_API AItemPickup : public AActor
+class CATASTROPHE_VS_API ANPC : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AItemPickup();
+	ANPC();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -25,20 +25,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UInteractableComponent* InteractableComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
 	FString Name;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int StackSize;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void PickUpItem(class APlayerCharacter* _playerCharacter);
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta = (DisplayName = "OnPickUp"))
-	void Recieve_PickUpItem();
+	void Interact(class APlayerCharacter* _playerCharacter);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "NPC", meta = (DisplayName = "OnInteract"))
+	void Receive_Interact();
 
 public:	
 	// Called every frame
