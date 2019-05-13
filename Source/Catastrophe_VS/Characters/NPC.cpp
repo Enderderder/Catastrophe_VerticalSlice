@@ -1,16 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ItemPickup.h"
+#include "NPC.h"
 
-#include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Characters/PlayerCharacter/PlayerCharacter.h"
 #include "Interactable/BaseClasses/InteractableComponent.h"
+#include "PlayerCharacter/PlayerCharacter.h"
 
 // Sets default values
-AItemPickup::AItemPickup()
+ANPC::ANPC()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -23,28 +21,26 @@ AItemPickup::AItemPickup()
 	TriggerBox->SetupAttachment(root);
 
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
-
 }
 
 // Called when the game starts or when spawned
-void AItemPickup::BeginPlay()
+void ANPC::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	InteractableComponent->RegisterTriggerVolume(TriggerBox);
-	InteractableComponent->OnInteract.AddDynamic(this, &AItemPickup::PickUpItem);
+	InteractableComponent->OnInteract.AddDynamic(this, &ANPC::Interact);
 }
 
 // Called every frame
-void AItemPickup::Tick(float DeltaTime)
+void ANPC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-void AItemPickup::PickUpItem(class APlayerCharacter* _playerCharacter)
+void ANPC::Interact(class APlayerCharacter* _playerCharacter)
 {
-	Recieve_PickUpItem();
-
+	Receive_Interact();
 }
 
