@@ -65,8 +65,11 @@ public:
 	/** Called when construction happen */
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+
+#if WITH_EDITOR
 	/** Called when property changed */
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 
 private:
 
