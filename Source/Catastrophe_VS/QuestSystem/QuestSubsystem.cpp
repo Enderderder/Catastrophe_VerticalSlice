@@ -46,6 +46,16 @@ void UQuestSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		quest->SetQuestData(QuestInfos[index]);
 		Quests[index] = quest;
 	}
+
+	// Link the quest up
+	for (UQuest* quest : Quests)
+	{
+		TArray<int32> idArray = quest->GetQuestInfo().ChildQuestIDs;
+		for (int32 id : idArray)
+		{
+			quest->AppendChildQuest(GetQuestByID(id));
+		}
+	}
 }
 
 void UQuestSubsystem::PostInitialize()
