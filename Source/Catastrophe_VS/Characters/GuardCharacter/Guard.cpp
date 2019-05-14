@@ -27,3 +27,16 @@ void AGuard::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
+void AGuard::GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const
+{
+	Location = GetActorLocation() + FVector(0.0f, 0.0f, 80.0f);
+	Rotation = GetActorRotation();
+}
+
+void AGuard::GetActorEyesViewPoint(FVector& Location, FRotator& Rotation) const
+{
+	/// Not using parent class implementation
+
+	GetPerceptionLocRot(Location, Rotation);
+}
