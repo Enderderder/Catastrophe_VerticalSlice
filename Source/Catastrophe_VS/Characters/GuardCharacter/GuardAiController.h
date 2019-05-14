@@ -35,13 +35,15 @@ protected:
 	/** Called when the controller posses a character */
 	virtual void OnPossess(APawn* InPawn) override;
 
-	/** Called on delegate function AITargetPerceptionUpdate */
-	UFUNCTION()
-	void TargetPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus);
-
 	/** Called on delegate function AIPerceptionUpdate */
 	UFUNCTION()
 	void PerceptionUpdate(const TArray<AActor*>& UpdatedActors);
+
+	/** Called when Ai character catches a visual stimulus source */
+	virtual void OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus);
+
+	/** Called when Ai character catches a sound stimulus source */
+	virtual void OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus);
 
 public:
 

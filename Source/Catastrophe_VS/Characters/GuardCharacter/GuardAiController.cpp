@@ -6,6 +6,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISenseConfig_Hearing.h"
+#include "Classes/BehaviorTree/BlackboardComponent.h"
 
 #include "Guard.h"
 
@@ -37,11 +38,6 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 }
 
-void AGuardAiController::TargetPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus)
-{
-	
-}
-
 void AGuardAiController::PerceptionUpdate(const TArray<AActor*>& UpdatedActors)
 {
 	for (AActor* actor : UpdatedActors)
@@ -49,7 +45,58 @@ void AGuardAiController::PerceptionUpdate(const TArray<AActor*>& UpdatedActors)
 		FActorPerceptionBlueprintInfo actorPerceptionInfo;
 		if (PerceptionComponent->GetActorsPerception(actor, actorPerceptionInfo))
 		{
-			//for (FAIStimulus stimulus : )
+			for (int32 index = 0; index < actorPerceptionInfo.LastSensedStimuli.Num(); ++index)
+			{
+				switch (index)
+				{
+				case 0: // Sight perception updated
+					OnSightPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
+					break;
+
+				case 1: // Hearing perception updated
+					OnHearingPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
+					break;
+
+				default:
+					UE_LOG(LogTemp, Warning, TEXT("There is no third sense lol wtf"));
+					break;
+				}
+			}
 		}
 	}
+}
+
+void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
+{
+	// If updated actor is player
+	if (_actor->ActorHasTag(TEXT("Player")))
+	{
+		if (_stimulus.WasSuccessfullySensed())
+		{
+			GuardRef->bPlayerWasInSight = true;
+			GuardRef->bPlayerInSight = true;
+
+			Blackboard->SetValueAsVector(
+				TEXT("PlayerLocation"), _stimulus.StimulusLocation);
+			
+
+		}
+		else
+		{
+			GuardRef->bPlayerInSight = false;
+
+			// TODO: Test if player was seen and tell him to chase or not
+		}
+	}
+
+	// Calls the guard character version of the function
+	GuardRef->OnSightPerceptionUpdate(_actor, _stimulus);
+
+}
+
+void AGuardAiController::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
+{
+	// Calls the guard character version of the function
+	GuardRef->OnHearingPerceptionUpdate(_actor, _stimulus);
+
 }

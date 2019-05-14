@@ -40,3 +40,13 @@ void AGuard::GetActorEyesViewPoint(FVector& Location, FRotator& Rotation) const
 
 	GetPerceptionLocRot(Location, Rotation);
 }
+
+void AGuard::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
+{
+	
+}
+
+void AGuard::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
+{
+
+}
