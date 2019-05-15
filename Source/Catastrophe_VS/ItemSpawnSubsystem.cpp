@@ -6,7 +6,6 @@
 #include "Interactable/ItemPickup.h"
 #include "../../../UE_4.22/Engine/Source/Runtime/Engine/Classes/Engine/World.h"
 
-// Initialise
 UItemSpawnSubsystem::UItemSpawnSubsystem() : UCatastropheGameInstanceSubsystem()
 {
 	
@@ -30,35 +29,57 @@ void UItemSpawnSubsystem::Deinitialize()
 
 }
 
-void UItemSpawnSubsystem::AddItemsList(TArray<class AItemPickup> _newItems)
+void UItemSpawnSubsystem::AddItemsToList(TArray<TSubclassOf<AItemPickup>> _newItems)
 {
+	// Adds new items to ItemList
 	for (auto& item : _newItems)
 	{
 		ItemList.Add(item);
 	}
 }
 
-void UItemSpawnSubsystem::RemoveItem(class AItemPickup _item)
+void UItemSpawnSubsystem::AddItemToList(TSubclassOf<AItemPickup> _newItem)
 {
+	ItemList.Add(_newItem);
+}
+
+void UItemSpawnSubsystem::RemoveItem(TSubclassOf<AItemPickup> _item)
+{
+	// Removes selected item from ItemList
 	ItemList.Remove(_item);
 }
 
-void UItemSpawnSubsystem::SpawnItemAtLocation(FVector _location, AItemPickup* _itemClass)
+void UItemSpawnSubsystem::SetSpawnLocations(TArray<FVector> _newLocations)
 {
-	FRotator rotation(0.0f, 0.0f, 0.0f);
-	FActorSpawnParameters spawnInfo;
+	// Resets spawn location list
+	SpawnLocationsList.Empty();
 
+	// Adds new spawn locations to SpawnLocationList
+	for (auto& location : _newLocations)
+	{
+		SpawnLocationsList.Add(location);
+	}
+}
+
+void UItemSpawnSubsystem::SpawnItemAtLocation(FVector _location, TSubclassOf<AItemPickup> _itemClass)
+{
+	// Setting rotation values of item to spawn
+	FRotator rotation(0.0f, 0.0f, 0.0f);
+
+	// Spawn item
 	AItemPickup* newItem = GetWorld()->SpawnActor<AItemPickup>(GetClass(), _location, rotation);
 }
 
 void UItemSpawnSubsystem::RandomlySpawnItem()
 {
 	// Randomly choose item to spawn
-	AItemPickup* randItem;
-	randItem = ItemList.FindByKey(FMath::RandRange(0, ItemList.Num - 1));
+	TSubclassOf<AItemPickup> randItem;
+	randItem = ItemList[FMath::RandRange(0, ItemList.Num() - 1)];
 
 	// Randomly choose location to spawn item at
 	FVector randLocation;
+	randLocation = SpawnLocationsList[FMath::RandRange(0, SpawnLocationsList.Num() - 1)];
 
+	// Calls function which spawns item
 	SpawnItemAtLocation(randLocation, randItem);
 }

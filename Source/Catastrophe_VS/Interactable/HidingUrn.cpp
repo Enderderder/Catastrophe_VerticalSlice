@@ -28,6 +28,8 @@ void AHidingUrn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+
 }
 
 void AHidingUrn::Tick(float _deltaTime)

@@ -18,7 +18,7 @@ public:
 	UItemSpawnSubsystem();
 
 protected:
-	TArray<class AItemPickup> ItemList;
+	TArray<TSubclassOf<class AItemPickup>> ItemList;
 	TArray<FVector> SpawnLocationsList;
 
 public:
@@ -32,12 +32,20 @@ public:
 	virtual void Deinitialize() override;
 
 	/**
-	 * Adds ItemList to selected items
+	 * Adds items to ItemList
 	 * @param Array of new items to add
 	 * @note This will add items to the item list of possible items to spawn
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Item Spawning")
-	void AddItemsList(TArray<class AItemPickup> _newItems);
+	void AddItemsToList(TArray<TSubclassOf<class AItemPickup>> _newItems);
+
+	/**
+	 * Adds an item to ItemList
+	 * @param Array of new items to add
+	 * @note This will add an item to the item list of possible items to spawn
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Item Spawning")
+	void AddItemToList(TSubclassOf<class AItemPickup> _newItem);
 
 	/**
 	 * Removes selected item from ItemList
@@ -45,7 +53,7 @@ public:
 	 * @note This will remove a selected item from the item list of possible items to spawn
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Item Spawning")
-	void RemoveItem(class AItemPickup _item);
+	void RemoveItem(TSubclassOf<AItemPickup> _item);
 
 	/**
 	 * Sets locations in ItemList
@@ -61,7 +69,7 @@ public:
 	 * @note This will spawn a selected item type at a selected location
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Item Spawning")
-	void SpawnItemAtLocation(FVector _location, class AItemPickup* _itemClass);
+	void SpawnItemAtLocation(FVector _location, TSubclassOf<AItemPickup> _itemClass);
 
 	/**
 	 * Randomly choose location and item and spawn it

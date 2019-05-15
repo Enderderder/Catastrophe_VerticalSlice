@@ -24,7 +24,7 @@ class CATASTROPHE_VS_API USaveGameSubsystem : public UCatastropheGameInstanceSub
 public:
 	USaveGameSubsystem();
 
-	/** Delegate variable that boardcast when there is a save game successfullly loaded */
+	/** Delegate variable that broadcast when there is a save game successfully loaded */
 	UPROPERTY(BlueprintAssignable, Category = "SaveGameSystem")
 	FSaveSystemDelegateOneParam OnSavedGameLoaded;
 
@@ -39,7 +39,7 @@ public:
 	/** Implement this for initialization of instances of the system */
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	/** Implement this for post initilization after all subsystem has initialized */
+	/** Implement this for post initialization after all subsystem has initialized */
 	virtual void PostInitialize() override;
 
 	/** Implement this for deinitialization of instances of the system */
@@ -60,7 +60,7 @@ public:
 	/**
 	 * Delete a saved game profile using slot index
 	 * @param Slot index of the save game
-	 * @note Dont call this function when there is any saved game loaded
+	 * @note Don't call this function when there is any saved game loaded
 	 */
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void DeleteSavedGameByIndex(int32 _slotIndex);
@@ -68,7 +68,7 @@ public:
 	/**
 	 * Delete a saved game profile using slot name
 	 * @param Slot name of the save game
-	 * @note Dont call this function when there is any saved game loaded
+	 * @note Don't call this function when there is any saved game loaded
 	 */
 	UFUNCTION(BlueprintCallable, Category = "SaveGameSystem")
 	void DeleteSavedGameByName(FString _slotName);
