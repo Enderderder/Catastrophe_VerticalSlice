@@ -21,7 +21,7 @@ public:
 	bool bPatrolBehaviour = false;
 
 	/** The patrol way points of the guard, need to enable PatrolBehaviour to use them */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour", meta = (MakeEditWidget = "true"))
 	TArray<FVector> PatrolLocations;
 
 	/** Previous state of the vision on player */

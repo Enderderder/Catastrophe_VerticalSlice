@@ -31,6 +31,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardAi")
 	class AGuard* GuardRef;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GuardAi")
+	class UBehaviorTree* GuardBehaviourTree;
+
+
 protected:
 	/** Called when the controller posses a character */
 	virtual void OnPossess(APawn* InPawn) override;

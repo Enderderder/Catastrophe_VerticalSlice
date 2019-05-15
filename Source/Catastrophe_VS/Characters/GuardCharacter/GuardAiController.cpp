@@ -13,7 +13,7 @@
 AGuardAiController::AGuardAiController()
 {
 	PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComponent"));
-	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AGuardAiController::TargetPerceptionUpdate);
+	//PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AGuardAiController::TargetPerceptionUpdate);
 	PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AGuardAiController::PerceptionUpdate);
 
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
@@ -31,11 +31,24 @@ AGuardAiController::AGuardAiController()
 
 void AGuardAiController::OnPossess(APawn* InPawn)
 {
+	Super::OnPossess(InPawn);
+
 	// Sets the reference of the guard
 	GuardRef = Cast<AGuard>(InPawn);
 
+	// Runs the behaviour tree of guard
+	if (GuardBehaviourTree)
+		RunBehaviorTree(GuardBehaviourTree);
 
-	Super::OnPossess(InPawn);
+	// Sets the origin location of the patrol location if guard has one
+	if (Blackboard && GuardRef->PatrolLocations.Num() > 0)
+	{
+		Blackboard->SetValueAsVector(
+			TEXT("PatrolOriginLocation"), 
+			GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+	}
+	
+	
 }
 
 void AGuardAiController::PerceptionUpdate(const TArray<AActor*>& UpdatedActors)
@@ -74,7 +87,6 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 		if (_stimulus.WasSuccessfullySensed())
 		{
 			GuardRef->bPlayerWasInSight = true;
-			GuardRef->bPlayerInSight = true;
 
 			Blackboard->SetValueAsVector(
 				TEXT("PlayerLocation"), _stimulus.StimulusLocation);
@@ -85,7 +97,17 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 		{
 			GuardRef->bPlayerInSight = false;
 
-			// TODO: Test if player was seen and tell him to chase or not
+			if (GuardRef->bPlayerWasInSight)
+			{
+				Blackboard->SetValueAsVector(
+					TEXT("PlayerlastSeenLocation"), _stimulus.StimulusLocation);
+
+				// TODO: Have seen player, need to chase
+			}
+			else
+			{
+				// Do whatever, hasn't seen player yet
+			}
 		}
 	}
 

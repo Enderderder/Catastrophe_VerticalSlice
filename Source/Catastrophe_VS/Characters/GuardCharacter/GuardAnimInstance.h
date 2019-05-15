@@ -14,4 +14,13 @@ class CATASTROPHE_VS_API UGuardAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
+public:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float MoveSpeed;
+
+public:
+	/** Called on the  */
+	virtual void NativeBeginPlay() override;
+
 };
