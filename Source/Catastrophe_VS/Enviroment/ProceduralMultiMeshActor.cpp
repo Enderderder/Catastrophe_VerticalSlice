@@ -23,57 +23,7 @@ void AProceduralMultiMeshActor::BeginPlay()
 
 }
 
-void AProceduralMultiMeshActor::ReloadMeshes()
-{
-// 	TArray<UStaticMeshComponent*> newCompArray;
-// 
-// 	for (int32 index = 0; 
-// 		index < RandomMeshes.Num() || index < StoredMeshComponents.Num(); ++index)
-// 	{
-// 		// If old component runs out first, add the rest as new component
-// 		if (index >= StoredMeshComponents.Num())
-// 		{
-// 			for (index; index < RandomMeshes.Num(); ++index)
-// 			{
-// 				UStaticMeshComponent* newMeshComp = 
-// 					CreateNewMeshComponent(RandomMeshes[index].MeshSlotName);
-// 				newCompArray.Add(newMeshComp);
-// 			}
-// 			break;
-// 		}
-// 		// If there is more, delete the rest
-// 		else if (index >= newCompArray.Num())
-// 		{
-// 			for (index; index < newCompArray.Num(); ++index)
-// 			{
-// 				StoredMeshComponents[index]->DestroyComponent();
-// 			}
-// 			break;
-// 		}
-// 
-// 		// Move the component from old array to the new one and rename them
-// 		newCompArray.Add(StoredMeshComponents[index]);
-// 		StoredMeshComponents[index]->Rename(
-// 			*(RandomMeshes[index].MeshSlotName.ToString()), this);
-// 	}
-// 
-// 	// Swap out the array at the end
-// 	StoredMeshComponents = newCompArray;
 
-	// Get all the static mesh components
-	TInlineComponentArray<UStaticMeshComponent*> meshComponents;
-	GetComponents<UStaticMeshComponent>(meshComponents);
-	StoredMeshComponents = meshComponents;
-
-	for (int32 index = 0;
-		index < StoredMeshComponents.Num() && index < RandomMeshes.Num(); ++index)
-	{
-		int32 randomMeshIndex =
-			FMath::RandRange(0, RandomMeshes[index].RandomMeshes.Num() - 1);
-		StoredMeshComponents[index]->SetStaticMesh(
-			RandomMeshes[index].RandomMeshes[randomMeshIndex]);
-	}
-}
 
 //class UStaticMeshComponent* AProceduralMultiMeshActor::CreateNewMeshComponent(FName _name)
 //{
@@ -106,6 +56,58 @@ void AProceduralMultiMeshActor::OnConstruction(const FTransform& Transform)
 // 		StoredMeshComponents[index]->SetStaticMesh(
 // 			RandomMeshes[index].RandomMeshes[randomMeshIndex]);
 // 	}
+}
+
+void AProceduralMultiMeshActor::ReloadMeshes()
+{
+	// 	TArray<UStaticMeshComponent*> newCompArray;
+	// 
+	// 	for (int32 index = 0; 
+	// 		index < RandomMeshes.Num() || index < StoredMeshComponents.Num(); ++index)
+	// 	{
+	// 		// If old component runs out first, add the rest as new component
+	// 		if (index >= StoredMeshComponents.Num())
+	// 		{
+	// 			for (index; index < RandomMeshes.Num(); ++index)
+	// 			{
+	// 				UStaticMeshComponent* newMeshComp = 
+	// 					CreateNewMeshComponent(RandomMeshes[index].MeshSlotName);
+	// 				newCompArray.Add(newMeshComp);
+	// 			}
+	// 			break;
+	// 		}
+	// 		// If there is more, delete the rest
+	// 		else if (index >= newCompArray.Num())
+	// 		{
+	// 			for (index; index < newCompArray.Num(); ++index)
+	// 			{
+	// 				StoredMeshComponents[index]->DestroyComponent();
+	// 			}
+	// 			break;
+	// 		}
+	// 
+	// 		// Move the component from old array to the new one and rename them
+	// 		newCompArray.Add(StoredMeshComponents[index]);
+	// 		StoredMeshComponents[index]->Rename(
+	// 			*(RandomMeshes[index].MeshSlotName.ToString()), this);
+	// 	}
+	// 
+	// 	// Swap out the array at the end
+	// 	StoredMeshComponents = newCompArray;
+
+	// Get all the static mesh components
+	TInlineComponentArray<UStaticMeshComponent*> meshComponents;
+	GetComponents<UStaticMeshComponent>(meshComponents);
+	StoredMeshComponents = meshComponents;
+
+	for (int32 index = 0;
+		index < StoredMeshComponents.Num() && index < RandomMeshes.Num(); ++index)
+	{
+		int32 randomMeshIndex =
+			FMath::RandRange(0, RandomMeshes[index].RandomMeshes.Num() - 1);
+		StoredMeshComponents[index]->SetStaticMesh(
+			RandomMeshes[index].RandomMeshes[randomMeshIndex]);
+	}
 }
 
 #if WITH_EDITOR

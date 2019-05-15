@@ -1,26 +1,43 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HidingUrn.h"
+
 #include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
-#include "Characters/PlayerCharacter/PlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "DestructibleComponent.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 #include "Interactable/BaseClasses/InteractableComponent.h"
+#include "Characters/PlayerCharacter/PlayerCharacter.h"
 
 AHidingUrn::AHidingUrn()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	// Needed this for rotating the interaction text
+	PrimaryActorTick.bCanEverTick = true;
 
-	root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	RootComponent = root;
+	UrnDestructableMesh = CreateDefaultSubobject<UDestructibleComponent>(TEXT("UrnDestructableMesh"));
+	UrnDestructableMesh->CastShadow = false;
+	UrnDestructableMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	UrnDestructableMesh->SetGenerateOverlapEvents(false);
+	RootComponent = UrnDestructableMesh;
+
+	UrnOutline = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("UrnOutline"));
+	UrnOutline->SetGenerateOverlapEvents(false);
+	UrnOutline->SetupAttachment(RootComponent);
 
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
 	TriggerBox->SetCollisionProfileName("Trigger");
-	TriggerBox->SetupAttachment(root);
+	TriggerBox->SetupAttachment(RootComponent);
+
+	BlockVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("BlockVolume"));
+	BlockVolume->SetupAttachment(RootComponent);
 
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
-	InteractableComponent->RegisterTriggerVolume(TriggerBox);
 	InteractableComponent->OnInteract.AddDynamic(this, &AHidingUrn::OnPlayerInteract);
 }
 
@@ -28,52 +45,101 @@ void AHidingUrn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Forced to place the register here because unreal sucks
+	InteractableComponent->RegisterTriggerVolume(TriggerBox);
+}
+
+void AHidingUrn::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
 	
-
+	// Clear all the timer handle
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
-void AHidingUrn::Tick(float _deltaTime)
+void AHidingUrn::Tick(float DeltaTime)
 {
-	Super::Tick(_deltaTime);
-}
+	Super::Tick(DeltaTime);
 
-void AHidingUrn::HideInUrn()
-{
-	if (PlayerReference && !PlayerReference->IsPendingKill())
-	{
-		if (!bHasUsed)
-		{
-			if (bPlayerIn)
-			{
-				JumpOut();
-			}
-			else
-			{
-				JumpIn();
-			}
-		}
-	}
+	// TODO: Rotate the interaction text
+
 }
 
 void AHidingUrn::OnPlayerInteract(class APlayerCharacter* _playerCharacter)
 {
-	PlayerReference = _playerCharacter;
-	HideInUrn();
+	if (!bPlayerIn)
+	{
+		JumpIn(_playerCharacter);
+	}
+	else if (bAllowManualJumpOut)
+	{
+		JumpOut(_playerCharacter);
+	}
 }
 
-//void AHidingUrn::OnInteract_Implementation(class APlayerCharacter* _actor)
-//{
-//	Super::OnInteract_Implementation(_actor);
-//
-//	HideInUrn();
-//}
-
-void AHidingUrn::JumpIn()
+void AHidingUrn::JumpIn(class APlayerCharacter* _playerCharacter)
 {
-	Receive_JumpIn();
+	// Notify that the player is in
+	bPlayerIn = true;
+
+	// Gives a timer that force player to jump out
+	JumpOutTimerDel.BindUFunction(this, FName("JumpOut"), _playerCharacter);
+	GetWorld()->GetTimerManager().SetTimer(UrnMaxHideTimerHandle, JumpOutTimerDel, MaxHideTime, false);
+
+	// Gives a timer that allow player do manual jump out after minimum time
+	GetWorld()->GetTimerManager().SetTimer(UrnMinHideTimerHandle, this, &AHidingUrn::AllowManualJumpOut, MinHideTime, false);
+
+	// Gets and store the temporary information of the player
+	TempPlayerInfo.PlayerMaxWalkSpeed = _playerCharacter->GetCharacterMovement()->MaxWalkSpeed;
+	TempPlayerInfo.PlayerLocation = _playerCharacter->GetActorLocation();
+
+	// Move the player away somewhere and make him invisible
+	_playerCharacter->GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+	FVector TeleportLocation = this->GetActorLocation();
+	TeleportLocation.Z += 200.0f;
+	_playerCharacter->SetActorLocation(TeleportLocation);
+	_playerCharacter->SetActorHiddenInGame(true);
+
+	// Disable collision
+	_playerCharacter->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Hide the outline
+	UrnOutline->SetVisibility(false);
+
+	// Re-register self as an interactable
+	_playerCharacter->SetInteractionTarget(this);
+
+	// Call the blueprint version of the function
+	Receive_JumpIn(_playerCharacter);
 }
 
-void AHidingUrn::JumpOut()
+void AHidingUrn::JumpOut(class APlayerCharacter* _playerCharacter)
 {
-	Receive_JumpOut();
+	// Restore the movement of the player
+	_playerCharacter->GetCharacterMovement()->MaxWalkSpeed = TempPlayerInfo.PlayerMaxWalkSpeed;
+	_playerCharacter->SetActorLocation(TempPlayerInfo.PlayerLocation);
+	_playerCharacter->SetActorHiddenInGame(false);
+	_playerCharacter->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	// Urn destruction
+	FVector destructionLocation = UrnDestructableMesh->GetComponentLocation();
+	UrnDestructableMesh->ApplyDamage(1.0f, destructionLocation, destructionLocation, 1.0f);
+
+	// Disable the collision of the block volume
+	BlockVolume->DestroyComponent();
+	//BlockVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Call the blueprint version 
+	Receive_JumpOut(_playerCharacter);
+
+	// Clear all the timer handle
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	// Disable the interaction after player has jumped out
+	InteractableComponent->bCanInteract = false;
+}
+
+void AHidingUrn::AllowManualJumpOut()
+{
+	bAllowManualJumpOut = true;
 }

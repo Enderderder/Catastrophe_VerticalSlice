@@ -23,7 +23,8 @@ AItemPickup::AItemPickup()
 	TriggerBox->SetupAttachment(root);
 
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
-
+	InteractableComponent->RegisterTriggerVolume(TriggerBox);
+	InteractableComponent->OnInteract.AddDynamic(this, &AItemPickup::PickUpItem);
 }
 
 // Called when the game starts or when spawned
@@ -31,8 +32,6 @@ void AItemPickup::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	InteractableComponent->RegisterTriggerVolume(TriggerBox);
-	InteractableComponent->OnInteract.AddDynamic(this, &AItemPickup::PickUpItem);
 }
 
 // Called every frame
