@@ -85,7 +85,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato")
 	bool AimDownSightState;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Skill_Tomato")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill_Tomato")
 	float CameraZoomRatio;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill_Tomato")

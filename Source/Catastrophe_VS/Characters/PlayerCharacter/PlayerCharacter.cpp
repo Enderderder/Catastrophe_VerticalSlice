@@ -246,7 +246,7 @@ void APlayerCharacter::AimDownSight()
 	bUseControllerRotationYaw = true;
 
 	CameraBoom->AttachToComponent(AimDownSightFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
-	CameraBoom->TargetArmLength *= CameraZoomRatio;
+	//CameraBoom->TargetArmLength *= CameraZoomRatio;
 
 	// Call the blueprint implemented event
 	Receive_AimDownSight();
@@ -265,7 +265,7 @@ void APlayerCharacter::ExitAimDownSight()
 	bUseControllerRotationYaw = false;
 
 	CameraBoom->AttachToComponent(FollowCameraFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
-	CameraBoom->TargetArmLength /= CameraZoomRatio;
+	//CameraBoom->TargetArmLength /= CameraZoomRatio;
 
 	// Call the blueprint implemented event
 	Receive_ExitAimDownSight();
