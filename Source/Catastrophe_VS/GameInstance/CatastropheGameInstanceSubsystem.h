@@ -8,7 +8,7 @@
 
 /**
  * This is an advance and customized version of the game instance subsystem
- * Contain some extra functionallity which should be used for the game
+ * Contain some extra functionality which should be used for the game
  */
 UCLASS(Abstract)
 class CATASTROPHE_VS_API UCatastropheGameInstanceSubsystem : public UGameInstanceSubsystem

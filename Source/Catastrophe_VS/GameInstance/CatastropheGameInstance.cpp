@@ -8,6 +8,8 @@
 #include "QuestSystem/QuestSubsystem.h"
 #include "SaveGameSystem/SaveGameSubsystem.h"
 
+#include "ItemSpawnSubsystem.h"
+
 UCatastropheGameInstance::UCatastropheGameInstance(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -18,8 +20,8 @@ void UCatastropheGameInstance::Init()
 {
 	Super::Init();
 	
-	/// Due to engine motherfucking uselesses, i cant do it automatically
-	// Calles all the advance custom functions for all the 
+	/// Due to engine motherfucking useless, i cant do it automatically
+	// Calls all the advance custom functions for all the 
 	// UCatastropheGameInstanceSubsystem inside the subsystem collection
 // 	const TArray<UCatastropheGameInstanceSubsystem*> catastropheSubsystems =
 // 		GetSubsystemArray<UCatastropheGameInstanceSubsystem>();
@@ -34,8 +36,10 @@ void UCatastropheGameInstance::Init()
 		GetSubsystem<USaveGameSubsystem>()));
 	catastropheSubsystems.Add(Cast<UCatastropheGameInstanceSubsystem>(
 		GetSubsystem<UQuestSubsystem>()));
+	catastropheSubsystems.Add(Cast<UCatastropheGameInstanceSubsystem>(
+		GetSubsystem<UItemSpawnSubsystem>()));
 
-	// Calles all the advance custom functions for all the 
+	// Calls all the advance custom functions for all the 
 	// UCatastropheGameInstanceSubsystem inside the subsystem collection
 	for (UCatastropheGameInstanceSubsystem* subSystem : catastropheSubsystems)
  	{
