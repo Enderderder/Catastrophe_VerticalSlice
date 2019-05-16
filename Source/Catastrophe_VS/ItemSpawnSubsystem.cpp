@@ -4,7 +4,7 @@
 #include "ItemSpawnSubsystem.h"
 
 #include "Interactable/ItemPickup.h"
-#include "../../../UE_4.22/Engine/Source/Runtime/Engine/Classes/Engine/World.h"
+#include "Engine/World.h"
 
 UItemSpawnSubsystem::UItemSpawnSubsystem() : UCatastropheGameInstanceSubsystem()
 {
@@ -67,7 +67,7 @@ void UItemSpawnSubsystem::SpawnItemAtLocation(FVector _location, TSubclassOf<AIt
 	FRotator rotation(0.0f, 0.0f, 0.0f);
 
 	// Spawn item
-	AItemPickup* newItem = GetWorld()->SpawnActor<AItemPickup>(GetClass(), _location, rotation);
+	AItemPickup* newItem = GetWorld()->SpawnActor<AItemPickup>(_itemClass, _location, rotation);
 }
 
 void UItemSpawnSubsystem::RandomlySpawnItem()
