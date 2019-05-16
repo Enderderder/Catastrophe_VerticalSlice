@@ -3,6 +3,8 @@
 
 #include "Guard.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 // Sets default values
 AGuard::AGuard()
 {
@@ -49,4 +51,9 @@ void AGuard::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
 void AGuard::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
 {
 
+}
+
+void AGuard::SetGuardMaxSpeed(float _speed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = _speed;
 }

@@ -7,6 +7,25 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "Guard.generated.h"
 
+/**
+ * The enum that stores the state of the guard character
+ */
+UENUM(BlueprintType)
+enum class EGuardState : uint8 
+{
+	STATIONARY = 0,
+	SLEEPING,
+	WAKEUPSTATEONE,
+	WAKEUPSTATETWO,
+	PATROLLING,
+	INVESTATING,
+	CHASING,
+	STUNED,
+};
+
+/**
+ * 
+ */
 UCLASS()
 class CATASTROPHE_VS_API AGuard : public ACharacter
 {
@@ -32,7 +51,22 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
 	bool bPlayerInSight = false;
 
+	/** Is guard stuned which will disable movement */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
+	bool bStuned;
+
+	/** Store the state of the guard */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
+	EGuardState GuardState;
+
 protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats")
+	float PatrolSpeed = 300.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats")
+	float ChaseSpeed = 1000.0f;
+
 
 	
 
@@ -59,4 +93,11 @@ public:
 
 	/** Called when Ai character catches a sound stimulus source */
 	virtual void OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus);
+
+	/**
+	 * Sets the guards maximum walk speed
+	 * @Note This will overwrite the character movement component MaxWalkSpeed
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Guard | Stats")
+	void SetGuardMaxSpeed(float _speed);
 };

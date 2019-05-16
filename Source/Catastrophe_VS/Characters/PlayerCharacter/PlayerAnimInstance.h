@@ -44,12 +44,8 @@ public:
 
 
 	/** Custom Getter */
-	FORCEINLINE class APlayerCharacter* GetCustomPlayerCharacter() const {
+	FORCEINLINE class APlayerCharacter* GetCustomPlayerCharacterOwner() const {
 		return CustomPlayerCharacter;
 	}
 	/** Getter End */
-
-
-
-
 };
