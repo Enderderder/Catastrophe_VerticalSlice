@@ -38,6 +38,7 @@ AHidingUrn::AHidingUrn()
 	BlockVolume->SetupAttachment(RootComponent);
 
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
+	InteractableComponent->RegisterTriggerVolume(TriggerBox);
 	InteractableComponent->OnInteract.AddDynamic(this, &AHidingUrn::OnPlayerInteract);
 }
 
@@ -45,8 +46,7 @@ void AHidingUrn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Forced to place the register here because unreal sucks
-	InteractableComponent->RegisterTriggerVolume(TriggerBox);
+
 }
 
 void AHidingUrn::EndPlay(const EEndPlayReason::Type EndPlayReason)

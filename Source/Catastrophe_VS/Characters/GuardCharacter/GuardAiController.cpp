@@ -46,6 +46,12 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 		Blackboard->SetValueAsVector(
 			TEXT("PatrolOriginLocation"), 
 			GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+
+		// Set the patrol behaviour as initial state
+		if (GuardRef->bPatrolBehaviour)
+		{
+			GuardRef->SetGuardState(EGuardState::PATROLLING);
+		}
 	}
 	
 	
@@ -87,11 +93,7 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 		if (_stimulus.WasSuccessfullySensed())
 		{
 			GuardRef->bPlayerWasInSight = true;
-
-			Blackboard->SetValueAsVector(
-				TEXT("PlayerLocation"), _stimulus.StimulusLocation);
-			
-
+			GuardRef->SetGuardState(EGuardState::CHASING);
 		}
 		else
 		{

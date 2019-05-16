@@ -53,6 +53,42 @@ void AGuard::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
 
 }
 
+void AGuard::SetGuardState(EGuardState _newState)
+{
+	EGuardState oldState = GuardState;
+	GuardState = _newState;
+
+	OnGuardStateChange(oldState, _newState);
+}
+
+void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardState _newState)
+{
+	switch (_newState)
+	{
+	case EGuardState::STATIONARY:
+		break;
+	case EGuardState::SLEEPING:
+		break;
+	case EGuardState::WAKEUPSTATEONE:
+		break;
+	case EGuardState::WAKEUPSTATETWO:
+		break;
+	case EGuardState::PATROLLING:
+		SetGuardMaxSpeed(PatrolSpeed);
+		break;
+	case EGuardState::INVESTATING:
+		break;
+	case EGuardState::CHASING:
+		SetGuardMaxSpeed(ChaseSpeed);
+		break;
+	case EGuardState::STUNED:
+		break;
+
+
+	default: break;
+	}
+}
+
 void AGuard::SetGuardMaxSpeed(float _speed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = _speed;

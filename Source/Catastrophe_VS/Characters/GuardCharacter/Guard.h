@@ -55,10 +55,6 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
 	bool bStuned;
 
-	/** Store the state of the guard */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
-	EGuardState GuardState;
-
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats")
@@ -68,7 +64,11 @@ protected:
 	float ChaseSpeed = 1000.0f;
 
 
-	
+private:
+
+	/** Store the state of the guard */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Guard | Behaviour", meta = (AllowPrivateAccess = "true"))
+	EGuardState GuardState;
 
 protected:
 	// Called when the game starts or when spawned
@@ -77,9 +77,12 @@ protected:
 	/** BlueprintNativeEvent that gets the perception location and rotation of the character */
 	UFUNCTION(BlueprintNativeEvent, Category = "AIPerception | Character")
 	void GetPerceptionLocRot(FVector& Location, FRotator& Rotation) const;
-	void GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const;
+	virtual void GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const;
 
-	
+	/** Called when the state of the guard changes */
+	UFUNCTION(BlueprintNativeEvent, Category = "Guard | Behaviour")
+	void OnGuardStateChange(EGuardState _oldState, EGuardState _newState);
+	virtual void OnGuardStateChange_Implementation(EGuardState _oldState, EGuardState _newState);
 
 public:	
 	// Called every frame
@@ -95,9 +98,21 @@ public:
 	virtual void OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus);
 
 	/**
+	 * Sets the state of the guard then modify the character value base on the state
+	 * @param The new state of the guard
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Guard | Behaviour")
+	void SetGuardState(EGuardState _newState);
+
+	/**
 	 * Sets the guards maximum walk speed
 	 * @Note This will overwrite the character movement component MaxWalkSpeed
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Guard | Stats")
 	void SetGuardMaxSpeed(float _speed);
+
+
+	/** Getter */
+	FORCEINLINE EGuardState GetGuardState() const { return GuardState; }
+	/** Getter End */
 };
