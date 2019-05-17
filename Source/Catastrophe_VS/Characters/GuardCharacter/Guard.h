@@ -63,6 +63,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats")
 	float ChaseSpeed = 1000.0f;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Guard | Controller")
+	class AGuardAiController* GuardControllerRef;
 
 private:
 
@@ -111,8 +113,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Guard | Stats")
 	void SetGuardMaxSpeed(float _speed);
 
+	/** Setter */
+	void SetGuardControllerRef(class AGuardAiController* _controller) {
+		GuardControllerRef = _controller;
+	}
+	/** Setter End */
 
 	/** Getter */
 	FORCEINLINE EGuardState GetGuardState() const { return GuardState; }
+	FORCEINLINE class AGuardAiController* GetGuardController() const { return GuardControllerRef; }
 	/** Getter End */
 };

@@ -18,10 +18,10 @@ class CATASTROPHE_VS_API AGuardAiController : public AAIController
 private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UAISenseConfig_Sight* SightConfig;
+	class UAISenseConfig_Sight* SightDefaultConfig;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UAISenseConfig_Hearing* HearingConfig;
+	class UAISenseConfig_Hearing* HearingDefaultConfig;
 
 public:
 	AGuardAiController();
@@ -51,6 +51,17 @@ protected:
 
 public:
 
-	
+	/**
+	 * Modify the guard sight perception range
+	 * @Param Range of the sight
+	 * @Note This will overwrite the current value, make sure to store the old value
+	 */
+	UFUNCTION(BlueprintCallable, Category = "GuardAi")
+	bool ModifySightRange(float _newRange);
+
+	/** Getter */
+	FORCEINLINE UAISenseConfig_Sight* GetSightDefaultConfig() const { return SightDefaultConfig; }
+	FORCEINLINE UAISenseConfig_Hearing* GetHearingDefaultConfig() const { return HearingDefaultConfig; }
+	/** Getter End */
 
 };

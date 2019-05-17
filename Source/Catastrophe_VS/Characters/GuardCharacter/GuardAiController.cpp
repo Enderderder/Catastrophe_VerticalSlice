@@ -16,17 +16,17 @@ AGuardAiController::AGuardAiController()
 	//PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AGuardAiController::TargetPerceptionUpdate);
 	PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AGuardAiController::PerceptionUpdate);
 
-	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
-	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
-	PerceptionComponent->ConfigureSense(*SightConfig);
+	SightDefaultConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	SightDefaultConfig->DetectionByAffiliation.bDetectEnemies = true;
+	SightDefaultConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	SightDefaultConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	PerceptionComponent->ConfigureSense(*SightDefaultConfig);
 
-	HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
-	HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
-	HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
-	HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
-	PerceptionComponent->ConfigureSense(*HearingConfig);
+	HearingDefaultConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
+	HearingDefaultConfig->DetectionByAffiliation.bDetectEnemies = true;
+	HearingDefaultConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	HearingDefaultConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	PerceptionComponent->ConfigureSense(*HearingDefaultConfig);
 }
 
 void AGuardAiController::OnPossess(APawn* InPawn)
@@ -35,26 +35,32 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 
 	// Sets the reference of the guard
 	GuardRef = Cast<AGuard>(InPawn);
-
-	// Runs the behaviour tree of guard
-	if (GuardBehaviourTree)
-		RunBehaviorTree(GuardBehaviourTree);
-
-	// Sets the origin location of the patrol location if guard has one
-	if (Blackboard && GuardRef->PatrolLocations.Num() > 0)
+	if (GuardRef && !GuardRef->IsPendingKill())
 	{
-		Blackboard->SetValueAsVector(
-			TEXT("PatrolOriginLocation"), 
-			GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+		GuardRef->SetGuardControllerRef(this);
 
-		// Set the patrol behaviour as initial state
-		if (GuardRef->bPatrolBehaviour)
+		// Runs the behaviour tree of guard
+		if (GuardBehaviourTree)
+			RunBehaviorTree(GuardBehaviourTree);
+
+		// Sets the origin location of the patrol location if guard has one
+		if (Blackboard && GuardRef->PatrolLocations.Num() > 0)
 		{
-			GuardRef->SetGuardState(EGuardState::PATROLLING);
+			Blackboard->SetValueAsVector(
+				TEXT("PatrolOriginLocation"),
+				GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+
+			// Set the patrol behaviour as initial state
+			if (GuardRef->bPatrolBehaviour)
+			{
+				GuardRef->SetGuardState(EGuardState::PATROLLING);
+			}
 		}
 	}
-	
-	
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Guard controller is not controlling a guard"));
+	}
 }
 
 void AGuardAiController::PerceptionUpdate(const TArray<AActor*>& UpdatedActors)
@@ -123,4 +129,30 @@ void AGuardAiController::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _
 	// Calls the guard character version of the function
 	GuardRef->OnHearingPerceptionUpdate(_actor, _stimulus);
 
+}
+
+bool AGuardAiController::ModifySightRange(float _newRange)
+{
+	FAISenseID sightSenseID = UAISense::GetSenseID(UAISense_Sight::StaticClass());
+	if (!sightSenseID.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to get sight sense ID"));
+		return false;
+	}
+
+	if (!PerceptionComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("This controller dont have perception component"));
+		return false;
+	}
+	UAISenseConfig_Sight* sightConfig = 
+		Cast<UAISenseConfig_Sight>(PerceptionComponent->GetSenseConfig(sightSenseID));
+	if (!sightConfig)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No sight config found"));
+		return false;
+	}
+	
+	sightConfig->SightRadius = _newRange;
+	return true;
 }

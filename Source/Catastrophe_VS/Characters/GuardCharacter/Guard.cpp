@@ -4,6 +4,9 @@
 #include "Guard.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Perception/AISenseConfig_Sight.h"
+
+#include "GuardAiController.h"
 
 // Sets default values
 AGuard::AGuard()
@@ -67,20 +70,33 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 	{
 	case EGuardState::STATIONARY:
 		break;
+
 	case EGuardState::SLEEPING:
+		GuardControllerRef->GetSightDefaultConfig()->SightRadius = 0.0f;
 		break;
+
 	case EGuardState::WAKEUPSTATEONE:
 		break;
+
 	case EGuardState::WAKEUPSTATETWO:
 		break;
+
 	case EGuardState::PATROLLING:
-		SetGuardMaxSpeed(PatrolSpeed);
+		if (bPatrolBehaviour && PatrolLocations.Num() > 0)
+		{
+			SetGuardMaxSpeed(PatrolSpeed);
+			GuardControllerRef->ModifySightRange(0.0f);
+		}
+		else SetGuardState(_oldState); // If guard dont have a patrol behaviour, dont do it
 		break;
+
 	case EGuardState::INVESTATING:
 		break;
+
 	case EGuardState::CHASING:
 		SetGuardMaxSpeed(ChaseSpeed);
 		break;
+
 	case EGuardState::STUNED:
 		break;
 
