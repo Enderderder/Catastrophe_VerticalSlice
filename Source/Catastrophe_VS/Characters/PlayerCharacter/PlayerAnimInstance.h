@@ -22,10 +22,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
 	bool bInAir;
 
-	// Temp
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
-	bool bWalking;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
 	float Speed;
 
