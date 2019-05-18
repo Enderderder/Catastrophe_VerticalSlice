@@ -29,7 +29,7 @@ APlayerCharacter::APlayerCharacter()
 
 	// Set the tomato that will show inside players hand
 	TomatoInHandMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TomatoInHandMesh"));
-	TomatoInHandMesh->SetupAttachment(GetMesh(), TEXT("TomatoSocket"));
+	TomatoInHandMesh->SetupAttachment(GetMesh(), TEXT("RightHandSocket"));
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
@@ -70,7 +70,7 @@ APlayerCharacter::APlayerCharacter()
 	AimDownSightFocusPoint->SetupAttachment(GetMesh());
 
 	FishToCarry = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FishToCarry"));
-	FishToCarry->SetupAttachment(GetMesh(), TEXT("FishBackSocket"));
+	FishToCarry->SetupAttachment(GetMesh(), TEXT("BackCarrySocket"));
 }
 
 // Called when the game starts or when spawned

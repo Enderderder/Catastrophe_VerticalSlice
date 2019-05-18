@@ -30,7 +30,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			Speed = PlayerMovementComponent->Velocity.Size();
 			// No Anim Blend Space movement calculation
-			bRunning = (Speed != 0.0f);
+			bWalking= (Speed != 0.0f);
 
 			bInAir = PlayerMovementComponent->IsFalling();
 			bCrouch = PlayerMovementComponent->IsCrouching();

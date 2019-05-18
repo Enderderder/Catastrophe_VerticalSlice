@@ -22,11 +22,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
 	bool bInAir;
 
+	// Temp
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
-	bool bRunning;
+	bool bWalking;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
 	float Speed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
+	bool bAiming;
 
 protected:
 
