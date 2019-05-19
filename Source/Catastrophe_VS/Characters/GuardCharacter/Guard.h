@@ -36,7 +36,7 @@ public:
 	AGuard();
 
 	/** Determine if the guard will walk around in his patrol location */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Behaviour")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour")
 	bool bPatrolBehaviour = false;
 
 	/** The patrol way points of the guard, need to enable PatrolBehaviour to use them */

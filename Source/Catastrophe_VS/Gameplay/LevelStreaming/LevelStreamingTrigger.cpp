@@ -28,9 +28,7 @@ ALevelStreamingTrigger::ALevelStreamingTrigger()
 	EditorOnlyMesh->bHiddenInGame = true;
 	EditorOnlyMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	EditorOnlyMesh->SetGenerateOverlapEvents(false);
-
 	EditorOnlyMesh->SetupAttachment(TriggerBox);
-
 }
 
 // Called when the game starts or when spawned
@@ -63,6 +61,8 @@ void ALevelStreamingTrigger::OnPlayerEnterTrigger(class UPrimitiveComponent* Ove
 
 		FLatentActionInfo latenInfo;
 		latenInfo.CallbackTarget = this;
+		latenInfo.UUID = 0;
+		latenInfo.Linkage = 0;
 		latenInfo.ExecutionFunction = TEXT("OnLevelLoaded");
 		UGameplayStatics::LoadStreamLevel(this, DestinationLevel, true, bShouldBlockOnLoad, latenInfo);
 	}
