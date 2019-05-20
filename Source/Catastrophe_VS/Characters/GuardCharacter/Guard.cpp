@@ -9,6 +9,7 @@
 #include "Components/SphereComponent.h"
 
 #include "GuardAiController.h"
+#include "GuardAnimInstance.h"
 
 // Sets default values
 AGuard::AGuard()
@@ -18,6 +19,17 @@ AGuard::AGuard()
 
 	HeadHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("HeadHitBox"));
 	HeadHitbox->SetupAttachment(GetMesh(), TEXT("HeadSocket"));
+
+	AlertMarkMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AlertMarkMesh"));
+	AlertMarkMesh->SetGenerateOverlapEvents(false);
+	AlertMarkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AlertMarkMesh->SetupAttachment(GetMesh());
+
+	QuestionMarkMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("QuestionMarkMesh"));
+	QuestionMarkMesh->SetGenerateOverlapEvents(false);
+	QuestionMarkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	QuestionMarkMesh->SetupAttachment(GetMesh());
+
 }
 
 // Called when the game starts or when spawned
@@ -25,6 +37,8 @@ void AGuard::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// Sets the anim instance
+	GuardAnimInstance = Cast<UGuardAnimInstance>(GetMesh()->GetAnimInstance());
 }
 
 // Called every frame
@@ -99,7 +113,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 
 	case EGuardState::SEARCHING:
-
+		SetGuardMaxSpeed(ChaseSpeed);
 		break;
 
 	case EGuardState::STUNED:

@@ -31,7 +31,8 @@ protected:
 public:	
 
 	/** TODO: Lauch tomato in certain direction */
-
+	UFUNCTION(BlueprintCallable, Category = "Tomato")
+	void LaunchTomato();
 
 	/** Getter */
 	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }

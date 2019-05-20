@@ -48,22 +48,22 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 			// Sets the default state of the guard
 			GuardRef->SetGuardState(GuardRef->DefaultGuardState);
 
-			// Set the patrol behaviour as initial state
-			if (GuardRef->bPatrolBehaviour)
+			// If sets to patrol but guard dont have patrol behaviour 
+			// or dont have patrol points, reset it to stationary
+			if (GuardRef->GetGuardState() == EGuardState::PATROLLING 
+				&& !GuardRef->bPatrolBehaviour
+				&& GuardRef->PatrolLocations.Num() <= 0)
 			{
-				GuardRef->SetGuardState(EGuardState::PATROLLING);
+				GuardRef->SetGuardState(EGuardState::STATIONARY);
 			}
-
-			// Sets the origin location of the patrol location if guard has one
-			if (GuardRef->PatrolLocations.Num() > 0)
+			else
 			{
+				// Sets the origin location of the patrol location
 				Blackboard->SetValueAsVector(
 					TEXT("PatrolOriginLocation"),
 					GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
 			}
 		}
-
-		
 	}
 	else
 	{
@@ -114,10 +114,10 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 			GuardRef->bPlayerInSight = false;
 			if (GuardRef->bPlayerWasInSight)
 			{
+				// Record the last seen location of the player
 				Blackboard->SetValueAsVector(
 					TEXT("PlayerlastSeenLocation"), _stimulus.StimulusLocation);
 
-				// TODO: Have seen player, need to chase
 				GuardRef->SetGuardState(EGuardState::SEARCHING);
 
 			}

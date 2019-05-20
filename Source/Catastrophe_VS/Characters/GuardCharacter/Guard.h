@@ -7,9 +7,6 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "Guard.generated.h"
 
-// Forward declare
-struct FTimerHandle;
-
 /**
  * The enum that stores the state of the guard character
  */
@@ -40,12 +37,18 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* HeadHitbox;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* AlertMarkMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* QuestionMarkMesh;
+
 public:
 	// Sets default values for this character's properties
 	AGuard();
 
 	/** The default state of the guard when it spawns in to the world */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behavour")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour")
 	EGuardState DefaultGuardState = EGuardState::STATIONARY;
 
 	/** Determine if the guard will walk around in his patrol location */
@@ -70,10 +73,11 @@ public:
 
 protected:
 
-	
-
 	UPROPERTY(BlueprintReadWrite, Category = "Guard | Controller")
 	class AGuardAiController* GuardControllerRef;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Guard | Animation")
+	class UGuardAnimInstance* GuardAnimInstance;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Movement")
 	float PatrolSpeed = 300.0f;
@@ -91,7 +95,7 @@ private:
 	EGuardState GuardState;
 
 	/** The timer handle for stun mechanic */
-	UPROPERTY(BlueprintReadOnly, Category = "Guard | Behaviour | Stun")
+	UPROPERTY(BlueprintReadOnly, Category = "Guard | Behaviour | Stun", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle StunTimerHnadle;
 
 protected:
