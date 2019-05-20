@@ -10,6 +10,8 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
@@ -71,6 +73,8 @@ APlayerCharacter::APlayerCharacter()
 
 	FishToCarry = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FishToCarry"));
 	FishToCarry->SetupAttachment(GetMesh(), TEXT("BackCarrySocket"));
+
+	StimulusSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("StimulusSourceComponent"));
 }
 
 // Called when the game starts or when spawned

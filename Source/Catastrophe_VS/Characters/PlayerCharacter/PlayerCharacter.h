@@ -49,6 +49,9 @@ class CATASTROPHE_VS_API APlayerCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* AimDownSightFocusPoint;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UAIPerceptionStimuliSourceComponent* StimulusSourceComponent;
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -188,5 +191,12 @@ public:
 	/** Try to remove the interaction target if it exists */
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void RemoveInteractionTarget(class AActor* _interactTarget);
+
+
+
+	/** Getter */
+	FORCEINLINE class UAIPerceptionStimuliSourceComponent* GetStimulusSourceComponent() const { 
+		return StimulusSourceComponent; }
+	/** Getter End */
 
 };

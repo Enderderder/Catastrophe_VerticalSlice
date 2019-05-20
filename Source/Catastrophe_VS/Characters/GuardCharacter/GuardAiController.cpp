@@ -43,19 +43,27 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 		if (GuardBehaviourTree)
 			RunBehaviorTree(GuardBehaviourTree);
 
-		// Sets the origin location of the patrol location if guard has one
-		if (Blackboard && GuardRef->PatrolLocations.Num() > 0)
+		if (Blackboard)
 		{
-			Blackboard->SetValueAsVector(
-				TEXT("PatrolOriginLocation"),
-				GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+			// Sets the default state of the guard
+			GuardRef->SetGuardState(GuardRef->DefaultGuardState);
 
 			// Set the patrol behaviour as initial state
 			if (GuardRef->bPatrolBehaviour)
 			{
 				GuardRef->SetGuardState(EGuardState::PATROLLING);
 			}
+
+			// Sets the origin location of the patrol location if guard has one
+			if (GuardRef->PatrolLocations.Num() > 0)
+			{
+				Blackboard->SetValueAsVector(
+					TEXT("PatrolOriginLocation"),
+					GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+			}
 		}
+
+		
 	}
 	else
 	{
@@ -104,13 +112,14 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 		else
 		{
 			GuardRef->bPlayerInSight = false;
-
 			if (GuardRef->bPlayerWasInSight)
 			{
 				Blackboard->SetValueAsVector(
 					TEXT("PlayerlastSeenLocation"), _stimulus.StimulusLocation);
 
 				// TODO: Have seen player, need to chase
+				GuardRef->SetGuardState(EGuardState::SEARCHING);
+
 			}
 			else
 			{
@@ -126,9 +135,12 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 
 void AGuardAiController::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
 {
+	// TODO: If not chasing player which is the higher priority task,
+	// investigate whatever the sound is
+
+
 	// Calls the guard character version of the function
 	GuardRef->OnHearingPerceptionUpdate(_actor, _stimulus);
-
 }
 
 bool AGuardAiController::ModifySightRange(float _newRange)

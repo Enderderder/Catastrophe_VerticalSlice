@@ -7,6 +7,9 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "Guard.generated.h"
 
+// Forward declare
+struct FTimerHandle;
+
 /**
  * The enum that stores the state of the guard character
  */
@@ -20,6 +23,7 @@ enum class EGuardState : uint8
 	PATROLLING,
 	INVESTATING,
 	CHASING,
+	SEARCHING,
 	STUNED,
 };
 
@@ -31,9 +35,18 @@ class CATASTROPHE_VS_API AGuard : public ACharacter
 {
 	GENERATED_BODY()
 
+private:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* HeadHitbox;
+
 public:
 	// Sets default values for this character's properties
 	AGuard();
+
+	/** The default state of the guard when it spawns in to the world */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behavour")
+	EGuardState DefaultGuardState = EGuardState::STATIONARY;
 
 	/** Determine if the guard will walk around in his patrol location */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour")
@@ -57,20 +70,29 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats")
-	float PatrolSpeed = 300.0f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats")
-	float ChaseSpeed = 1000.0f;
+	
 
 	UPROPERTY(BlueprintReadWrite, Category = "Guard | Controller")
 	class AGuardAiController* GuardControllerRef;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Movement")
+	float PatrolSpeed = 300.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Movement")
+	float ChaseSpeed = 1000.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Stun")
+	float MaxStunTime = 5.0f;
 
 private:
 
 	/** Store the state of the guard */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Guard | Behaviour", meta = (AllowPrivateAccess = "true"))
 	EGuardState GuardState;
+
+	/** The timer handle for stun mechanic */
+	UPROPERTY(BlueprintReadOnly, Category = "Guard | Behaviour | Stun")
+	FTimerHandle StunTimerHnadle;
 
 protected:
 	// Called when the game starts or when spawned
@@ -108,7 +130,7 @@ public:
 
 	/**
 	 * Sets the guards maximum walk speed
-	 * @Note This will overwrite the character movement component MaxWalkSpeed
+	 * @note This will overwrite the character movement component MaxWalkSpeed
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Guard | Stats")
 	void SetGuardMaxSpeed(float _speed);

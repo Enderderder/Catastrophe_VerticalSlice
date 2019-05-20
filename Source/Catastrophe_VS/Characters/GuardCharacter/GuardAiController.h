@@ -53,8 +53,8 @@ public:
 
 	/**
 	 * Modify the guard sight perception range
-	 * @Param Range of the sight
-	 * @Note This will overwrite the current value, make sure to store the old value
+	 * @param Range of the sight
+	 * @note This will overwrite the current value, make sure to store the old value
 	 */
 	UFUNCTION(BlueprintCallable, Category = "GuardAi")
 	bool ModifySightRange(float _newRange);

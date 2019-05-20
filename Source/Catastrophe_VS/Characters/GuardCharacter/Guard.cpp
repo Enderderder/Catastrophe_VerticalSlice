@@ -5,6 +5,8 @@
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/SphereComponent.h"
 
 #include "GuardAiController.h"
 
@@ -14,9 +16,8 @@ AGuard::AGuard()
  	// Set this character to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
 
-
-
-
+	HeadHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("HeadHitBox"));
+	HeadHitbox->SetupAttachment(GetMesh(), TEXT("HeadSocket"));
 }
 
 // Called when the game starts or when spawned
@@ -95,6 +96,10 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 
 	case EGuardState::CHASING:
 		SetGuardMaxSpeed(ChaseSpeed);
+		break;
+
+	case EGuardState::SEARCHING:
+
 		break;
 
 	case EGuardState::STUNED:
