@@ -38,3 +38,9 @@ void ADoorTrigger::ActivateDoor()
 
 }
 
+void ADoorTrigger::SetDoorActive(bool _b)
+{
+	Recieve_SetDoorActive(_b);
+
+
+}

@@ -16,11 +16,30 @@ class CATASTROPHE_VS_API UGuardAnimInstance : public UAnimInstance
 	
 public:
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GuardAnim")
 	float MoveSpeed;
 
-public:
-	/** Called on the  */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GuardAnim")
+	bool bStuned;
+	
+
+protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GuardAnim")
+	class AGuard* OwnerGuardActor;
+
+protected:
+	/** Called on the beginplay of the actor */
 	virtual void NativeBeginPlay() override;
 
+public:
+	/** Called on each animation update tick */
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+
+	/** Getter */
+	FORCEINLINE class AGuard* GetGuardCharacterOwner() const {
+		return OwnerGuardActor;
+	}
+	/** Getter End */
 };

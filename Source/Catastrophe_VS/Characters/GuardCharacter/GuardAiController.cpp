@@ -16,17 +16,17 @@ AGuardAiController::AGuardAiController()
 	//PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AGuardAiController::TargetPerceptionUpdate);
 	PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AGuardAiController::PerceptionUpdate);
 
-	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
-	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
-	PerceptionComponent->ConfigureSense(*SightConfig);
+	SightDefaultConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	SightDefaultConfig->DetectionByAffiliation.bDetectEnemies = true;
+	SightDefaultConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	SightDefaultConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	PerceptionComponent->ConfigureSense(*SightDefaultConfig);
 
-	HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
-	HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
-	HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
-	HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
-	PerceptionComponent->ConfigureSense(*HearingConfig);
+	HearingDefaultConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
+	HearingDefaultConfig->DetectionByAffiliation.bDetectEnemies = true;
+	HearingDefaultConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	HearingDefaultConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	PerceptionComponent->ConfigureSense(*HearingDefaultConfig);
 }
 
 void AGuardAiController::OnPossess(APawn* InPawn)
@@ -34,21 +34,41 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	// Sets the reference of the guard
-	GuardRef = Cast<AGuard>(InPawn);
-
-	// Runs the behaviour tree of guard
-	if (GuardBehaviourTree)
-		RunBehaviorTree(GuardBehaviourTree);
-
-	// Sets the origin location of the patrol location if guard has one
-	if (Blackboard && GuardRef->PatrolLocations.Num() > 0)
+	ControllingGuard = Cast<AGuard>(InPawn);
+	if (ControllingGuard && !ControllingGuard->IsPendingKill())
 	{
-		Blackboard->SetValueAsVector(
-			TEXT("PatrolOriginLocation"), 
-			GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+		ControllingGuard->SetGuardControllerRef(this);
+
+		// Runs the behaviour tree of guard
+		if (GuardBehaviourTree)
+			RunBehaviorTree(GuardBehaviourTree);
+
+		if (Blackboard)
+		{
+			// Sets the default state of the guard
+			ControllingGuard->SetGuardState(ControllingGuard->DefaultGuardState);
+
+			// If sets to patrol but guard dont have patrol behaviour 
+			// or dont have patrol points, reset it to stationary
+			if (ControllingGuard->GetGuardState() == EGuardState::PATROLLING 
+				&& !ControllingGuard->bPatrolBehaviour
+				&& ControllingGuard->PatrolLocations.Num() <= 0)
+			{
+				ControllingGuard->SetGuardState(EGuardState::STATIONARY);
+			}
+			else
+			{
+				// Sets the origin location of the patrol location
+				Blackboard->SetValueAsVector(
+					TEXT("PatrolOriginLocation"),
+					ControllingGuard->PatrolLocations[0] + ControllingGuard->GetActorLocation());
+			}
+		}
 	}
-	
-	
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Guard controller is not controlling a guard"));
+	}
 }
 
 void AGuardAiController::PerceptionUpdate(const TArray<AActor*>& UpdatedActors)
@@ -86,23 +106,20 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 	{
 		if (_stimulus.WasSuccessfullySensed())
 		{
-			GuardRef->bPlayerWasInSight = true;
-
-			Blackboard->SetValueAsVector(
-				TEXT("PlayerLocation"), _stimulus.StimulusLocation);
-			
-
+			ControllingGuard->bPlayerWasInSight = true;
+			ControllingGuard->SetGuardState(EGuardState::CHASING);
 		}
 		else
 		{
-			GuardRef->bPlayerInSight = false;
-
-			if (GuardRef->bPlayerWasInSight)
+			ControllingGuard->bPlayerInSight = false;
+			if (ControllingGuard->bPlayerWasInSight)
 			{
+				// Record the last seen location of the player
 				Blackboard->SetValueAsVector(
 					TEXT("PlayerlastSeenLocation"), _stimulus.StimulusLocation);
 
-				// TODO: Have seen player, need to chase
+				ControllingGuard->SetGuardState(EGuardState::SEARCHING);
+
 			}
 			else
 			{
@@ -112,13 +129,46 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 	}
 
 	// Calls the guard character version of the function
-	GuardRef->OnSightPerceptionUpdate(_actor, _stimulus);
+	ControllingGuard->OnSightPerceptionUpdate(_actor, _stimulus);
 
 }
 
 void AGuardAiController::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
 {
-	// Calls the guard character version of the function
-	GuardRef->OnHearingPerceptionUpdate(_actor, _stimulus);
+	// TODO: If not chasing player which is the higher priority task,
+	// investigate whatever the sound is
 
+
+	// Calls the guard character version of the function
+	ControllingGuard->OnHearingPerceptionUpdate(_actor, _stimulus);
+}
+
+bool AGuardAiController::ModifySightRange(float _newSightRange, float _losingSightRange)
+{
+	FAISenseID sightSenseID = UAISense::GetSenseID(UAISense_Sight::StaticClass());
+	if (!sightSenseID.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to get sight sense ID"));
+		return false;
+	}
+
+	if (!PerceptionComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("This controller dont have perception component"));
+		return false;
+	}
+	UAISenseConfig_Sight* sightConfig = 
+		Cast<UAISenseConfig_Sight>(PerceptionComponent->GetSenseConfig(sightSenseID));
+	if (!sightConfig)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No sight config found"));
+		return false;
+	}
+	
+	// Modify values and tell the config to be updated to the system
+	sightConfig->SightRadius = _newSightRange;
+	sightConfig->LoseSightRadius = _newSightRange + _losingSightRange;
+	PerceptionComponent->RequestStimuliListenerUpdate();
+
+	return true;
 }

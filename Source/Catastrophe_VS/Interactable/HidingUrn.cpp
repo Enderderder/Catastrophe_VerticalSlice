@@ -7,6 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "DestructibleComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -38,6 +40,7 @@ AHidingUrn::AHidingUrn()
 	BlockVolume->SetupAttachment(RootComponent);
 
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
+	InteractableComponent->RegisterTriggerVolume(TriggerBox);
 	InteractableComponent->OnInteract.AddDynamic(this, &AHidingUrn::OnPlayerInteract);
 }
 
@@ -45,8 +48,7 @@ void AHidingUrn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Forced to place the register here because unreal sucks
-	InteractableComponent->RegisterTriggerVolume(TriggerBox);
+
 }
 
 void AHidingUrn::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -99,6 +101,7 @@ void AHidingUrn::JumpIn(class APlayerCharacter* _playerCharacter)
 	TeleportLocation.Z += 200.0f;
 	_playerCharacter->SetActorLocation(TeleportLocation);
 	_playerCharacter->SetActorHiddenInGame(true);
+	_playerCharacter->GetStimulusSourceComponent()->UnregisterFromSense(UAISense_Sight::StaticClass());
 
 	// Disable collision
 	_playerCharacter->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -120,6 +123,7 @@ void AHidingUrn::JumpOut(class APlayerCharacter* _playerCharacter)
 	_playerCharacter->SetActorLocation(TempPlayerInfo.PlayerLocation);
 	_playerCharacter->SetActorHiddenInGame(false);
 	_playerCharacter->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	_playerCharacter->GetStimulusSourceComponent()->RegisterForSense(UAISense_Sight::StaticClass());
 
 	// Urn destruction
 	FVector destructionLocation = UrnDestructableMesh->GetComponentLocation();

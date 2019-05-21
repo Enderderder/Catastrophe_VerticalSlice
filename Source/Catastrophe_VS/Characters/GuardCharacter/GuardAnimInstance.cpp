@@ -3,8 +3,26 @@
 
 #include "GuardAnimInstance.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
+#include "Guard.h"
+
 void UGuardAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
-	//throw std::logic_error("The method or operation is not implemented.");
+	
+	// Gets the reference to the guard character
+	OwnerGuardActor = Cast<AGuard>(TryGetPawnOwner());
+
+}
+
+void UGuardAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+	
+	if (OwnerGuardActor && !OwnerGuardActor->IsPendingKill())
+	{
+		// Gets the speed of the character
+		MoveSpeed = OwnerGuardActor->GetCharacterMovement()->Velocity.Size();
+	}
 }

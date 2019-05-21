@@ -23,10 +23,10 @@ public:
 	bool bInAir;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
-	bool bRunning;
+	float Speed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerAnim")
-	float Speed;
+	bool bAiming;
 
 protected:
 
@@ -44,12 +44,8 @@ public:
 
 
 	/** Custom Getter */
-	FORCEINLINE class APlayerCharacter* GetCustomPlayerCharacter() const {
+	FORCEINLINE class APlayerCharacter* GetCustomPlayerCharacterOwner() const {
 		return CustomPlayerCharacter;
 	}
 	/** Getter End */
-
-
-
-
 };
