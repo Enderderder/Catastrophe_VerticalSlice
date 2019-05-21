@@ -8,6 +8,10 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
 
+#include "Engine/World.h"
+#include "TimerManager.h"
+
+
 #include "GuardAiController.h"
 #include "GuardAnimInstance.h"
 
@@ -87,7 +91,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 
 	case EGuardState::SLEEPING:
-		GuardControllerRef->GetSightDefaultConfig()->SightRadius = 0.0f;
+		GuardController->ModifySightRange(0.0f, LosingSightRange);
 		break;
 
 	case EGuardState::WAKEUPSTATEONE:
@@ -100,9 +104,9 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		if (bPatrolBehaviour && PatrolLocations.Num() > 0)
 		{
 			SetGuardMaxSpeed(PatrolSpeed);
-			GuardControllerRef->ModifySightRange(0.0f);
+			GuardController->ModifySightRange(PatrolSightRange, LosingSightRange);
 		}
-		else SetGuardState(_oldState); // If guard dont have a patrol behaviour, dont do it
+		else SetGuardState(DefaultGuardState); // If guard dont have a patrol behaviour, go back to the default state
 		break;
 
 	case EGuardState::INVESTATING:
@@ -110,6 +114,8 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 
 	case EGuardState::CHASING:
 		SetGuardMaxSpeed(ChaseSpeed);
+		GuardController->ModifySightRange(ChasingSightRange, LosingSightRange);
+		ShowAlertIndicator(true);
 		break;
 
 	case EGuardState::SEARCHING:
@@ -117,11 +123,25 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 
 	case EGuardState::STUNED:
+		OnStunBegin();
 		break;
 
 
 	default: break;
 	}
+}
+
+void AGuard::OnStunBegin()
+{
+	GuardAnimInstance->bStuned = true;
+
+
+	// TODO: Call when stun end after the timer
+}
+
+void AGuard::OnStunEnd()
+{
+	GuardAnimInstance->bStuned = false;
 }
 
 void AGuard::SetGuardMaxSpeed(float _speed)

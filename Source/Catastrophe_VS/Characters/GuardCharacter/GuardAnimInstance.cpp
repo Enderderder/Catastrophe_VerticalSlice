@@ -12,7 +12,7 @@ void UGuardAnimInstance::NativeBeginPlay()
 	Super::NativeBeginPlay();
 	
 	// Gets the reference to the guard character
-	GuardRef = Cast<AGuard>(TryGetPawnOwner());
+	OwnerGuardActor = Cast<AGuard>(TryGetPawnOwner());
 
 }
 
@@ -20,12 +20,9 @@ void UGuardAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	
-	if (GuardRef && !GuardRef->IsPendingKill())
+	if (OwnerGuardActor && !OwnerGuardActor->IsPendingKill())
 	{
 		// Gets the speed of the character
-		MoveSpeed = GuardRef->GetCharacterMovement()->Velocity.Size();
-
-		// Gets the status of the guard character
-		bStuned = GuardRef->bStuned;
+		MoveSpeed = OwnerGuardActor->GetCharacterMovement()->Velocity.Size();
 	}
 }

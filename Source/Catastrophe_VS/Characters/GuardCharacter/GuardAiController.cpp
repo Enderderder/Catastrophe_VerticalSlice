@@ -34,10 +34,10 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	// Sets the reference of the guard
-	GuardRef = Cast<AGuard>(InPawn);
-	if (GuardRef && !GuardRef->IsPendingKill())
+	ControllingGuard = Cast<AGuard>(InPawn);
+	if (ControllingGuard && !ControllingGuard->IsPendingKill())
 	{
-		GuardRef->SetGuardControllerRef(this);
+		ControllingGuard->SetGuardControllerRef(this);
 
 		// Runs the behaviour tree of guard
 		if (GuardBehaviourTree)
@@ -46,22 +46,22 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 		if (Blackboard)
 		{
 			// Sets the default state of the guard
-			GuardRef->SetGuardState(GuardRef->DefaultGuardState);
+			ControllingGuard->SetGuardState(ControllingGuard->DefaultGuardState);
 
 			// If sets to patrol but guard dont have patrol behaviour 
 			// or dont have patrol points, reset it to stationary
-			if (GuardRef->GetGuardState() == EGuardState::PATROLLING 
-				&& !GuardRef->bPatrolBehaviour
-				&& GuardRef->PatrolLocations.Num() <= 0)
+			if (ControllingGuard->GetGuardState() == EGuardState::PATROLLING 
+				&& !ControllingGuard->bPatrolBehaviour
+				&& ControllingGuard->PatrolLocations.Num() <= 0)
 			{
-				GuardRef->SetGuardState(EGuardState::STATIONARY);
+				ControllingGuard->SetGuardState(EGuardState::STATIONARY);
 			}
 			else
 			{
 				// Sets the origin location of the patrol location
 				Blackboard->SetValueAsVector(
 					TEXT("PatrolOriginLocation"),
-					GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+					ControllingGuard->PatrolLocations[0] + ControllingGuard->GetActorLocation());
 			}
 		}
 	}
@@ -106,19 +106,19 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 	{
 		if (_stimulus.WasSuccessfullySensed())
 		{
-			GuardRef->bPlayerWasInSight = true;
-			GuardRef->SetGuardState(EGuardState::CHASING);
+			ControllingGuard->bPlayerWasInSight = true;
+			ControllingGuard->SetGuardState(EGuardState::CHASING);
 		}
 		else
 		{
-			GuardRef->bPlayerInSight = false;
-			if (GuardRef->bPlayerWasInSight)
+			ControllingGuard->bPlayerInSight = false;
+			if (ControllingGuard->bPlayerWasInSight)
 			{
 				// Record the last seen location of the player
 				Blackboard->SetValueAsVector(
 					TEXT("PlayerlastSeenLocation"), _stimulus.StimulusLocation);
 
-				GuardRef->SetGuardState(EGuardState::SEARCHING);
+				ControllingGuard->SetGuardState(EGuardState::SEARCHING);
 
 			}
 			else
@@ -129,7 +129,7 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 	}
 
 	// Calls the guard character version of the function
-	GuardRef->OnSightPerceptionUpdate(_actor, _stimulus);
+	ControllingGuard->OnSightPerceptionUpdate(_actor, _stimulus);
 
 }
 
@@ -140,10 +140,10 @@ void AGuardAiController::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _
 
 
 	// Calls the guard character version of the function
-	GuardRef->OnHearingPerceptionUpdate(_actor, _stimulus);
+	ControllingGuard->OnHearingPerceptionUpdate(_actor, _stimulus);
 }
 
-bool AGuardAiController::ModifySightRange(float _newRange)
+bool AGuardAiController::ModifySightRange(float _newSightRange, float _losingSightRange)
 {
 	FAISenseID sightSenseID = UAISense::GetSenseID(UAISense_Sight::StaticClass());
 	if (!sightSenseID.IsValid())
@@ -165,6 +165,10 @@ bool AGuardAiController::ModifySightRange(float _newRange)
 		return false;
 	}
 	
-	sightConfig->SightRadius = _newRange;
+	// Modify values and tell the config to be updated to the system
+	sightConfig->SightRadius = _newSightRange;
+	sightConfig->LoseSightRadius = _newSightRange + _losingSightRange;
+	PerceptionComponent->RequestStimuliListenerUpdate();
+
 	return true;
 }

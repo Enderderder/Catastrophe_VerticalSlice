@@ -5,6 +5,8 @@
 
 #include "Components/StaticMeshComponent.h"
 
+#include "Characters/GuardCharacter/Guard.h"
+
 // Sets default values
 ATomato::ATomato()
 {
@@ -28,10 +30,19 @@ void ATomato::BeginPlay()
 
 void ATomato::OnTomatoOverlap(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	// If the tomato hits the head of a guard
+	if (OtherActor->IsA<AGuard>() && OtherComp->ComponentHasTag(TEXT("Head")))
+	{
+		// TODO: Stun the guard
+	}
 
+	// TODO: Spawn decal
+
+	// Destroy the actor
+	Destroy();
 }
 
 void ATomato::LaunchTomato()
 {
-
+	// TODO: Apply force when launch
 }

@@ -30,7 +30,7 @@ protected:
 
 public:	
 
-	/** TODO: Lauch tomato in certain direction */
+	/** Lauch tomato in certain direction */
 	UFUNCTION(BlueprintCallable, Category = "Tomato")
 	void LaunchTomato();
 

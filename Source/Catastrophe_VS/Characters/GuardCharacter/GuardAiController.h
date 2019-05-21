@@ -24,12 +24,13 @@ private:
 	class UAISenseConfig_Hearing* HearingDefaultConfig;
 
 public:
+	/** Default constructor */
 	AGuardAiController();
 
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardAi")
-	class AGuard* GuardRef;
+	class AGuard* ControllingGuard;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GuardAi")
 	class UBehaviorTree* GuardBehaviourTree;
@@ -54,10 +55,11 @@ public:
 	/**
 	 * Modify the guard sight perception range
 	 * @param Range of the sight
+	 * @param Range on top of the sight range where perception will lose sight
 	 * @note This will overwrite the current value, make sure to store the old value
 	 */
 	UFUNCTION(BlueprintCallable, Category = "GuardAi")
-	bool ModifySightRange(float _newRange);
+	bool ModifySightRange(float _newSightRange, float _losingSightRange);
 
 	/** Getter */
 	FORCEINLINE UAISenseConfig_Sight* GetSightDefaultConfig() const { return SightDefaultConfig; }
