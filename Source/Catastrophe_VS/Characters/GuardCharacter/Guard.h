@@ -166,12 +166,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Guard | Stats")
 	void SetGuardMaxSpeed(float _speed);
 
+	/** BLueprint function, Show the alert indicator or not */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Guard | Animation")
 	void ShowAlertIndicator(bool _b);
 
+	/** BLueprint function, Show the question mark indicator or not */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Guard | Animation")
 	void ShowQuestionIndicator(bool _b);
 
+	UFUNCTION(BlueprintCallable, Category = "Guard | Animation")
+	void StopAllMontages();
 
 	/** Setter */
 	void SetGuardControllerRef(class AGuardAiController* _controller) {

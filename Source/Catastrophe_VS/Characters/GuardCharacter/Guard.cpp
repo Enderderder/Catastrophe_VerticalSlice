@@ -85,6 +85,9 @@ void AGuard::SetGuardState(EGuardState _newState)
 
 void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardState _newState)
 {
+	// Refresh the animations of the guard
+	StopAllMontages();
+
 	switch (_newState)
 	{
 	case EGuardState::STATIONARY:
@@ -147,4 +150,10 @@ void AGuard::OnStunEnd()
 void AGuard::SetGuardMaxSpeed(float _speed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = _speed;
+}
+
+void AGuard::StopAllMontages()
+{
+	if (GuardAnimInstance)
+		GuardAnimInstance->StopAllMontages(0.1f);
 }
