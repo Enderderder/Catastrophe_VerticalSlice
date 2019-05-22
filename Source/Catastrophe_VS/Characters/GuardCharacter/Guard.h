@@ -48,23 +48,23 @@ public:
 	AGuard();
 
 	/** The default state of the guard when it spawns in to the world */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour |")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour")
 	EGuardState DefaultGuardState = EGuardState::STATIONARY;
 
 	/** Determine if the guard will walk around in his patrol location */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour |")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour")
 	bool bPatrolBehaviour = false;
 
 	/** The patrol way points of the guard, need to enable PatrolBehaviour to use them */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour |", meta = (MakeEditWidget = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour", meta = (MakeEditWidget = "true"))
 	TArray<FVector> PatrolLocations;
 
 	/** Previous state of the vision on player */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour |")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
 	bool bPlayerWasInSight = false;
 
 	/** Vision is on the player */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour |")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
 	bool bPlayerInSight = false;
 
 protected:
@@ -106,11 +106,11 @@ protected:
 private:
 
 	/** Store the state of the guard */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Guard | Behaviour |", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Guard | Behaviour", meta = (AllowPrivateAccess = "true"))
 	EGuardState GuardState;
 
 	/** The timer handle for stun mechanic */
-	UPROPERTY(BlueprintReadOnly, Category = "Guard | Behaviour | Stun", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Guard | Stun", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle StunTimerHnadle;
 
 protected:
@@ -130,13 +130,13 @@ protected:
 	/** Called when guard state switch to stun */
 	UFUNCTION()
 	virtual void OnStunBegin();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Behaviour | Stun", meta = (DisplayName = "OnStun"))
+	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Stun", meta = (DisplayName = "OnStun"))
 	void Receive_OnStunBegin();
 
 	/** Called when guard state switch to stun */
 	UFUNCTION()
 	virtual void OnStunEnd();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Behaviour | Stun", meta = (DisplayName = "OnStunEnd"))
+	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Stun", meta = (DisplayName = "OnStunEnd"))
 	void Receive_OnStunEnd();
 	
 public:	
@@ -156,7 +156,7 @@ public:
 	 * Sets the state of the guard then modify the character value base on the state
 	 * @param The new state of the guard
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Guard | Behaviour |")
+	UFUNCTION(BlueprintCallable, Category = "Guard | Behaviour")
 	void SetGuardState(EGuardState _newState);
 
 	/**
@@ -168,11 +168,11 @@ public:
 
 	/** BLueprint function, Show the alert indicator or not */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Guard | Animation")
-	void ShowAlertIndicator(bool _b);
+	void ToggleAlertIndicator(bool _b);
 
 	/** BLueprint function, Show the question mark indicator or not */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Guard | Animation")
-	void ShowQuestionIndicator(bool _b);
+	void ToggleQuestionIndicator(bool _b);
 
 	UFUNCTION(BlueprintCallable, Category = "Guard | Animation")
 	void StopAllMontages();

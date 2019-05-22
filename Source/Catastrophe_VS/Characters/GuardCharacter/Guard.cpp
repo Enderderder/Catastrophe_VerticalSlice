@@ -88,6 +88,36 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 	// Refresh the animations of the guard
 	StopAllMontages();
 
+	// What will happened when exiting each state
+	switch (_oldState)
+	{
+	case EGuardState::STATIONARY:
+		break;
+	case EGuardState::SLEEPING:
+		break;
+	case EGuardState::WAKEUPSTATEONE:
+		break;
+	case EGuardState::WAKEUPSTATETWO:
+		break;
+	case EGuardState::PATROLLING:
+		break;
+	case EGuardState::INVESTATING:
+		ToggleQuestionIndicator(false);
+		break;
+	case EGuardState::CHASING:
+		ToggleAlertIndicator(false);
+		break;
+	case EGuardState::SEARCHING:
+		ToggleQuestionIndicator(false);
+		bPlayerWasInSight = false;
+		break;
+	case EGuardState::STUNED:
+		break;
+	default:
+		break;
+	}
+
+	// What will happened when entering each state
 	switch (_newState)
 	{
 	case EGuardState::STATIONARY:
@@ -118,7 +148,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 	case EGuardState::CHASING:
 		SetGuardMaxSpeed(ChaseSpeed);
 		GuardController->ModifySightRange(ChasingSightRange, LosingSightRange);
-		ShowAlertIndicator(true);
+		ToggleAlertIndicator(true);
 		break;
 
 	case EGuardState::SEARCHING:
@@ -136,15 +166,36 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 
 void AGuard::OnStunBegin()
 {
-	GuardAnimInstance->bStuned = true;
-
-
-	// TODO: Call when stun end after the timer
+	// If the guard is already stuned
+	if (GuardState == EGuardState::STUNED)
+	{
+		// Clear the old timer then set a new one
+		GetWorld()->GetTimerManager().ClearTimer(StunTimerHnadle);
+		GetWorld()->GetTimerManager().SetTimer(
+			StunTimerHnadle, this, &AGuard::OnStunEnd, MaxStunTime, false);
+	}
+	else
+	{
+		GuardAnimInstance->bStuned = true;
+	}
+	
+	
 }
 
 void AGuard::OnStunEnd()
 {
 	GuardAnimInstance->bStuned = false;
+
+	// Go search the player if he saw the player
+	if (bPlayerWasInSight)
+	{
+		SetGuardState(EGuardState::SEARCHING);
+	}
+	else // Or just go back to the default state
+	{
+		SetGuardState(DefaultGuardState);
+	}
+
 }
 
 void AGuard::SetGuardMaxSpeed(float _speed)
