@@ -4,6 +4,7 @@
 #include "NPC.h"
 
 #include "Components/BoxComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Interactable/BaseClasses/InteractableComponent.h"
 #include "PlayerCharacter/PlayerCharacter.h"
 
@@ -30,6 +31,9 @@ void ANPC::BeginPlay()
 
 	InteractableComponent->RegisterTriggerVolume(TriggerBox);
 	InteractableComponent->OnInteract.AddDynamic(this, &ANPC::Interact);
+
+	ConversationInProgress = false;
+	CurrentDialogueNum = 0;
 }
 
 // Called every frame
@@ -42,5 +46,69 @@ void ANPC::Tick(float DeltaTime)
 void ANPC::Interact(class APlayerCharacter* _playerCharacter)
 {
 	Receive_Interact();
+
+	// Interaction functionality
+	if (ConversationInProgress)
+	{
+		NextDialogue();
+	}
+	else
+	{
+		InitializeWidget();
+		ConversationInProgress = true;
+	}
 }
 
+void ANPC::InitializeWidget()
+{
+	if (WidgetRef)
+	{
+		DialogueWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetRef);
+
+		if (DialogueWidget)
+		{
+			DialogueWidget->AddToViewport();
+			UpdateWidget();
+		}
+	}
+}
+
+void ANPC::UpdateWidget()
+{
+	if (DialogueSentenceList[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+	{
+		// Set character image on dialogue widget to NPC image
+		CurrentIcon = NPCIcon;
+	}
+	else if (DialogueSentenceList[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
+	{
+		// Set character image on dialogue widget to Player image
+		CurrentIcon = PlayerIcon;
+	}
+
+	CurrentDialogueText = DialogueSentenceList[CurrentDialogueNum].m_Sentence;
+
+	Receive_UpdateWidget();
+}
+
+void ANPC::NextDialogue()
+{
+	// Increment current dialogue position by 1 if not max num of sentences
+	if (CurrentDialogueNum < DialogueSentenceList.Num() - 1)
+	{
+		CurrentDialogueNum++;
+	}
+	else
+	{
+		DisableDialogue();
+	}
+
+	UpdateWidget();
+}
+
+void ANPC::DisableDialogue()
+{
+	DialogueWidget->RemoveFromViewport();
+	CurrentDialogueNum = 0;
+	ConversationInProgress = false;
+}
