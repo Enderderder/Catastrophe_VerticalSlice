@@ -40,13 +40,13 @@ public:
 	AProceduralMultiMeshActor();
 
 	/** Set if this asset will be regenerate each time it gets spawned into the world */
-	UPROPERTY(EditDefaultsOnly, Category = "ProceduralGenerateMesh")
+	UPROPERTY(EditAnywhere, Category = "ProceduralGenerateMesh")
 	bool bRegenerateAtSpawn = true;
 
 protected:
 
 	/** Note: This is not for run time, this is use like a button by PostPropertyChange */
-	UPROPERTY(EditDefaultsOnly, Category = "ProceduralGenerateMesh")
+	UPROPERTY(EditAnywhere, Category = "ProceduralGenerateMesh")
 	bool bGenerate = false;
 
 	/** Sets the mesh for diff mesh component */
@@ -54,7 +54,7 @@ protected:
 	TArray<FRandomMeshSlot> RandomMeshes;
 
 	/** Array that stores all the mesh components */
-	UPROPERTY(BlueprintReadOnly, Category = "ProceduralGenerateMesh")
+	UPROPERTY(EditDefaultsOnly, Category = "ProceduralGenerateMesh")
 	TArray<class UStaticMeshComponent*> StoredMeshComponents;
 
 protected:
