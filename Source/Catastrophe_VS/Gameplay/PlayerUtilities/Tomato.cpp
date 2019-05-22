@@ -33,7 +33,8 @@ void ATomato::OnTomatoOverlap(class UPrimitiveComponent* OverlappedComponent, cl
 	// If the tomato hits the head of a guard
 	if (OtherActor->IsA<AGuard>() && OtherComp->ComponentHasTag(TEXT("Head")))
 	{
-		// TODO: Stun the guard
+		AGuard* guard = Cast<AGuard>(OtherActor);
+		guard->SetGuardState(EGuardState::STUNED);
 	}
 
 	// TODO: Spawn decal

@@ -59,7 +59,7 @@ public:
 	 * @note This will overwrite the current value, make sure to store the old value
 	 */
 	UFUNCTION(BlueprintCallable, Category = "GuardAi")
-	bool ModifySightRange(float _newSightRange, float _losingSightRange);
+	bool ModifySightRange(float _newSightRange, float _losingSightRange = 500.0f);
 
 	/** Getter */
 	FORCEINLINE UAISenseConfig_Sight* GetSightDefaultConfig() const { return SightDefaultConfig; }

@@ -130,8 +130,7 @@ void AHidingUrn::JumpOut(class APlayerCharacter* _playerCharacter)
 	UrnDestructableMesh->ApplyDamage(1.0f, destructionLocation, destructionLocation, 1.0f);
 
 	// Disable the collision of the block volume
-	BlockVolume->DestroyComponent();
-	//BlockVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BlockVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Call the blueprint version 
 	Receive_JumpOut(_playerCharacter);

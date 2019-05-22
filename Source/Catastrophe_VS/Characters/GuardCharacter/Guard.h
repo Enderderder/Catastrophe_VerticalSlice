@@ -130,7 +130,7 @@ protected:
 	/** Called when guard state switch to stun */
 	UFUNCTION()
 	virtual void OnStunBegin();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Stun", meta = (DisplayName = "OnStun"))
+	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Stun", meta = (DisplayName = "OnStunBegin"))
 	void Receive_OnStunBegin();
 
 	/** Called when guard state switch to stun */

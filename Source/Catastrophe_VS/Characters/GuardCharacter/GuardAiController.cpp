@@ -138,6 +138,15 @@ void AGuardAiController::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _
 	// TODO: If not chasing player which is the higher priority task,
 	// investigate whatever the sound is
 
+	// If heard player making noise
+	if (_actor->ActorHasTag(TEXT("Player")))
+	{
+		if (_stimulus.WasSuccessfullySensed())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("I can hear uuuuu"));
+		}
+	}
+
 
 	// Calls the guard character version of the function
 	ControllingGuard->OnHearingPerceptionUpdate(_actor, _stimulus);

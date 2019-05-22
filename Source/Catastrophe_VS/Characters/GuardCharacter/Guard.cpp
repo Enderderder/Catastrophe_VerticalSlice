@@ -166,20 +166,22 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 
 void AGuard::OnStunBegin()
 {
-	// If the guard is already stuned
-	if (GuardState == EGuardState::STUNED)
-	{
-		// Clear the old timer then set a new one
-		GetWorld()->GetTimerManager().ClearTimer(StunTimerHnadle);
-		GetWorld()->GetTimerManager().SetTimer(
-			StunTimerHnadle, this, &AGuard::OnStunEnd, MaxStunTime, false);
-	}
+	// Sight goes dark for guard
+	GuardController->ModifySightRange(0.0f);
+
+
+	if (GuardAnimInstance)
+		GuardAnimInstance->bStuned = true;
 	else
 	{
-		GuardAnimInstance->bStuned = true;
+		// Force the animation
+		Cast<UGuardAnimInstance>(GetMesh()->GetAnimInstance())->bStuned = true;
 	}
-	
-	
+	// Clear the old timer
+	GetWorld()->GetTimerManager().ClearTimer(StunTimerHnadle);
+	// Set a timer to call OnStunEnd()
+	GetWorld()->GetTimerManager().SetTimer(
+		StunTimerHnadle, this, &AGuard::OnStunEnd, MaxStunTime, false);
 }
 
 void AGuard::OnStunEnd()
@@ -195,7 +197,6 @@ void AGuard::OnStunEnd()
 	{
 		SetGuardState(DefaultGuardState);
 	}
-
 }
 
 void AGuard::SetGuardMaxSpeed(float _speed)
