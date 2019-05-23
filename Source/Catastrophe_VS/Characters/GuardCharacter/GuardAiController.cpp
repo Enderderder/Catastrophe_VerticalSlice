@@ -80,19 +80,22 @@ void AGuardAiController::PerceptionUpdate(const TArray<AActor*>& UpdatedActors)
 		{
 			for (int32 index = 0; index < actorPerceptionInfo.LastSensedStimuli.Num(); ++index)
 			{
-				switch (index)
+				if (actorPerceptionInfo.LastSensedStimuli[index].IsValid())
 				{
-				case 0: // Sight perception updated
-					OnSightPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
-					break;
+					switch (index)
+					{
+					case 0: // Sight perception updated
+						OnSightPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
+						break;
 
-				case 1: // Hearing perception updated
-					OnHearingPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
-					break;
+					case 1: // Hearing perception updated
+						OnHearingPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
+						break;
 
-				default:
-					UE_LOG(LogTemp, Warning, TEXT("There is no third sense lol wtf"));
-					break;
+					default:
+						UE_LOG(LogTemp, Warning, TEXT("There is no third sense lol wtf"));
+						break;
+					}
 				}
 			}
 		}

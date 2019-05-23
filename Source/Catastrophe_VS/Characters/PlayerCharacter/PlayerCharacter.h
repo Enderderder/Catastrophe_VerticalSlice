@@ -22,7 +22,7 @@ enum class EDirection : uint8
 UENUM(BlueprintType)
 enum class EHHUType : uint8
 {
-	THROWING,
+	TOMATO,
 	LASER,
 };
 
@@ -49,6 +49,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* CamFocusPoint;
 
+	UPROPERTY(BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UTimelineComponent* ZoomInTimeline;
+
 	/** Where the camera is going to be focused on during aiming */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* AimDownSightFocusPoint;
@@ -69,6 +72,14 @@ private:
 
 protected:
 
+	/** Player animation instance */
+	UPROPERTY(BlueprintReadOnly, Category = "Player | Animation")
+	class UPlayerAnimInstance* PlayerAnimInstance;
+
+	/** Store variable for the default length of the camera arm */
+	UPROPERTY(BlueprintReadOnly, Category = Camera)
+	float DefaultCameraArmLength;
+	
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
 	float BaseTurnRate = 45.0f;
@@ -82,28 +93,42 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Interaction")
 	class AActor* InteractTarget;
 
+
 	/** Currently activated HHU(Hand Hold Utility) */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "HHU | General")
-	EHHUType ActiveHHUType;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "HHU | General")
+	EHHUType ActiveHHUType = EHHUType::TOMATO;
 
 	/** Is HHU(Hand Hold Utility) primary action active */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "HHU | General")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "HHU | General")
 	bool bHHUPrimaryActive = false;
 
 	/** Is HHU(Hand Hold Utility) secondary action active */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "HHU | General")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "HHU | General")
 	bool bHHUSecondaryActive = false;
+
+	/** The HHU zoom curve */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | General")
+	class UCurveFloat* ZoomInCurve;
+
+	/** Class object that define what object will be throw out as tomato */
+	UPROPERTY(EditDefaultsOnly, Category = "HHU | Tomato")
+	TSubclassOf<class AActor> TomatoClass;
+
+	/** The total amount of tomato player can hold */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | Tomato")
+	int32 TomatoTotalCount = 1;
+
+	/** Stamina */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
+	float TotalStamina = 100.0f;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Movement")
+	float CurrentStamina;
+
 
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
-
-	/** Class object that define what object will be throw out as tomato */
-	UPROPERTY(EditDefaultsOnly, Category = "HHU | Throwable")
-	TSubclassOf<class AActor> TomatoClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | Tomato")
-	int32 TomatoTotalCount = 1;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "HHU | Tomato")
 	int32 TomatoCurrentCount = 0;
@@ -111,10 +136,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | General")
 	float CameraZoomRatio;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HHU | General")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HHU | General")
 	bool bCanUseHHU = true;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bCanInteract = true;
 
 protected:
@@ -140,6 +165,12 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	/** Called for character sprinting begin */
+	void SprintBegin();
+
+	/** Called for character sprinting end */
+	void SprintEnd();
 
 	/** Called for character crouching begin */
 	void CrouchBegin();
@@ -184,6 +215,11 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Skill_Tomato")
 	void ShootTomato();
 
+	/** Called when ZoomInTimeline ticks */
+	UFUNCTION()
+	void TimelineSetCameraZoomValue(float _alpha);
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -192,16 +228,16 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/** Called for set the kunai count to maximum */
-	UFUNCTION(BlueprintCallable, Category = "Skill_Tomato")
+	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")
 	void RestoreAllTomatos();
 
 	/** Called for restore certain amount of kunai (but not over the max) */
-	UFUNCTION(BlueprintCallable, Category = "Skill_Tomato")
+	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")
 	void RestoreTomato(int _count);
 
 	/** Return the current count of kunai player is holding */
-	UFUNCTION(BlueprintCallable, Category = "Skill_Tomato")
-	int GetKunaiCount() { return TomatoCurrentCount; }
+	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")
+	int GetTomatoCount() { return TomatoCurrentCount; }
 
 	UFUNCTION(BlueprintCallable, Category = "Fish")
 	void GrabbingFish();
@@ -214,11 +250,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void RemoveInteractionTarget(class AActor* _interactTarget);
 
-
+	/**
+	 * Set the value of current stamina
+	 * @note This will not overflow the stamina
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetStamina(float _value);
+	
 
 	/** Getter */
 	FORCEINLINE class UAIPerceptionStimuliSourceComponent* GetStimulusSourceComponent() const { 
 		return PerceptionStimuliSourceComponent; }
+	FORCEINLINE float GetTotalStamina() const { return TotalStamina; }
 	/** Getter End */
 
 };

@@ -134,6 +134,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 	switch (_newState)
 	{
 	case EGuardState::STATIONARY:
+		GuardController->ModifySightRange(PatrolSightRange, LosingSightRange);
 		break;
 
 	case EGuardState::SLEEPING:
@@ -156,6 +157,9 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 
 	case EGuardState::INVESTATING:
+		SetGuardMaxSpeed(PatrolSpeed);
+		GuardController->ModifySightRange(PatrolSightRange, LosingSightRange);
+		ToggleQuestionIndicator(true);
 		break;
 
 	case EGuardState::CHASING:

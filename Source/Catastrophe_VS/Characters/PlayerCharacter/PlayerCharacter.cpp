@@ -7,6 +7,7 @@
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -16,6 +17,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 
+#include "PlayerAnimInstance.h"
 #include "Interactable/InteractActor.h"
 #include "Interactable/BaseClasses/InteractableObject.h"
 #include "Interactable/BaseClasses/InteractableComponent.h"
@@ -25,9 +27,8 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
-	// Set this character to call Tick() every frame.  
-	// You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
+	// Set this character to call Tick() every frame. 
+	PrimaryActorTick.bCanEverTick = true;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -44,7 +45,7 @@ APlayerCharacter::APlayerCharacter()
 	AimDownSightFocusPoint->SetupAttachment(GetMesh());
 
 	CamFocusPoint = CreateDefaultSubobject<USceneComponent>(TEXT("FollowCameraFocusPoint"));
-	CamFocusPoint->SetupAttachment(GetMesh());
+	CamFocusPoint->SetupAttachment(RootComponent);
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -76,8 +77,28 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// Attach the camera to the focus point
-	CameraBoom->AttachToComponent(CamFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
+	// Gets the player animation instance
+	PlayerAnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	if (!PlayerAnimInstance) UE_LOG(LogTemp, Error, TEXT("Player is not using the correct anim instance"));
+
+	// Store the default value of the camera arm length
+	DefaultCameraArmLength = CameraBoom->TargetArmLength;
+
+	// Construct the zoom in timeline
+	if (!ZoomInCurve) UE_LOG(LogTemp, Error, TEXT("Player zoom in curve is nullptr!"));
+	ZoomInTimeline = NewObject<UTimelineComponent>(this, TEXT("ZoomInTimeline"));
+	ZoomInTimeline->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	this->BlueprintCreatedComponents.Add(ZoomInTimeline);
+	ZoomInTimeline->SetLooping(false);
+	ZoomInTimeline->SetTimelineLength(0.3f);
+	ZoomInTimeline->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+	FOnTimelineFloat onTimelineCallback;
+	onTimelineCallback.BindUFunction(this, FName{ TEXT("TimelineSetCameraZoomValue") });
+	ZoomInTimeline->AddInterpFloat(ZoomInCurve, onTimelineCallback);
+	ZoomInTimeline->RegisterComponent();
+
+	// Set the stamina to full
+	SetStamina(TotalStamina);
 
 	CheckTomatoInHand();
 }
@@ -85,10 +106,13 @@ void APlayerCharacter::BeginPlay()
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
-	/// To use the tick function, go to the constructor 
-	/// and uncomment the " PrimaryActorTick.bCanEverTick = true; "
 	Super::Tick(DeltaTime);
 
+	// Make sure to run the timeline
+	if (ZoomInTimeline)
+	{
+		ZoomInTimeline->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, nullptr);
+	}
 }
 
 // Called to bind functionality to input
@@ -102,7 +126,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
-	// TODO: Bind sprinting functions
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::SprintBegin);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::SprintEnd);
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::CrouchBegin);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::CrouchEnd);
@@ -136,6 +161,16 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void APlayerCharacter::SprintBegin()
+{
+
+}
+
+void APlayerCharacter::SprintEnd()
+{
+
 }
 
 void APlayerCharacter::CrouchBegin()
@@ -258,6 +293,13 @@ void APlayerCharacter::ShootTomato()
 	}
 }
 
+void APlayerCharacter::TimelineSetCameraZoomValue(float _alpha)
+{
+	float resultLength =
+		FMath::Lerp(DefaultCameraArmLength, DefaultCameraArmLength * CameraZoomRatio, _alpha);
+	CameraBoom->TargetArmLength = resultLength;
+}
+
 void APlayerCharacter::InteractBegin()
 {
 	if (InteractTarget && !InteractTarget->IsPendingKill())
@@ -285,6 +327,45 @@ void APlayerCharacter::InteractEnd()
 
 void APlayerCharacter::HHUPrimaryActionBegin()
 {
+	// If cannot use HHU, just dont then
+	if (!bCanUseHHU) return;
+
+	// Set the activation state to true
+	bHHUPrimaryActive = true;
+
+	switch (ActiveHHUType)
+	{
+	case EHHUType::TOMATO: // To shoot tomato, must be zoomed in
+	{
+		if (!bHHUSecondaryActive
+			|| TomatoCurrentCount <= 0
+			|| !TomatoClass) break; // Do the check
+		// Set the parameter for spawning the tomato
+		FVector tomatoSpawnLocation;
+		FRotator tomatoSpawnRotation;
+		FActorSpawnParameters tomatoSpawnInfo;
+		tomatoSpawnInfo.Owner = this;
+		tomatoSpawnInfo.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		tomatoSpawnLocation = GetMesh()->GetSocketLocation(TEXT("RightHandSocket"));
+		tomatoSpawnRotation = FollowCamera->GetComponentRotation();
+		// Spawn the tomato
+		AActor * SpawnedTomato;
+		SpawnedTomato = GetWorld()->SpawnActor<AActor>(
+			TomatoClass, tomatoSpawnLocation, tomatoSpawnRotation, tomatoSpawnInfo);
+		// Lower the tomato count
+		TomatoCurrentCount--;
+		break;
+	}
+
+	case EHHUType::LASER:
+	{
+
+		break;
+	}
+
+	default: break;
+	}
 
 }
 
@@ -293,9 +374,15 @@ void APlayerCharacter::HHUPrimaryActionEnd()
 	// Only end if the action is already activated
 	if (bHHUPrimaryActive)
 	{
+		switch (ActiveHHUType)
+		{
+		case EHHUType::TOMATO:
+			break;
+		case EHHUType::LASER:
+			break;
 
-
-
+		default: break;
+		}
 
 		// Flip the activation state
 		bHHUPrimaryActive = false;
@@ -304,6 +391,35 @@ void APlayerCharacter::HHUPrimaryActionEnd()
 
 void APlayerCharacter::HHUSecondaryActionBegin()
 {
+	// If cannot use HHU, just dont then
+	if (!bCanUseHHU) return;
+
+	// Set the activation state to true
+	bHHUSecondaryActive = true;
+
+	switch (ActiveHHUType)
+	{
+	case EHHUType::TOMATO:
+	{
+		// Let the character follow camera rotation
+		bUseControllerRotationYaw = true;
+		CameraBoom->bEnableCameraLag = false;
+		CameraBoom->bEnableCameraRotationLag = false;
+		ZoomInTimeline->Play();
+		PlayerAnimInstance->bAiming = true;
+
+		break;
+	}
+
+	case EHHUType::LASER:
+	{
+
+		break;
+	}
+
+	default: break;
+	}
+
 
 }
 
@@ -312,7 +428,27 @@ void APlayerCharacter::HHUSecondaryActionEnd()
 	// Only end if the action is already activated
 	if (bHHUSecondaryActive)
 	{
+		switch (ActiveHHUType)
+		{
+		case EHHUType::TOMATO:
+		{
+			// Let the character not follow camera rotation
+			bUseControllerRotationYaw = false;
+			CameraBoom->bEnableCameraLag = true;
+			CameraBoom->bEnableCameraRotationLag = true;
+			ZoomInTimeline->Reverse();
+			PlayerAnimInstance->bAiming = false;
+			break;
+		}
 
+		case EHHUType::LASER:
+		{
+
+			break;
+		}
+
+		default: break;
+		}
 
 		// Flip the activation state
 		bHHUSecondaryActive = false;
@@ -352,5 +488,10 @@ void APlayerCharacter::RemoveInteractionTarget(class AActor* _interactTarget)
 	{
 		InteractTarget = nullptr;
 	}
+}
+
+void APlayerCharacter::SetStamina(float _value)
+{
+	CurrentStamina = FMath::Min(_value, TotalStamina);
 }
 
