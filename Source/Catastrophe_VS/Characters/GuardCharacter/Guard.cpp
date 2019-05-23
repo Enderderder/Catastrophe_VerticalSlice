@@ -7,10 +7,11 @@
 #include "Perception/AISenseConfig_Sight.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Engine/World.h"
 #include "TimerManager.h"
-
 
 #include "GuardAiController.h"
 #include "GuardAnimInstance.h"
@@ -21,8 +22,20 @@ AGuard::AGuard()
  	// Set this character to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
 
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("NavCapsule"));
+	GetCapsuleComponent()->CanCharacterStepUpOn = ECB_No;
+
 	HeadHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("HeadHitBox"));
+	HeadHitbox->SetCollisionProfileName(TEXT("Enemy"));
+	HeadHitbox->ComponentTags.Add(TEXT("Head"));
+	HeadHitbox->CanCharacterStepUpOn = ECB_No;
 	HeadHitbox->SetupAttachment(GetMesh(), TEXT("HeadSocket"));
+
+	BodyHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyHitBox"));
+	BodyHitBox->SetCollisionProfileName(TEXT("Enemy"));
+	HeadHitbox->ComponentTags.Add(TEXT("Body"));
+	BodyHitBox->CanCharacterStepUpOn = ECB_No;
+	BodyHitBox->SetupAttachment(GetMesh());
 
 	AlertMarkMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AlertMarkMesh"));
 	AlertMarkMesh->SetGenerateOverlapEvents(false);

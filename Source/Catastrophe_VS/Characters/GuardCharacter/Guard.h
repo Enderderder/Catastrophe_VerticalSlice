@@ -38,6 +38,9 @@ private:
 	class USphereComponent* HeadHitbox;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* BodyHitBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* AlertMarkMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
@@ -48,23 +51,23 @@ public:
 	AGuard();
 
 	/** The default state of the guard when it spawns in to the world */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour | General")
 	EGuardState DefaultGuardState = EGuardState::STATIONARY;
 
 	/** Determine if the guard will walk around in his patrol location */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour | Patrol")
 	bool bPatrolBehaviour = false;
 
 	/** The patrol way points of the guard, need to enable PatrolBehaviour to use them */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour", meta = (MakeEditWidget = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Guard | Behaviour | Patrol", meta = (MakeEditWidget = "true"))
 	TArray<FVector> PatrolLocations;
 
 	/** Previous state of the vision on player */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour | General")
 	bool bPlayerWasInSight = false;
 
 	/** Vision is on the player */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour | General")
 	bool bPlayerInSight = false;
 
 protected:
@@ -106,11 +109,11 @@ protected:
 private:
 
 	/** Store the state of the guard */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Guard | Behaviour", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Guard | Behaviour | General", meta = (AllowPrivateAccess = "true"))
 	EGuardState GuardState;
 
 	/** The timer handle for stun mechanic */
-	UPROPERTY(BlueprintReadOnly, Category = "Guard | Stun", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Guard | Behaviour | Stun", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle StunTimerHnadle;
 
 protected:
@@ -123,20 +126,20 @@ protected:
 	virtual void GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const;
 
 	/** Called when the state of the guard changes */
-	UFUNCTION(BlueprintNativeEvent, Category = "Guard | Behaviour")
+	UFUNCTION(BlueprintNativeEvent, Category = "Guard | Behaviour | General")
 	void OnGuardStateChange(EGuardState _oldState, EGuardState _newState);
 	virtual void OnGuardStateChange_Implementation(EGuardState _oldState, EGuardState _newState);
 
 	/** Called when guard state switch to stun */
 	UFUNCTION()
 	virtual void OnStunBegin();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Stun", meta = (DisplayName = "OnStunBegin"))
+	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Behaviour | Stun", meta = (DisplayName = "OnStunBegin"))
 	void Receive_OnStunBegin();
 
 	/** Called when guard state switch to stun */
 	UFUNCTION()
 	virtual void OnStunEnd();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Stun", meta = (DisplayName = "OnStunEnd"))
+	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Behaviour | Stun", meta = (DisplayName = "OnStunEnd"))
 	void Receive_OnStunEnd();
 	
 public:	
@@ -156,7 +159,7 @@ public:
 	 * Sets the state of the guard then modify the character value base on the state
 	 * @param The new state of the guard
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Guard | Behaviour")
+	UFUNCTION(BlueprintCallable, Category = "Guard | Behaviour | General")
 	void SetGuardState(EGuardState _newState);
 
 	/**

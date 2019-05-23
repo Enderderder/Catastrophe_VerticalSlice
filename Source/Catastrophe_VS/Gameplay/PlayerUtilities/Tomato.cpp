@@ -15,8 +15,8 @@ ATomato::ATomato()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetGenerateOverlapEvents(true);
-	// TODO: Set the mesh collision profile
-	Mesh->OnComponentBeginOverlap.AddUniqueDynamic(this, &ATomato::OnTomatoOverlap);
+	Mesh->SetCollisionProfileName(TEXT("Throwable"));
+	Mesh->OnComponentBeginOverlap.AddDynamic(this, &ATomato::OnTomatoOverlap);
 	RootComponent = Mesh;
 
 }
