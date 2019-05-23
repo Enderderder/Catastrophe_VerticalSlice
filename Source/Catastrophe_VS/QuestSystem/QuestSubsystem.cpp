@@ -93,7 +93,7 @@ void UQuestSubsystem::OnSaveGameLoaded(class UCatastropheSaveGame* _saveGameInst
 		Quests[index]->SetQuestState(questState);
 	}
 
-	// Always make the root of the quest avaliable or in other state
+	// Always make the root of the quest available or in other state
 	if (Quests[0]->GetState() == EQuestState::Locked)
 	{
 		Quests[0]->SetQuestState(EQuestState::Avaliable);

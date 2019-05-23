@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Interactable/BaseClasses/InteractableComponent.h"
+#include "QuestSystem/QuestObjectiveComponent.h"
 #include "PlayerCharacter/PlayerCharacter.h"
 
 // Sets default values
@@ -22,6 +23,8 @@ ANPC::ANPC()
 	TriggerBox->SetupAttachment(root);
 
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
+	InteractableComponent->RegisterTriggerVolume(TriggerBox);
+	InteractableComponent->OnInteract.AddDynamic(this, &ANPC::Interact);
 }
 
 // Called when the game starts or when spawned
@@ -29,11 +32,11 @@ void ANPC::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InteractableComponent->RegisterTriggerVolume(TriggerBox);
-	InteractableComponent->OnInteract.AddDynamic(this, &ANPC::Interact);
-
 	ConversationInProgress = false;
 	CurrentDialogueNum = 0;
+	CurrentQuest = 0;
+
+	IsQuestStarted = false;
 }
 
 // Called every frame
@@ -75,40 +78,112 @@ void ANPC::InitializeWidget()
 
 void ANPC::UpdateWidget()
 {
-	if (DialogueSentenceList[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+	if (CurrentQuest < ConversationsList.Num() - 1)
 	{
-		// Set character image on dialogue widget to NPC image
-		CurrentIcon = NPCIcon;
+		if (!IsQuestStarted)
+		{
+			if (ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+			{
+				CurrentNPCDialogueText = ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_Sentence;
+				CurrentPlayerDialogueText = "";
+				IsNPCTalking = true;
+			}
+			else if (ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
+			{
+				CurrentNPCDialogueText = "";
+				CurrentPlayerDialogueText = ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_Sentence;
+				IsNPCTalking = false;
+			}
+		}
+		else
+		{
+			if (ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+			{
+				CurrentNPCDialogueText = ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_Sentence;
+				CurrentPlayerDialogueText = "";
+				IsNPCTalking = true;
+			}
+			else if (ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
+			{
+				CurrentNPCDialogueText = "";
+				CurrentPlayerDialogueText = ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_Sentence;
+				IsNPCTalking = false;
+			}
+		}
 	}
-	else if (DialogueSentenceList[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
-	{
-		// Set character image on dialogue widget to Player image
-		CurrentIcon = PlayerIcon;
-	}
-
-	CurrentDialogueText = DialogueSentenceList[CurrentDialogueNum].m_Sentence;
 
 	Receive_UpdateWidget();
 }
 
 void ANPC::NextDialogue()
 {
-	// Increment current dialogue position by 1 if not max num of sentences
-	if (CurrentDialogueNum < DialogueSentenceList.Num() - 1)
+	if (CurrentQuest < ConversationsList.Num() - 1)
 	{
-		CurrentDialogueNum++;
-	}
-	else
-	{
-		DisableDialogue();
-	}
+		if (!IsQuestStarted)
+		{
+			// Increment current dialogue position by 1 if not max num of sentences
+			if (CurrentDialogueNum < ConversationsList[CurrentQuest].StartConversation.Num() - 1)
+			{
+				CurrentDialogueNum++;
+			}
+			else // If at end of conversation
+			{
+				if (ConversationsList[CurrentQuest].FinishedConversation.Num() > 0)
+				{
+					IsQuestStarted = true;
+				}
+				FinishConversation();
+			}
+		}
+		else
+		{
+			// Increment current dialogue position by 1 if not max num of sentences
+			if (CurrentDialogueNum < ConversationsList[CurrentQuest].FinishedConversation.Num() - 1)
+			{
+				CurrentDialogueNum++;
+			}
+			else // If at end of conversation
+			{
+				IsQuestStarted = false;
+				FinishConversation();
+			}
+		}
 
-	UpdateWidget();
+		UpdateWidget();
+	}
 }
 
 void ANPC::DisableDialogue()
 {
-	DialogueWidget->RemoveFromViewport();
+	if (DialogueWidget != NULL)
+	{
+		DialogueWidget->RemoveFromViewport();
+	}
 	CurrentDialogueNum = 0;
 	ConversationInProgress = false;
+}
+
+void ANPC::FinishConversation()
+{
+	DisableDialogue();
+	CurrentQuest++;
+}
+
+void ANPC::StartQuest()
+{
+	Receive_StartQuest();
+
+	ConversationsList[CurrentQuest].Quest->ActivateObjective();
+}
+
+void ANPC::FinishQuest()
+{
+	Receive_FinishQuest();
+
+	ConversationsList[CurrentQuest].Quest->CompleteObjective();
+}
+
+void ANPC::SetConversationQuest(int _index, class UQuestObjectiveComponent* _quest)
+{
+	ConversationsList[_index].Quest = _quest;
 }

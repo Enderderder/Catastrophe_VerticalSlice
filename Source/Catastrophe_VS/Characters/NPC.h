@@ -26,6 +26,22 @@ public:
 	FString m_Sentence;
 };
 
+USTRUCT(BlueprintType)
+struct FConversation
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FSSentence> StartConversation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FSSentence> FinishedConversation;
+
+	UPROPERTY(BlueprintReadWrite)
+	class UQuestObjectiveComponent* Quest;
+};
+
 UCLASS()
 class CATASTROPHE_VS_API ANPC : public AActor
 {
@@ -47,9 +63,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UUserWidget* DialogueWidget;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
-	class UTexture* PlayerIcon;
 
 	// Dialogue settings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue: NPC")
@@ -62,22 +75,31 @@ protected:
 	TSubclassOf<class UUserWidget> WidgetRef;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue: Text")
-	TArray<FSSentence> DialogueSentenceList;
+	TArray<FConversation> ConversationsList;
 
 	UPROPERTY()
 	int CurrentDialogueNum;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue: Text")
-	FString CurrentDialogueText;
+	UPROPERTY(BlueprintReadWrite, Category = "Dialogue: Text")
+	FString CurrentPlayerDialogueText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue: Text")
-	class UTexture* CurrentIcon;
+	UPROPERTY(BlueprintReadWrite, Category = "Dialogue: Text")
+	FString CurrentNPCDialogueText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue: Interaction")
 	bool CanGiveQuests;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Dialogue: Interaction")
 	bool ConversationInProgress;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Dialogue: Interaction")
+	bool IsNPCTalking;
+
+	UPROPERTY()
+	bool IsQuestStarted;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Dialogue: Interaction")
+	int CurrentQuest;
 
 protected:
 	// Called when the game starts or when spawned
@@ -101,6 +123,22 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "NPC")
 	void DisableDialogue();
+
+	UFUNCTION(BlueprintCallable, Category = "NPC")
+	void FinishConversation();
+
+	UFUNCTION(BlueprintCallable, Category = "NPC: Quests")
+	void StartQuest();
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnQuestStart"))
+	void Receive_StartQuest();
+
+	UFUNCTION(BlueprintCallable, Category = "NPC: Quests")
+	void FinishQuest();
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnQuestFinish"))
+	void Receive_FinishQuest();
+
+	UFUNCTION(BlueprintCallable, Category = "NPC: Conversation")
+	void SetConversationQuest(int _index, class UQuestObjectiveComponent* _quest);
 
 public:	
 	// Called every frame
