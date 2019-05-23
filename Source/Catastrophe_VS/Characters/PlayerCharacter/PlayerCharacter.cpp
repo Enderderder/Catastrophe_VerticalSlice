@@ -7,13 +7,17 @@
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 
+#include "PlayerAnimInstance.h"
 #include "Interactable/InteractActor.h"
 #include "Interactable/BaseClasses/InteractableObject.h"
 #include "Interactable/BaseClasses/InteractableComponent.h"
@@ -23,17 +27,8 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
-	// Set this character to call Tick() every frame.  
-	// You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
-
-	// Set the tomato that will show inside players hand
-	TomatoInHandMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TomatoInHandMesh"));
-	TomatoInHandMesh->SetupAttachment(GetMesh(), TEXT("RightHandSocket"));
-
-	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
+	// Set this character to call Tick() every frame. 
+	PrimaryActorTick.bCanEverTick = true;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -46,13 +41,16 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
-	FollowCameraFocusPoint = CreateDefaultSubobject<USceneComponent>(TEXT("FollowCameraFocusPoint"));
-	FollowCameraFocusPoint->SetupAttachment(GetMesh());
+	AimDownSightFocusPoint = CreateDefaultSubobject<USceneComponent>(TEXT("AimDownSightFocusPoint"));
+	AimDownSightFocusPoint->SetupAttachment(GetMesh());
 
+	CamFocusPoint = CreateDefaultSubobject<USceneComponent>(TEXT("FollowCameraFocusPoint"));
+	CamFocusPoint->SetupAttachment(RootComponent);
+
+	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
+	CameraBoom->SetupAttachment(CamFocusPoint);
+	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
@@ -60,17 +58,18 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-// 	// Create a stationary camera that sits high above the player
-// 	BirdEyeCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("BirdCamera"));
-
 	TomatoSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("TomatoSpawnPoint"));
 	TomatoSpawnPoint->SetupAttachment(GetMesh());
 
-	AimDownSightFocusPoint = CreateDefaultSubobject<USceneComponent>(TEXT("AimDownSightFocusPoint"));
-	AimDownSightFocusPoint->SetupAttachment(GetMesh());
+	// Set the tomato that will show inside players hand
+	TomatoInHandMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TomatoInHandMesh"));
+	TomatoInHandMesh->SetupAttachment(GetMesh(), TEXT("RightHandSocket"));
 
 	FishToCarry = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FishToCarry"));
 	FishToCarry->SetupAttachment(GetMesh(), TEXT("BackCarrySocket"));
+
+	// Create stimuli
+	PerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("PerceptionStimuliSource"));
 }
 
 // Called when the game starts or when spawned
@@ -78,14 +77,28 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// Attach the camera to the focus point
-	CameraBoom->AttachToComponent(FollowCameraFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
+	// Gets the player animation instance
+	PlayerAnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	if (!PlayerAnimInstance) UE_LOG(LogTemp, Error, TEXT("Player is not using the correct anim instance"));
 
-	// Make sure the bird eye camera is not being use at the beignning
-	bIsBirdEyeCamera = false;
+	// Store the default value of the camera arm length
+	DefaultCameraArmLength = CameraBoom->TargetArmLength;
 
-	// Default Interaction state
-	bAbleToShootTomato = true;
+	// Construct the zoom in timeline
+	if (!ZoomInCurve) UE_LOG(LogTemp, Error, TEXT("Player zoom in curve is nullptr!"));
+	ZoomInTimeline = NewObject<UTimelineComponent>(this, TEXT("ZoomInTimeline"));
+	ZoomInTimeline->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	this->BlueprintCreatedComponents.Add(ZoomInTimeline);
+	ZoomInTimeline->SetLooping(false);
+	ZoomInTimeline->SetTimelineLength(0.3f);
+	ZoomInTimeline->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+	FOnTimelineFloat onTimelineCallback;
+	onTimelineCallback.BindUFunction(this, FName{ TEXT("TimelineSetCameraZoomValue") });
+	ZoomInTimeline->AddInterpFloat(ZoomInCurve, onTimelineCallback);
+	ZoomInTimeline->RegisterComponent();
+
+	// Set the stamina to full
+	SetStamina(TotalStamina);
 
 	CheckTomatoInHand();
 }
@@ -93,10 +106,13 @@ void APlayerCharacter::BeginPlay()
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
-	/// To use the tick function, go to the constructor 
-	/// and uncomment the " PrimaryActorTick.bCanEverTick = true; "
 	Super::Tick(DeltaTime);
 
+	// Make sure to run the timeline
+	if (ZoomInTimeline)
+	{
+		ZoomInTimeline->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, nullptr);
+	}
 }
 
 // Called to bind functionality to input
@@ -110,8 +126,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::StartCrouch);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::EndCrouch);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::SprintBegin);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::SprintEnd);
+
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::CrouchBegin);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::CrouchEnd);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
@@ -121,13 +140,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
 
-	// Player other action (Interactions and Functionalities)
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::InteractAction);
-	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::InteractActionEnd);
-	PlayerInputComponent->BindAction("BirdViewToggle", IE_Pressed, this, &APlayerCharacter::CameraToggle);
-	PlayerInputComponent->BindAction("AimDownSight", IE_Pressed, this, &APlayerCharacter::AimDownSight);
-	PlayerInputComponent->BindAction("AimDownSight", IE_Released, this, &APlayerCharacter::ExitAimDownSight);
-	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::ShootTomato);
+	// Interaction actions
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::InteractBegin);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::InteractEnd);
+
+	// HHU (Hand Hold utility) actions
+	PlayerInputComponent->BindAction("HHUPrimary", IE_Pressed, this, &APlayerCharacter::HHUPrimaryActionBegin);
+	PlayerInputComponent->BindAction("HHUPrimary", IE_Released, this, &APlayerCharacter::HHUPrimaryActionEnd);
+	PlayerInputComponent->BindAction("HHUSecondary", IE_Pressed, this, &APlayerCharacter::HHUSecondaryActionBegin);
+	PlayerInputComponent->BindAction("HHUSecondary", IE_Released, this, &APlayerCharacter::HHUSecondaryActionEnd);
 }
 
 void APlayerCharacter::TurnAtRate(float Rate)
@@ -142,12 +163,22 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void APlayerCharacter::StartCrouch()
+void APlayerCharacter::SprintBegin()
+{
+
+}
+
+void APlayerCharacter::SprintEnd()
+{
+
+}
+
+void APlayerCharacter::CrouchBegin()
 {
 	Crouch();
 }
 
-void APlayerCharacter::EndCrouch()
+void APlayerCharacter::CrouchEnd()
 {
 	UnCrouch();
 }
@@ -193,54 +224,14 @@ void APlayerCharacter::MoveRight(float Value)
 	}
 }
 
-void APlayerCharacter::CameraToggle()
-{
-	// Blueprint implement event
-	ReceiveCameraToggle();
-
-	// Do the flip flop
-	bIsBirdEyeCamera = !bIsBirdEyeCamera;
-	if (bIsBirdEyeCamera)
-	{
-		// Disable the movement
-		GetCharacterMovement()->SetMovementMode(MOVE_None);
-		bAbleToShootTomato = false;
-
-		APlayerController* playerController = UGameplayStatics::GetPlayerController(this, 0);
-		if (playerController)
-		{
-			AActor* birdViewCameraAcrtor;
-			TArray<AActor*> resultActorArray;
-			UGameplayStatics::GetAllActorsOfClass(this, BirdViewCameraClass, resultActorArray);
-			if (resultActorArray.Num() != 0)
-			{
-				birdViewCameraAcrtor = resultActorArray[0];
-				playerController->SetViewTargetWithBlend(birdViewCameraAcrtor, 1.0f);
-			}
-		}
-	}
-	else
-	{
-		// Re-enable the movement
-		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-		bAbleToShootTomato = true;
-
-		APlayerController* playerController = UGameplayStatics::GetPlayerController(this, 0);
-		if (playerController)
-		{
-			playerController->SetViewTargetWithBlend(this, 1.0f);
-		}
-	}
-}
-
 void APlayerCharacter::AimDownSight()
 {
 	// Abort when player cant shoot tomato
-	if (!bAbleToShootTomato)
+	if (!bCanUseHHU)
 		return;
 
 	// Change the ADS state to true
-	AimDownSightState = true;
+	bHHUSecondaryActive = true;
 
 	// Let the character follow camera rotation
 	bUseControllerRotationYaw = true;
@@ -255,16 +246,16 @@ void APlayerCharacter::AimDownSight()
 void APlayerCharacter::ExitAimDownSight()
 {
 	// Abort when ads state is not even set
-	if (!AimDownSightState)
+	if (!bHHUSecondaryActive)
 		return;
 
 	// Change the ADS state to false
-	AimDownSightState = false;
+	bHHUSecondaryActive = false;
 
 	// Let the character not follow camera rotation
 	bUseControllerRotationYaw = false;
 
-	CameraBoom->AttachToComponent(FollowCameraFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
+	CameraBoom->AttachToComponent(CamFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
 	//CameraBoom->TargetArmLength /= CameraZoomRatio;
 
 	// Call the blueprint implemented event
@@ -276,9 +267,9 @@ void APlayerCharacter::ShootTomato()
 	// Validate the obejct pointer
 	// Check if the player is ADSing
 	// Check if there is enough tomato to shoot
-	if (TomatoObject 
-		&& AimDownSightState == true
-		&& bAbleToShootTomato == true
+	if (TomatoClass 
+		&& bHHUSecondaryActive == true
+		&& bCanUseHHU == true
 		&& TomatoCurrentCount > 0)
 	{
 		// Set the parameter for spawning the shuriken
@@ -292,7 +283,7 @@ void APlayerCharacter::ShootTomato()
 
 		// Spawn the tomato
 		APawn* SpawnedTomato;
-		SpawnedTomato = GetWorld()->SpawnActor<APawn>(TomatoObject, tomatoSpawnLocation, tomatoSpawnRotation, tomatoSpawnInfo);
+		SpawnedTomato = GetWorld()->SpawnActor<APawn>(TomatoClass, tomatoSpawnLocation, tomatoSpawnRotation, tomatoSpawnInfo);
 
 		// Lower the ammo
 		TomatoCurrentCount--;
@@ -302,10 +293,19 @@ void APlayerCharacter::ShootTomato()
 	}
 }
 
-void APlayerCharacter::InteractAction()
+void APlayerCharacter::TimelineSetCameraZoomValue(float _alpha)
+{
+	float resultLength =
+		FMath::Lerp(DefaultCameraArmLength, DefaultCameraArmLength * CameraZoomRatio, _alpha);
+	CameraBoom->TargetArmLength = resultLength;
+}
+
+void APlayerCharacter::InteractBegin()
 {
 	if (InteractTarget && !InteractTarget->IsPendingKill())
 	{
+		// Deprecated
+		// TODO: Remove the interface function call, no interactable should use that
 		if (InteractTarget->GetClass()->ImplementsInterface(
 			UInteractableObject::StaticClass()))
 		{
@@ -320,9 +320,139 @@ void APlayerCharacter::InteractAction()
 	}
 }
 
-void APlayerCharacter::InteractActionEnd()
+void APlayerCharacter::InteractEnd()
 {
 
+}
+
+void APlayerCharacter::HHUPrimaryActionBegin()
+{
+	// If cannot use HHU, just dont then
+	if (!bCanUseHHU) return;
+
+	// Set the activation state to true
+	bHHUPrimaryActive = true;
+
+	switch (ActiveHHUType)
+	{
+	case EHHUType::TOMATO: // To shoot tomato, must be zoomed in
+	{
+		if (!bHHUSecondaryActive
+			|| TomatoCurrentCount <= 0
+			|| !TomatoClass) break; // Do the check
+		// Set the parameter for spawning the tomato
+		FVector tomatoSpawnLocation;
+		FRotator tomatoSpawnRotation;
+		FActorSpawnParameters tomatoSpawnInfo;
+		tomatoSpawnInfo.Owner = this;
+		tomatoSpawnInfo.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		tomatoSpawnLocation = GetMesh()->GetSocketLocation(TEXT("RightHandSocket"));
+		tomatoSpawnRotation = FollowCamera->GetComponentRotation();
+		// Spawn the tomato
+		AActor * SpawnedTomato;
+		SpawnedTomato = GetWorld()->SpawnActor<AActor>(
+			TomatoClass, tomatoSpawnLocation, tomatoSpawnRotation, tomatoSpawnInfo);
+		// Lower the tomato count
+		TomatoCurrentCount--;
+		break;
+	}
+
+	case EHHUType::LASER:
+	{
+
+		break;
+	}
+
+	default: break;
+	}
+
+}
+
+void APlayerCharacter::HHUPrimaryActionEnd()
+{
+	// Only end if the action is already activated
+	if (bHHUPrimaryActive)
+	{
+		switch (ActiveHHUType)
+		{
+		case EHHUType::TOMATO:
+			break;
+		case EHHUType::LASER:
+			break;
+
+		default: break;
+		}
+
+		// Flip the activation state
+		bHHUPrimaryActive = false;
+	}
+}
+
+void APlayerCharacter::HHUSecondaryActionBegin()
+{
+	// If cannot use HHU, just dont then
+	if (!bCanUseHHU) return;
+
+	// Set the activation state to true
+	bHHUSecondaryActive = true;
+
+	switch (ActiveHHUType)
+	{
+	case EHHUType::TOMATO:
+	{
+		// Let the character follow camera rotation
+		bUseControllerRotationYaw = true;
+		CameraBoom->bEnableCameraLag = false;
+		CameraBoom->bEnableCameraRotationLag = false;
+		ZoomInTimeline->Play();
+		PlayerAnimInstance->bAiming = true;
+
+		break;
+	}
+
+	case EHHUType::LASER:
+	{
+
+		break;
+	}
+
+	default: break;
+	}
+
+
+}
+
+void APlayerCharacter::HHUSecondaryActionEnd()
+{
+	// Only end if the action is already activated
+	if (bHHUSecondaryActive)
+	{
+		switch (ActiveHHUType)
+		{
+		case EHHUType::TOMATO:
+		{
+			// Let the character not follow camera rotation
+			bUseControllerRotationYaw = false;
+			CameraBoom->bEnableCameraLag = true;
+			CameraBoom->bEnableCameraRotationLag = true;
+			ZoomInTimeline->Reverse();
+			PlayerAnimInstance->bAiming = false;
+			break;
+		}
+
+		case EHHUType::LASER:
+		{
+
+			break;
+		}
+
+		default: break;
+		}
+
+		// Flip the activation state
+		bHHUSecondaryActive = false;
+	}
 }
 
 void APlayerCharacter::RestoreAllTomatos()
@@ -358,5 +488,10 @@ void APlayerCharacter::RemoveInteractionTarget(class AActor* _interactTarget)
 	{
 		InteractTarget = nullptr;
 	}
+}
+
+void APlayerCharacter::SetStamina(float _value)
+{
+	CurrentStamina = FMath::Min(_value, TotalStamina);
 }
 

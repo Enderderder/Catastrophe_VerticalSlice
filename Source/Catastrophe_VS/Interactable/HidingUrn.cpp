@@ -7,6 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "DestructibleComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -99,6 +101,7 @@ void AHidingUrn::JumpIn(class APlayerCharacter* _playerCharacter)
 	TeleportLocation.Z += 200.0f;
 	_playerCharacter->SetActorLocation(TeleportLocation);
 	_playerCharacter->SetActorHiddenInGame(true);
+	_playerCharacter->GetStimulusSourceComponent()->UnregisterFromSense(UAISense_Sight::StaticClass());
 
 	// Disable collision
 	_playerCharacter->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -120,14 +123,14 @@ void AHidingUrn::JumpOut(class APlayerCharacter* _playerCharacter)
 	_playerCharacter->SetActorLocation(TempPlayerInfo.PlayerLocation);
 	_playerCharacter->SetActorHiddenInGame(false);
 	_playerCharacter->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	_playerCharacter->GetStimulusSourceComponent()->RegisterForSense(UAISense_Sight::StaticClass());
 
 	// Urn destruction
 	FVector destructionLocation = UrnDestructableMesh->GetComponentLocation();
 	UrnDestructableMesh->ApplyDamage(1.0f, destructionLocation, destructionLocation, 1.0f);
 
 	// Disable the collision of the block volume
-	BlockVolume->DestroyComponent();
-	//BlockVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BlockVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Call the blueprint version 
 	Receive_JumpOut(_playerCharacter);

@@ -26,7 +26,7 @@ public:
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GuardAnim")
-	class AGuard* GuardRef;
+	class AGuard* OwnerGuardActor;
 
 protected:
 	/** Called on the beginplay of the actor */
@@ -39,7 +39,7 @@ public:
 
 	/** Getter */
 	FORCEINLINE class AGuard* GetGuardCharacterOwner() const {
-		return GuardRef;
+		return OwnerGuardActor;
 	}
 	/** Getter End */
 };

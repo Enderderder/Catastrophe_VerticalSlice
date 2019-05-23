@@ -34,26 +34,34 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	// Sets the reference of the guard
-	GuardRef = Cast<AGuard>(InPawn);
-	if (GuardRef && !GuardRef->IsPendingKill())
+	ControllingGuard = Cast<AGuard>(InPawn);
+	if (ControllingGuard && !ControllingGuard->IsPendingKill())
 	{
-		GuardRef->SetGuardControllerRef(this);
+		ControllingGuard->SetGuardControllerRef(this);
 
 		// Runs the behaviour tree of guard
 		if (GuardBehaviourTree)
 			RunBehaviorTree(GuardBehaviourTree);
 
-		// Sets the origin location of the patrol location if guard has one
-		if (Blackboard && GuardRef->PatrolLocations.Num() > 0)
+		if (Blackboard)
 		{
-			Blackboard->SetValueAsVector(
-				TEXT("PatrolOriginLocation"),
-				GuardRef->PatrolLocations[0] + GuardRef->GetActorLocation());
+			// Sets the default state of the guard
+			ControllingGuard->SetGuardState(ControllingGuard->DefaultGuardState);
 
-			// Set the patrol behaviour as initial state
-			if (GuardRef->bPatrolBehaviour)
+			// If sets to patrol but guard dont have patrol behaviour 
+			// or dont have patrol points, reset it to stationary
+			if (ControllingGuard->GetGuardState() == EGuardState::PATROLLING 
+				&& !ControllingGuard->bPatrolBehaviour
+				&& ControllingGuard->PatrolLocations.Num() <= 0)
 			{
-				GuardRef->SetGuardState(EGuardState::PATROLLING);
+				ControllingGuard->SetGuardState(EGuardState::STATIONARY);
+			}
+			else
+			{
+				// Sets the origin location of the patrol location
+				Blackboard->SetValueAsVector(
+					TEXT("PatrolOriginLocation"),
+					ControllingGuard->PatrolLocations[0] + ControllingGuard->GetActorLocation());
 			}
 		}
 	}
@@ -72,19 +80,22 @@ void AGuardAiController::PerceptionUpdate(const TArray<AActor*>& UpdatedActors)
 		{
 			for (int32 index = 0; index < actorPerceptionInfo.LastSensedStimuli.Num(); ++index)
 			{
-				switch (index)
+				if (actorPerceptionInfo.LastSensedStimuli[index].IsValid())
 				{
-				case 0: // Sight perception updated
-					OnSightPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
-					break;
+					switch (index)
+					{
+					case 0: // Sight perception updated
+						OnSightPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
+						break;
 
-				case 1: // Hearing perception updated
-					OnHearingPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
-					break;
+					case 1: // Hearing perception updated
+						OnHearingPerceptionUpdate(actor, actorPerceptionInfo.LastSensedStimuli[index]);
+						break;
 
-				default:
-					UE_LOG(LogTemp, Warning, TEXT("There is no third sense lol wtf"));
-					break;
+					default:
+						UE_LOG(LogTemp, Warning, TEXT("There is no third sense lol wtf"));
+						break;
+					}
 				}
 			}
 		}
@@ -98,19 +109,20 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 	{
 		if (_stimulus.WasSuccessfullySensed())
 		{
-			GuardRef->bPlayerWasInSight = true;
-			GuardRef->SetGuardState(EGuardState::CHASING);
+			ControllingGuard->bPlayerWasInSight = true;
+			ControllingGuard->SetGuardState(EGuardState::CHASING);
 		}
 		else
 		{
-			GuardRef->bPlayerInSight = false;
-
-			if (GuardRef->bPlayerWasInSight)
+			ControllingGuard->bPlayerInSight = false;
+			if (ControllingGuard->bPlayerWasInSight)
 			{
+				// Record the last seen location of the player
 				Blackboard->SetValueAsVector(
 					TEXT("PlayerlastSeenLocation"), _stimulus.StimulusLocation);
 
-				// TODO: Have seen player, need to chase
+				ControllingGuard->SetGuardState(EGuardState::SEARCHING);
+
 			}
 			else
 			{
@@ -120,18 +132,30 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 	}
 
 	// Calls the guard character version of the function
-	GuardRef->OnSightPerceptionUpdate(_actor, _stimulus);
+	ControllingGuard->OnSightPerceptionUpdate(_actor, _stimulus);
 
 }
 
 void AGuardAiController::OnHearingPerceptionUpdate(AActor* _actor, FAIStimulus _stimulus)
 {
-	// Calls the guard character version of the function
-	GuardRef->OnHearingPerceptionUpdate(_actor, _stimulus);
+	// TODO: If not chasing player which is the higher priority task,
+	// investigate whatever the sound is
 
+	// If heard player making noise
+	if (_actor->ActorHasTag(TEXT("Player")))
+	{
+		if (_stimulus.WasSuccessfullySensed())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("I can hear uuuuu"));
+		}
+	}
+
+
+	// Calls the guard character version of the function
+	ControllingGuard->OnHearingPerceptionUpdate(_actor, _stimulus);
 }
 
-bool AGuardAiController::ModifySightRange(float _newRange)
+bool AGuardAiController::ModifySightRange(float _newSightRange, float _losingSightRange)
 {
 	FAISenseID sightSenseID = UAISense::GetSenseID(UAISense_Sight::StaticClass());
 	if (!sightSenseID.IsValid())
@@ -153,6 +177,10 @@ bool AGuardAiController::ModifySightRange(float _newRange)
 		return false;
 	}
 	
-	sightConfig->SightRadius = _newRange;
+	// Modify values and tell the config to be updated to the system
+	sightConfig->SightRadius = _newSightRange;
+	sightConfig->LoseSightRadius = _newSightRange + _losingSightRange;
+	PerceptionComponent->RequestStimuliListenerUpdate();
+
 	return true;
 }
