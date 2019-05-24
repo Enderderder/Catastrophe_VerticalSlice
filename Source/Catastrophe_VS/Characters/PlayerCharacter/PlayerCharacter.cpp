@@ -112,6 +112,18 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// If player is sprinting, drain it XD
+	if (bSprinting)
+	{
+		CurrentStamina = FMath::Max(0.0f, CurrentStamina - (StaminaDrainPerSec * DeltaTime));
+		if (CurrentStamina <= 0.0f) 
+			SprintEnd();
+	}
+	else
+	{
+		CurrentStamina = FMath::Min(TotalStamina, CurrentStamina + (StaminaDrainPerSec * DeltaTime));
+	}
+
 	// Make sure to run the timeline
 	if (ZoomInTimeline)
 	{
@@ -169,20 +181,27 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 
 void APlayerCharacter::SprintBegin()
 {
-	//UAISense_Hearing::ReportNoiseEvent(this, GetActorLocation(), 1.0f, this);
+	if (CurrentStamina > 0.0f) // Only sprint player has stamina
+	{
+		bSprinting = true;
 
-	FollowCamera->SetFieldOfView(PlayerDefaultValues.CameraFOV * CameraZoomMultiplier);
-	GetCharacterMovement()->MaxWalkSpeed = PlayerDefaultValues.WalkSpeed * SpringSpeedMultiplier;
+		FollowCamera->SetFieldOfView(PlayerDefaultValues.CameraFOV + 5.0f);
+		GetCharacterMovement()->MaxWalkSpeed = PlayerDefaultValues.WalkSpeed * SpringSpeedMultiplier;
 
-	bSprinting = true;
+		// End the crouch
+	// 	if (GetMovementComponent()->IsCrouching())
+	// 	{
+	// 		CrouchEnd();
+	// 	}
+	}
 }
 
 void APlayerCharacter::SprintEnd()
 {
 	if (bSprinting)
 	{
-
-
+		FollowCamera->SetFieldOfView(PlayerDefaultValues.CameraFOV);
+		GetCharacterMovement()->MaxWalkSpeed = PlayerDefaultValues.WalkSpeed;
 
 		bSprinting = false;
 	}
@@ -191,6 +210,9 @@ void APlayerCharacter::SprintEnd()
 void APlayerCharacter::CrouchBegin()
 {
 	Crouch();
+
+	if (bSprinting)
+		SprintEnd();
 }
 
 void APlayerCharacter::CrouchEnd()
@@ -251,7 +273,7 @@ void APlayerCharacter::AimDownSight()
 	// Let the character follow camera rotation
 	bUseControllerRotationYaw = true;
 
-	CameraBoom->AttachToComponent(AimDownSightFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
+	//CameraBoom->AttachToComponent(AimDownSightFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
 	//CameraBoom->TargetArmLength *= CameraZoomRatio;
 
 	// Call the blueprint implemented event
