@@ -125,7 +125,14 @@ void UQuest::SetQuestState(EQuestState _questState)
 
 void UQuest::RegisterObjective(class UQuestObjectiveComponent* _objective)
 {
-	QuestObjectives.Insert(_objective, _objective->GetOrder());
+	int32 objectiveOrder = _objective->GetOrder();
+// 	if (QuestObjectives.Num() - 1 < objectiveOrder)
+// 	{
+// 		QuestObjectives.Reserve(objectiveOrder + 1);
+// 	}
+
+	QuestObjectives.Add(_objective);
+	//QuestObjectives[objectiveOrder] = _objective;
 	_objective->SetOwningQuest(this);
 }
 

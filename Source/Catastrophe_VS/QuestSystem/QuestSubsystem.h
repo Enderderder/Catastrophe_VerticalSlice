@@ -6,7 +6,7 @@
 #include "GameInstance/CatastropheGameInstanceSubsystem.h"
 #include "QuestSubsystem.generated.h"
 
-/** Forward Delare */
+/** Forward Declare */
 class UQuest;
 struct FQuestInfo;
 
@@ -36,13 +36,13 @@ public:
 	/** Implement this for initialization of instances of the system */
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	/** Implement this for post initilization after all subsystem has initialized */
+	/** Implement this for post initialization after all subsystem has initialized */
 	virtual void PostInitialize() override;
 
 	/** Implement this for deinitialization of instances of the system */
 	virtual void Deinitialize() override;
 
-	/** Delagate binding function, receive call when a new save is loaded */
+	/** Delegate binding function, receive call when a new save is loaded */
 	UFUNCTION()
 	void OnSaveGameLoaded(class UCatastropheSaveGame* _saveGameInst);
 
