@@ -72,6 +72,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	AActor* PlayerToTeleport;
 
+public:
+
+	UPROPERTY(BlueprintReadWrite, Category = "LevelStreaming")
+	bool bActive = true;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
