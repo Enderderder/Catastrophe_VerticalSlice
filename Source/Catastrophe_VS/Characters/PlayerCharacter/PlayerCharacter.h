@@ -27,6 +27,33 @@ enum class EHHUType : uint8
 };
 
 /**
+ * This struct stores the default value of the player
+ */
+USTRUCT(BlueprintType)
+struct FPlayerDefaultValue
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float WalkSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CameraFOV;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CameraArmLength;
+
+	FPlayerDefaultValue() :
+		WalkSpeed(0.0f),
+		CameraFOV(100.0f),
+		CameraArmLength(650.0f)
+	{}
+};
+
+
+/**
  * This class is the core of the game. Contains all the information and functionality
  * for the player character
  */
@@ -76,9 +103,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Player | Animation")
 	class UPlayerAnimInstance* PlayerAnimInstance;
 
-	/** Store variable for the default length of the camera arm */
-	UPROPERTY(BlueprintReadOnly, Category = Camera)
-	float DefaultCameraArmLength;
+	/** Origin values of the player */
+	UPROPERTY(BlueprintReadOnly, Category = "Player | General")
+	FPlayerDefaultValue PlayerDefaultValues;
 	
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
@@ -110,6 +137,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | General")
 	class UCurveFloat* ZoomInCurve;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | General")
+	float CameraZoomMultiplier;
+
 	/** Class object that define what object will be throw out as tomato */
 	UPROPERTY(EditDefaultsOnly, Category = "HHU | Tomato")
 	TSubclassOf<class AActor> TomatoClass;
@@ -118,12 +148,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | Tomato")
 	int32 TomatoTotalCount = 1;
 
-	/** Stamina */
+
+	/** Sprint & Stamina */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
 	float TotalStamina = 100.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
+	float StaminaDrainPerSec = 10.0f;
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Movement")
 	float CurrentStamina;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Movement")
+	bool bSprinting = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
+	float SpringSpeedMultiplier = 1.3f;
+
 
 
 public:
@@ -132,9 +173,6 @@ public:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "HHU | Tomato")
 	int32 TomatoCurrentCount = 0;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | General")
-	float CameraZoomRatio;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HHU | General")
 	bool bCanUseHHU = true;

@@ -12,6 +12,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Hearing.h"
 
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/GameplayStatics.h"
@@ -81,9 +82,6 @@ void APlayerCharacter::BeginPlay()
 	PlayerAnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	if (!PlayerAnimInstance) UE_LOG(LogTemp, Error, TEXT("Player is not using the correct anim instance"));
 
-	// Store the default value of the camera arm length
-	DefaultCameraArmLength = CameraBoom->TargetArmLength;
-
 	// Construct the zoom in timeline
 	if (!ZoomInCurve) UE_LOG(LogTemp, Error, TEXT("Player zoom in curve is nullptr!"));
 	ZoomInTimeline = NewObject<UTimelineComponent>(this, TEXT("ZoomInTimeline"));
@@ -99,6 +97,12 @@ void APlayerCharacter::BeginPlay()
 
 	// Set the stamina to full
 	SetStamina(TotalStamina);
+
+	// Store the default values
+	PlayerDefaultValues.WalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	PlayerDefaultValues.CameraFOV = FollowCamera->FieldOfView;
+	PlayerDefaultValues.CameraArmLength = CameraBoom->TargetArmLength;
+
 
 	CheckTomatoInHand();
 }
@@ -165,12 +169,23 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 
 void APlayerCharacter::SprintBegin()
 {
+	//UAISense_Hearing::ReportNoiseEvent(this, GetActorLocation(), 1.0f, this);
 
+	FollowCamera->SetFieldOfView(PlayerDefaultValues.CameraFOV * CameraZoomMultiplier);
+	GetCharacterMovement()->MaxWalkSpeed = PlayerDefaultValues.WalkSpeed * SpringSpeedMultiplier;
+
+	bSprinting = true;
 }
 
 void APlayerCharacter::SprintEnd()
 {
+	if (bSprinting)
+	{
 
+
+
+		bSprinting = false;
+	}
 }
 
 void APlayerCharacter::CrouchBegin()
@@ -296,7 +311,9 @@ void APlayerCharacter::ShootTomato()
 void APlayerCharacter::TimelineSetCameraZoomValue(float _alpha)
 {
 	float resultLength =
-		FMath::Lerp(DefaultCameraArmLength, DefaultCameraArmLength * CameraZoomRatio, _alpha);
+		FMath::Lerp(
+			PlayerDefaultValues.CameraArmLength, 
+			PlayerDefaultValues.CameraArmLength * CameraZoomMultiplier, _alpha);
 	CameraBoom->TargetArmLength = resultLength;
 }
 
@@ -405,9 +422,9 @@ void APlayerCharacter::HHUSecondaryActionBegin()
 		bUseControllerRotationYaw = true;
 		CameraBoom->bEnableCameraLag = false;
 		CameraBoom->bEnableCameraRotationLag = false;
-		ZoomInTimeline->Play();
+		if (ZoomInTimeline)
+			ZoomInTimeline->Play();
 		PlayerAnimInstance->bAiming = true;
-
 		break;
 	}
 
@@ -436,7 +453,8 @@ void APlayerCharacter::HHUSecondaryActionEnd()
 			bUseControllerRotationYaw = false;
 			CameraBoom->bEnableCameraLag = true;
 			CameraBoom->bEnableCameraRotationLag = true;
-			ZoomInTimeline->Reverse();
+			if (ZoomInTimeline)
+				ZoomInTimeline->Reverse();
 			PlayerAnimInstance->bAiming = false;
 			break;
 		}

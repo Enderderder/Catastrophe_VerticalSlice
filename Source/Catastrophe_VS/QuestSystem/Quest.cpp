@@ -95,25 +95,28 @@ void UQuest::SetQuestState(EQuestState _questState)
 	switch (QuestState)
 	{
 	case EQuestState::Locked:
+	{
+
 		break;
+	}
 	
 	case EQuestState::Avaliable:
 	{
 		UnlockQuest();
-	}
 		break;
+	}
 	
 	case EQuestState::Active: 
 	{
 		ActivateQuest();
-	}
 		break;
+	}
 	
 	case EQuestState::Completed:
 	{
 		CompleteQuest();
-	}
 		break;
+	}
 
 	default: break;
 	}

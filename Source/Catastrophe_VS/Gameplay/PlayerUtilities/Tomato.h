@@ -32,7 +32,7 @@ public:
 
 	/** Lauch tomato in certain direction */
 	UFUNCTION(BlueprintCallable, Category = "Tomato")
-	void LaunchTomato();
+	void LaunchTomato(FVector _launchDirection, float _launchForce);
 
 	/** Getter */
 	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }

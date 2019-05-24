@@ -51,8 +51,8 @@ void AGuardAiController::OnPossess(APawn* InPawn)
 			// If sets to patrol but guard dont have patrol behaviour 
 			// or dont have patrol points, reset it to stationary
 			if (ControllingGuard->GetGuardState() == EGuardState::PATROLLING 
-				&& !ControllingGuard->bPatrolBehaviour
-				&& ControllingGuard->PatrolLocations.Num() <= 0)
+				|| !ControllingGuard->bPatrolBehaviour
+				|| ControllingGuard->PatrolLocations.Num() <= 0)
 			{
 				ControllingGuard->SetGuardState(EGuardState::STATIONARY);
 			}

@@ -43,7 +43,11 @@ void ATomato::OnTomatoOverlap(class UPrimitiveComponent* OverlappedComponent, cl
 	Destroy();
 }
 
-void ATomato::LaunchTomato()
+void ATomato::LaunchTomato(FVector _launchDirection, float _launchForce)
 {
+	//Mesh->AddForce()
+
+
+
 	// TODO: Apply force when launch
 }
