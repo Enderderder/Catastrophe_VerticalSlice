@@ -37,6 +37,7 @@ void ANPC::BeginPlay()
 	CurrentQuest = 0;
 
 	IsQuestStarted = false;
+	CanNPCTalk = true;
 }
 
 // Called every frame
@@ -48,17 +49,20 @@ void ANPC::Tick(float DeltaTime)
 
 void ANPC::Interact(class APlayerCharacter* _playerCharacter)
 {
-	Receive_Interact();
+	if (CanNPCTalk)
+	{
+		Receive_Interact();
 
-	// Interaction functionality
-	if (ConversationInProgress)
-	{
-		NextDialogue();
-	}
-	else
-	{
-		InitializeWidget();
-		ConversationInProgress = true;
+		// Interaction functionality
+		if (ConversationInProgress)
+		{
+			NextDialogue();
+		}
+		else
+		{
+			ConversationInProgress = true;
+			InitializeWidget();
+		}
 	}
 }
 
@@ -78,36 +82,42 @@ void ANPC::InitializeWidget()
 
 void ANPC::UpdateWidget()
 {
-	if (CurrentQuest < ConversationsList.Num() - 1)
+	if (CurrentQuest < ConversationsList.Num())
 	{
 		if (!IsQuestStarted)
 		{
-			if (ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+			if (CurrentDialogueNum < ConversationsList[CurrentQuest].StartConversation.Num())
 			{
-				CurrentNPCDialogueText = ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_Sentence;
-				CurrentPlayerDialogueText = "";
-				IsNPCTalking = true;
-			}
-			else if (ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
-			{
-				CurrentNPCDialogueText = "";
-				CurrentPlayerDialogueText = ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_Sentence;
-				IsNPCTalking = false;
+				if (ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+				{
+					CurrentNPCDialogueText = ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_Sentence;
+					CurrentPlayerDialogueText = "";
+					IsNPCTalking = true;
+				}
+				else if (ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
+				{
+					CurrentNPCDialogueText = "";
+					CurrentPlayerDialogueText = ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_Sentence;
+					IsNPCTalking = false;
+				}
 			}
 		}
 		else
 		{
-			if (ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+			if (CurrentDialogueNum < ConversationsList[CurrentQuest].FinishedConversation.Num())
 			{
-				CurrentNPCDialogueText = ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_Sentence;
-				CurrentPlayerDialogueText = "";
-				IsNPCTalking = true;
-			}
-			else if (ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
-			{
-				CurrentNPCDialogueText = "";
-				CurrentPlayerDialogueText = ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_Sentence;
-				IsNPCTalking = false;
+				if (ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+				{
+					CurrentNPCDialogueText = ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_Sentence;
+					CurrentPlayerDialogueText = "";
+					IsNPCTalking = true;
+				}
+				else if (ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
+				{
+					CurrentNPCDialogueText = "";
+					CurrentPlayerDialogueText = ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_Sentence;
+					IsNPCTalking = false;
+				}
 			}
 		}
 	}
@@ -117,7 +127,7 @@ void ANPC::UpdateWidget()
 
 void ANPC::NextDialogue()
 {
-	if (CurrentQuest < ConversationsList.Num() - 1)
+	if (CurrentQuest < ConversationsList.Num())
 	{
 		if (!IsQuestStarted)
 		{
@@ -146,6 +156,11 @@ void ANPC::NextDialogue()
 			{
 				IsQuestStarted = false;
 				FinishConversation();
+				CurrentQuest++;
+				if (CurrentQuest >= ConversationsList.Num())
+				{
+					CanNPCTalk = false;
+				}
 			}
 		}
 
@@ -166,7 +181,6 @@ void ANPC::DisableDialogue()
 void ANPC::FinishConversation()
 {
 	DisableDialogue();
-	CurrentQuest++;
 }
 
 void ANPC::StartQuest()

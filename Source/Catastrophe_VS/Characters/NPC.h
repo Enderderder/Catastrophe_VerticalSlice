@@ -99,6 +99,9 @@ protected:
 	bool IsQuestStarted;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Dialogue: Interaction")
+	bool CanNPCTalk;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Dialogue: Interaction")
 	int CurrentQuest;
 
 protected:
