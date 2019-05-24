@@ -48,7 +48,7 @@ public:
 	bool bInUse;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
-	bool bUsable;
+	bool bUsable = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
 	bool bInWayPointTransit;
