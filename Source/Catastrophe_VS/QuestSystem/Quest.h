@@ -128,15 +128,12 @@ public:
 private:
 
 	/** Quest action | Unlock */
-	UFUNCTION()
 	void UnlockQuest();
 
 	/** Quest action | Activate */
-	UFUNCTION()
 	void ActivateQuest();
 
 	/** Quest action | Complete */
-	UFUNCTION()
 	void CompleteQuest();
 
 

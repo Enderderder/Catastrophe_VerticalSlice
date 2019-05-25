@@ -43,7 +43,5 @@ void ATreasureChest::Tick(float DeltaTime)
 
 void ATreasureChest::OnPlayerInteract(class APlayerCharacter* _playerCharacter)
 {
-	
-	// One time use
-	InteractableCompoenent->bCanInteract = false;
+
 }

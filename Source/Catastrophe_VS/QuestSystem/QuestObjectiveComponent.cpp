@@ -9,9 +9,10 @@
 // Sets default values for this component's properties
 UQuestObjectiveComponent::UQuestObjectiveComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
+	bWantsInitializeComponent = true;
+	bAutoActivate = true;
+
 }
 
 // Called when the game starts
@@ -19,11 +20,19 @@ void UQuestObjectiveComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Register the objective into the quest system
-	UQuestSubsystem::GetInst(this)->RegisterObjectiveToQuest(this, QuestID);
 }
 
-// Called every frame
+void UQuestObjectiveComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	// Register the objective into the quest system
+	if (UQuestSubsystem* questSystem = UQuestSubsystem::GetInst(this))
+	{
+		questSystem->RegisterObjectiveToQuest(this, QuestID);
+	}
+}
+
 void UQuestObjectiveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -65,4 +74,5 @@ void UQuestObjectiveComponent::SetOwningQuest(class UQuest* _quest)
 {
 	OwningQuest = _quest;
 }
+
 

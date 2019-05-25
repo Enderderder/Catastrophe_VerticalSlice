@@ -11,12 +11,8 @@
 // Sets default values for this component's properties
 UInteractableComponent::UInteractableComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
+	// This component will not tick
 	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
-	
 }
 
 void UInteractableComponent::OnTriggerWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -36,6 +32,12 @@ void UInteractableComponent::OnTriggerWithPlayer(class UPrimitiveComponent* Over
 		PlayerRef->SetInteractionTarget(GetOwner());
 		TriggerCounter++;
 	}
+
+	// If this component has set to auto interact, interact immediatly
+	if (bAutoInteract && PlayerRef && !PlayerRef->IsPendingKill())
+	{
+		Interact(PlayerRef);
+	}
 }
 
 void UInteractableComponent::OnTriggerEndWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -50,19 +52,15 @@ void UInteractableComponent::OnTriggerEndWithPlayer(class UPrimitiveComponent* O
 	}
 }
 
-// Called every frame
-void UInteractableComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
 void UInteractableComponent::Interact(class APlayerCharacter* _playerCharacter)
 {
 	if (bCanInteract)
 	{
 		OnInteract.Broadcast(_playerCharacter);
+
+		// If the component has set to one time use, disable after interaction
+		if (bOneTimeUse)
+			bCanInteract = false;
 	}
 }
 
@@ -76,7 +74,5 @@ void UInteractableComponent::RegisterTriggerVolume(class UPrimitiveComponent* _c
 		this, &UInteractableComponent::OnTriggerWithPlayer);
 	_component->OnComponentEndOverlap.AddDynamic(
 		this, &UInteractableComponent::OnTriggerEndWithPlayer);
-
-
 }
 

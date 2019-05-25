@@ -61,7 +61,7 @@ void UQuest::CompleteQuest()
 
 	for (UQuest* quest : ChildQuests)
 	{
-		quest->UnlockQuest();
+		quest->SetQuestState(EQuestState::Avaliable);
 	}
 
 }
@@ -125,14 +125,10 @@ void UQuest::SetQuestState(EQuestState _questState)
 
 void UQuest::RegisterObjective(class UQuestObjectiveComponent* _objective)
 {
-	int32 objectiveOrder = _objective->GetOrder();
-// 	if (QuestObjectives.Num() - 1 < objectiveOrder)
-// 	{
-// 		QuestObjectives.Reserve(objectiveOrder + 1);
-// 	}
-
 	QuestObjectives.Add(_objective);
-	//QuestObjectives[objectiveOrder] = _objective;
+	QuestObjectives.Sort([](const UQuestObjectiveComponent& A, const UQuestObjectiveComponent& B) {
+		return A.GetOrder() < B.GetOrder();
+	});
 	_objective->SetOwningQuest(this);
 }
 

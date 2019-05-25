@@ -187,12 +187,6 @@ void APlayerCharacter::SprintBegin()
 
 		FollowCamera->SetFieldOfView(PlayerDefaultValues.CameraFOV + 5.0f);
 		GetCharacterMovement()->MaxWalkSpeed = PlayerDefaultValues.WalkSpeed * SpringSpeedMultiplier;
-
-		// End the crouch
-	// 	if (GetMovementComponent()->IsCrouching())
-	// 	{
-	// 		CrouchEnd();
-	// 	}
 	}
 }
 

@@ -73,15 +73,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuestSystem")
 	bool bAutoComplete = false;
 
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	
+	/** Called when the component is initialized */
+	virtual void InitializeComponent() override;
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 
 	/**
 	 * Objective actions
@@ -93,8 +94,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void FailObjective();
 
-
-
 	/** Sets the quest owner */
 	void SetOwningQuest(class UQuest* _quest);
 
@@ -103,5 +102,4 @@ public:
 	FORCEINLINE FString GetDescription() const { return ShortDescription; }
 	FORCEINLINE class UQuest* GetQuestOwner() const { return OwningQuest; }
 	/** Getter End */
-
 };
