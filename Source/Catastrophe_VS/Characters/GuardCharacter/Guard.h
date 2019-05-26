@@ -25,7 +25,7 @@ enum class EGuardState : uint8
 };
 
 /**
- * 
+ * This character is the main enemy that trying to guard around places and catches the player
  */
 UCLASS()
 class CATASTROPHE_VS_API AGuard : public ACharacter

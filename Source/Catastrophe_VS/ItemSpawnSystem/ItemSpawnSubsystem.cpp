@@ -6,10 +6,9 @@
 #include "Interactable/ItemPickup.h"
 #include "Engine/World.h"
 
-UItemSpawnSubsystem::UItemSpawnSubsystem() : UCatastropheGameInstanceSubsystem()
-{
-	
-}
+UItemSpawnSubsystem::UItemSpawnSubsystem() 
+	: UCatastropheGameInstanceSubsystem()
+{}
 
 void UItemSpawnSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {

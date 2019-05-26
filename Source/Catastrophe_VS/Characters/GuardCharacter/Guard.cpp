@@ -183,9 +183,12 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 
 void AGuard::OnStunBegin()
 {
+	// Make sure this bi** doesnt move
+	//SetGuardMaxSpeed(0.0f);
+	GuardController->StopMovement();
+
 	// Sight goes dark for guard
 	GuardController->ModifySightRange(0.0f);
-
 
 	if (GuardAnimInstance)
 		GuardAnimInstance->bStuned = true;
