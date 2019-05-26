@@ -48,7 +48,7 @@ void ALevelStreamingTrigger::BeginPlay()
 
 void ALevelStreamingTrigger::OnPlayerEnterTrigger(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->ActorHasTag(TEXT("Player")))
+	if (OtherActor->ActorHasTag(TEXT("Player")) && bActive)
 	{
 		PlayerToTeleport = OtherActor;
 
