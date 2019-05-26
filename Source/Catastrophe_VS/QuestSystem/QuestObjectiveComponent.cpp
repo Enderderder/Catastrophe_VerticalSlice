@@ -33,13 +33,6 @@ void UQuestObjectiveComponent::InitializeComponent()
 	}
 }
 
-void UQuestObjectiveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
 void UQuestObjectiveComponent::ActivateObjective()
 {
 	// Set state

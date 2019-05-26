@@ -13,11 +13,12 @@ ATomato::ATomato()
  	// Set this actor to not call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = false;
 
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh->SetGenerateOverlapEvents(true);
-	Mesh->SetCollisionProfileName(TEXT("Throwable"));
-	Mesh->OnComponentBeginOverlap.AddDynamic(this, &ATomato::OnTomatoOverlap);
-	RootComponent = Mesh;
+	TomatoMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	TomatoMesh->SetGenerateOverlapEvents(true);
+	TomatoMesh->SetCollisionProfileName(TEXT("Throwable"));
+	TomatoMesh->OnComponentBeginOverlap.AddDynamic(this, &ATomato::OnTomatoOverlap);
+	//TomatoMesh->
+	RootComponent = TomatoMesh;
 
 }
 
@@ -45,9 +46,5 @@ void ATomato::OnTomatoOverlap(class UPrimitiveComponent* OverlappedComponent, cl
 
 void ATomato::LaunchTomato(FVector _launchDirection, float _launchForce)
 {
-	//Mesh->AddForce()
-
-
-
-	// TODO: Apply force when launch
+	TomatoMesh->AddForce(_launchDirection * _launchForce);
 }

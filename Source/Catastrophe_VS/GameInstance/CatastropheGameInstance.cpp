@@ -7,8 +7,7 @@
 
 #include "QuestSystem/QuestSubsystem.h"
 #include "SaveGameSystem/SaveGameSubsystem.h"
-
-#include "ItemSpawnSubsystem.h"
+#include "ItemSpawnSystem/ItemSpawnSubsystem.h"
 
 UCatastropheGameInstance::UCatastropheGameInstance(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -45,12 +44,6 @@ void UCatastropheGameInstance::Init()
  	{
  		subSystem->PostInitialize();
  	}
-
-	
-
-
-
-
 }
 
 void UCatastropheGameInstance::Shutdown()

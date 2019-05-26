@@ -81,9 +81,6 @@ public:
 	/** Called when the component is initialized */
 	virtual void InitializeComponent() override;
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	/**
 	 * Objective actions
 	 */

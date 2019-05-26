@@ -18,7 +18,11 @@ public:
 	UItemSpawnSubsystem();
 
 protected:
+
+	UPROPERTY()
 	TArray<TSubclassOf<class AItemPickup>> ItemList;
+
+	UPROPERTY()
 	TArray<FVector> SpawnLocationsList;
 
 public:

@@ -6,14 +6,6 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-UENUM(BlueprintType)
-enum class EDirection : uint8
-{
-	LEFT,
-	RIGHT,
-	FORWARD,
-	BACKWARD
-};
 
 /**
  * HHU (Hand Hold Utility) types
@@ -91,6 +83,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* TomatoInHandMesh;
 
+	// Deprecated TODO: Remove reference of this component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GoalFish", meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* FishToCarry;
 
@@ -142,11 +135,15 @@ protected:
 
 	/** Class object that define what object will be throw out as tomato */
 	UPROPERTY(EditDefaultsOnly, Category = "HHU | Tomato")
-	TSubclassOf<class AActor> TomatoClass;
+	TSubclassOf<class ATomato> TomatoClass;
 
 	/** The total amount of tomato player can hold */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HHU | Tomato")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "HHU | Tomato")
 	int32 TomatoTotalCount = 1;
+
+	/** The force apply when player throw the tomato */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "HHU | Tomato")
+	float TomatoLaunchForce = 100.0f;
 
 
 	/** Sprint & Stamina */
@@ -238,16 +235,6 @@ protected:
 
 	/** Check if player has tomato in his hand */
 	void CheckTomatoInHand();
-
-	/** Called for aim down sight for shooting tomato */
-	void AimDownSight();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Skill_Tomato", meta = (DisplayName = "OnAimDownSight"))
-	void Receive_AimDownSight();
-
-	/** Called for exite aim down sight */
-	void ExitAimDownSight();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Skill_Tomato", meta = (DisplayName = "OnExitAimDownSight"))
-	void Receive_ExitAimDownSight();
 
 	/** Called for shooting shuriken */
 	UFUNCTION(BlueprintCallable, Category = "Skill_Tomato")

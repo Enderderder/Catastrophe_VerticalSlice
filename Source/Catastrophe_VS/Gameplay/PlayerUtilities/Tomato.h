@@ -14,7 +14,7 @@ class CATASTROPHE_VS_API ATomato : public AActor
 private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* Mesh;
+	class UStaticMeshComponent* TomatoMesh;
 
 public:	
 	// Sets default values for this actor's properties
@@ -35,7 +35,7 @@ public:
 	void LaunchTomato(FVector _launchDirection, float _launchForce);
 
 	/** Getter */
-	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }
+	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return TomatoMesh; }
 	/** Getter End */
 
 };

@@ -22,6 +22,7 @@
 #include "Interactable/InteractActor.h"
 #include "Interactable/BaseClasses/InteractableObject.h"
 #include "Interactable/BaseClasses/InteractableComponent.h"
+#include "Gameplay/PlayerUtilities/Tomato.h"
 
 //#include "Engine.h"
 
@@ -119,7 +120,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (CurrentStamina <= 0.0f) 
 			SprintEnd();
 	}
-	else
+	else // If not, regen
 	{
 		CurrentStamina = FMath::Min(TotalStamina, CurrentStamina + (StaminaDrainPerSec * DeltaTime));
 	}
@@ -255,44 +256,6 @@ void APlayerCharacter::MoveRight(float Value)
 	}
 }
 
-void APlayerCharacter::AimDownSight()
-{
-	// Abort when player cant shoot tomato
-	if (!bCanUseHHU)
-		return;
-
-	// Change the ADS state to true
-	bHHUSecondaryActive = true;
-
-	// Let the character follow camera rotation
-	bUseControllerRotationYaw = true;
-
-	//CameraBoom->AttachToComponent(AimDownSightFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
-	//CameraBoom->TargetArmLength *= CameraZoomRatio;
-
-	// Call the blueprint implemented event
-	Receive_AimDownSight();
-}
-
-void APlayerCharacter::ExitAimDownSight()
-{
-	// Abort when ads state is not even set
-	if (!bHHUSecondaryActive)
-		return;
-
-	// Change the ADS state to false
-	bHHUSecondaryActive = false;
-
-	// Let the character not follow camera rotation
-	bUseControllerRotationYaw = false;
-
-	CameraBoom->AttachToComponent(CamFocusPoint, FAttachmentTransformRules::KeepRelativeTransform);
-	//CameraBoom->TargetArmLength /= CameraZoomRatio;
-
-	// Call the blueprint implemented event
-	Receive_ExitAimDownSight();
-}
-
 void APlayerCharacter::ShootTomato()
 {
 	// Validate the obejct pointer
@@ -383,9 +346,10 @@ void APlayerCharacter::HHUPrimaryActionBegin()
 		tomatoSpawnLocation = GetMesh()->GetSocketLocation(TEXT("RightHandSocket"));
 		tomatoSpawnRotation = FollowCamera->GetComponentRotation();
 		// Spawn the tomato
-		AActor * SpawnedTomato;
-		SpawnedTomato = GetWorld()->SpawnActor<AActor>(
+		ATomato* SpawnedTomato;
+		SpawnedTomato = GetWorld()->SpawnActor<ATomato>(
 			TomatoClass, tomatoSpawnLocation, tomatoSpawnRotation, tomatoSpawnInfo);
+		SpawnedTomato->LaunchTomato(FollowCamera->GetForwardVector(), TomatoLaunchForce);
 		// Lower the tomato count
 		TomatoCurrentCount--;
 		break;
@@ -452,8 +416,6 @@ void APlayerCharacter::HHUSecondaryActionBegin()
 
 	default: break;
 	}
-
-
 }
 
 void APlayerCharacter::HHUSecondaryActionEnd()
