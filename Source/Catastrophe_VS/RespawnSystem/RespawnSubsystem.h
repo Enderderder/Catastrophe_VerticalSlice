@@ -55,7 +55,7 @@ enum class EDISTRICT : uint8
 };
 
 /**
- * 
+ *
  */
 USTRUCT(BlueprintType)
 struct FRespawnLocation
@@ -68,7 +68,7 @@ public:
 	EDISTRICT District;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FTransform> RespawnLocations;
+	TArray<FTransform> RespawnTransforms;
 
 	FRespawnLocation() :
 		District(EDISTRICT::HUB)
@@ -93,7 +93,9 @@ public:
 
 protected:
 
-	//TMap()
+	/** All the respawn locations that gets registered */
+	UPROPERTY()
+	TMap<EDISTRICT, FRespawnLocation> RespawnPoints;
 
 public:
 	/* Implement this for initialization of instances of the system */
@@ -111,8 +113,27 @@ public:
 	 * @param _loadLevelInfo Information that needs to be filled in order to load level
 	 * @note Do not call this function before all BeginPlay() finished
 	 */
-	UFUNCTION(BlueprintCallable)
-	void LoadLevelStreaming(const UObject* _worldContextObject, FLoadStreamingLevelInfo _loadLevelInfo);
+	UFUNCTION(BlueprintCallable, Category = "Respawn System")
+	void LoadLevelStreaming(FLoadStreamingLevelInfo _loadLevelInfo);
+
+	/**
+	 * Called to store spawn locations at certain district
+	 * @param _districtType
+	 * @param _transform
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Respawn System")
+	void RegisterRespawnLocation(EDISTRICT _districtType, FTransform _transform);
+
+	/**
+	 * Gets the first respawn location at provided district type
+	 * @param _districtType
+	 * @note If there is no respawn location avaliable, return zero transform
+	 * @note Cause this will be the repsawn transform, the scale will forced to set to 1
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Respawn System")
+	FTransform GetFirstRespawnLocationAtDistrict(EDISTRICT _districtType);
+
+
 
 	/** Gets the instance without going through the GameInstance */
 	static URespawnSubsystem* GetInst(const UObject* _worldContextObject);
@@ -120,9 +141,11 @@ public:
 protected:
 
 	/** Called when an level is loaded */
-	void OnLevelLoaded();
+	UFUNCTION()
+	void OnStreamLevelLoaded();
 
 	/** Called when an level is unloaded */
-	void OnLevelUnloaded();
+	UFUNCTION()
+	void OnStreamLevelUnloaded();
 
 };

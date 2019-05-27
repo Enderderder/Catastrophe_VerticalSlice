@@ -18,6 +18,13 @@ void URespawnSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	
+	// Add all the locations to the map
+	for (int32 i = (int32)EDISTRICT::HUB; i < (int32)EDISTRICT::LOCATIONCOUNT; ++i)
+	{
+		EDISTRICT districtType = static_cast<EDISTRICT>(i);
+		RespawnPoints.Add(districtType);
+		RespawnPoints[districtType].District = districtType;
+	}
 }
 
 void URespawnSubsystem::PostInitialize()
@@ -34,23 +41,63 @@ void URespawnSubsystem::Deinitialize()
 	
 }
 
-void URespawnSubsystem::LoadLevelStreaming(const UObject* _worldContextObject, FLoadStreamingLevelInfo _loadLevelInfo)
+void URespawnSubsystem::LoadLevelStreaming(FLoadStreamingLevelInfo _loadLevelInfo)
 {
 	// Store the temp value
 	tempInfo = _loadLevelInfo;
 
 	FLatentActionInfo latenInfo;
 	latenInfo.CallbackTarget = this;
-	latenInfo.UUID = 0;
+	latenInfo.UUID = 1;
 	latenInfo.Linkage = 0;
-	latenInfo.ExecutionFunction = TEXT("OnLevelLoaded");
+	latenInfo.ExecutionFunction = TEXT("OnStreamLevelLoaded");
 
 	UGameplayStatics::LoadStreamLevel(
-		_worldContextObject,
+		this,
 		_loadLevelInfo.LoadedLevelName,
 		true,
 		_loadLevelInfo.bBlockOnLoad,
 		latenInfo);
+}
+
+void URespawnSubsystem::RegisterRespawnLocation(EDISTRICT _districtType, FTransform _transform)
+{
+	// Check if the district is valid
+	if ((int32)_districtType < 0 || (int32)_districtType >= (int32)EDISTRICT::LOCATIONCOUNT)
+	{
+		UE_LOG(LogTemp, Error, 
+			TEXT("Failed to register respawn point because the district type is invalid"));
+		return;
+	}
+
+	// Force the scale to be 1 so the player respawn will never messed up
+	_transform.SetScale3D(FVector::OneVector);
+
+	// Store the location
+	RespawnPoints[_districtType].RespawnTransforms.Add(_transform);
+}
+
+FTransform URespawnSubsystem::GetFirstRespawnLocationAtDistrict(EDISTRICT _districtType)
+{
+	// Check if the district is valid
+	if ((int32)_districtType < 0 || (int32)_districtType >= (int32)EDISTRICT::LOCATIONCOUNT)
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("Unable to find respawn location cause the district type is invalid"));
+		return FTransform::Identity;
+	}
+
+	// Check if there is any locations registered
+	TArray<FTransform> respawnPointsInDistrict = RespawnPoints[_districtType].RespawnTransforms;
+	if (respawnPointsInDistrict.Num() <= 0)
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("Unable to find respawn location cause there is no location in district"));
+		return FTransform::Identity;
+	}
+
+	// Give the transform
+	return respawnPointsInDistrict[0];
 }
 
 URespawnSubsystem* URespawnSubsystem::GetInst(const UObject* _worldContextObject)
@@ -63,23 +110,33 @@ URespawnSubsystem* URespawnSubsystem::GetInst(const UObject* _worldContextObject
 	return nullptr;
 }
 
-void URespawnSubsystem::OnLevelLoaded()
+void URespawnSubsystem::OnStreamLevelLoaded()
 {
-	ULevelStreaming* loadedLevelStream = 
-		UGameplayStatics::GetStreamingLevel(this, tempInfo.LoadedLevelName);
-	if (loadedLevelStream)
+	if (tempInfo.bUnloadCurrentLevel)
 	{
-		if (ULevel* loadedLevel = loadedLevelStream->GetLoadedLevel())
-		{
-			if (loadedLevel->GetClass()->ImplementsInterface(UStreamingLevelInterface::StaticClass()))
-			{
-				IStreamingLevelInterface::Execute_OnStreamLevelLoaded(loadedLevel, tempInfo);
-			}
-		}
+		FLatentActionInfo latenInfo;
+		latenInfo.CallbackTarget = this;
+		latenInfo.UUID = 1;
+		latenInfo.Linkage = 0;
+		latenInfo.ExecutionFunction = TEXT("OnStreamLevelUnloaded");
+
+		UGameplayStatics::UnloadStreamLevel(
+			this, 
+			tempInfo.OriginalLevelName, 
+			latenInfo, 
+			tempInfo.bBlockOnLoad);
 	}
 }
 
-void URespawnSubsystem::OnLevelUnloaded()
+void URespawnSubsystem::OnStreamLevelUnloaded()
 {
-
+	ULevelStreaming* loadedLevelStream =
+		UGameplayStatics::GetStreamingLevel(this, tempInfo.OriginalLevelName);
+	if (loadedLevelStream)
+	{
+		if (loadedLevelStream->GetClass()->ImplementsInterface(UStreamingLevelInterface::StaticClass()))
+		{
+			IStreamingLevelInterface::Execute_OnStreamLevelUnloaded(loadedLevelStream, tempInfo);
+		}
+	}
 }

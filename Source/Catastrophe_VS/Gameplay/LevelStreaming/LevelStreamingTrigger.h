@@ -89,6 +89,7 @@ protected:
 	UFUNCTION()
 	virtual void OnLevelLoaded();
 
+	/** Called when the current level done unloaded */
 	UFUNCTION()
 	virtual void OnLevelLoadingFullyFinished();
 };

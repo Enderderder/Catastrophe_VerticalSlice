@@ -4,10 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "RespawnSubsystem.h"
 #include "StreamingLevelInterface.generated.h"
-
-struct FLoadStreamingLevelInfo;
-
 
 // This class does not need to be modified.
 UINTERFACE(BlueprintType)
@@ -30,7 +28,7 @@ public:
 	 * Called when the levels loaded by the respawn system
 	 * @param _levelLoadedInfo The information of the level loading
 	 */
-	UFUNCTION(BlueprintNativeEvent, Category = "LevelStreaming")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "LevelStreaming")
 	void OnStreamLevelLoaded(FLoadStreamingLevelInfo _levelLoadedInfo);
 	virtual void OnStreamLevelLoaded_Implementation(FLoadStreamingLevelInfo _levelLoadedInfo) = 0;
 
@@ -38,7 +36,7 @@ public:
 	 * Called when the levels unloaded by the respawn system
 	 * @param _levelLoadedInfo The information of the level loading
 	 */
-	UFUNCTION(BlueprintNativeEvent, Category = "LevelStreaming")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "LevelStreaming")
 	void OnStreamLevelUnloaded(FLoadStreamingLevelInfo _levelLoadedInfo);
 	virtual void OnStreamLevelUnloaded_Implementation(FLoadStreamingLevelInfo _levelLoadedInfo) = 0;
 
