@@ -141,6 +141,7 @@ void ANPC::NextDialogue()
 				if (ConversationsList[CurrentQuest].FinishedConversation.Num() > 0)
 				{
 					IsQuestStarted = true;
+					StartQuest();
 				}
 				FinishConversation();
 			}
@@ -156,10 +157,14 @@ void ANPC::NextDialogue()
 			{
 				IsQuestStarted = false;
 				FinishConversation();
-				CurrentQuest++;
 				if (CurrentQuest >= ConversationsList.Num())
 				{
 					CanNPCTalk = false;
+					FinishQuest();
+				}
+				else
+				{
+					CurrentQuest++;
 				}
 			}
 		}
@@ -194,10 +199,19 @@ void ANPC::FinishQuest()
 {
 	Receive_FinishQuest();
 
-	ConversationsList[CurrentQuest].Quest->CompleteObjective();
+	ConversationsList[CurrentQuest - 1].Quest->CompleteObjective();
 }
 
 void ANPC::SetConversationQuest(int _index, class UQuestObjectiveComponent* _quest)
 {
 	ConversationsList[_index].Quest = _quest;
+}
+
+int ANPC::GetCurrentFishboneReward()
+{
+	if (CurrentQuest < ConversationsList.Num())
+	{
+		return (ConversationsList[CurrentQuest].FishBonesReward);
+	}
+	return 0;
 }

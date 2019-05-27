@@ -40,6 +40,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	class UQuestObjectiveComponent* Quest;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int FishBonesReward;
 };
 
 UCLASS()
@@ -142,6 +145,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "NPC: Conversation")
 	void SetConversationQuest(int _index, class UQuestObjectiveComponent* _quest);
+
+	UFUNCTION(BlueprintCallable, Category = "NPC: Currency")
+	int GetCurrentFishboneReward();
 
 public:	
 	// Called every frame
