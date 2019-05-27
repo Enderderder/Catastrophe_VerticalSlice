@@ -457,7 +457,7 @@ void APlayerCharacter::RestoreAllTomatos()
 	CheckTomatoInHand();
 }
 
-void APlayerCharacter::RestoreTomato(int _count)
+void APlayerCharacter::RestoreTomato(int32 _count)
 {
 	TomatoCurrentCount = FMath::Min(TomatoTotalCount, TomatoCurrentCount + _count);
 	CheckTomatoInHand();

@@ -3,37 +3,40 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interactable/BaseClasses/SimpleInteractableStatic.h"
+#include "GameFramework/Actor.h"
 #include "TomatoBox.generated.h"
 
 /**
  * This is an interactable object that allow player grab a tomato in his hand
  */
 UCLASS()
-class CATASTROPHE_VS_API ATomatoBox : public ASimpleInteractableStatic
+class CATASTROPHE_VS_API ATomatoBox : public AActor
 {
 	GENERATED_BODY()
 	
+private:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* TomatoBoxMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* TriggerVolume;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UInteractableComponent* InteractableComponent;
 
 public:
 	// Sets default values for this actor's properties
 	ATomatoBox();
 
-protected:
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
-	class APlayerCharacter* PlayerReference;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TomatoBox")
+	bool bRestoreAllTomatoOneTime = false;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Pickup logic which is called when player interacts
-	UFUNCTION(BlueprintCallable, Category = "Interaction", meta = (DisplayName = "PickUpTomatoCheck"))
-	void PickUpTomato();
-
-public:
-	/* Interactable Object Interface */
-	virtual void OnInteract_Implementation(class APlayerCharacter* _actor) override;
-	/* Interface End */
+	/** Called when the player interact, restore tomato to the player */
+	UFUNCTION()
+	void PickUpTomato(class APlayerCharacter* _playerCharacter);
 };

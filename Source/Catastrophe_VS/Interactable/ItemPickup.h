@@ -29,7 +29,7 @@ protected:
 	FString Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int StackSize;
+	int32 StackSize;
 
 protected:
 	// Called when the game starts or when spawned

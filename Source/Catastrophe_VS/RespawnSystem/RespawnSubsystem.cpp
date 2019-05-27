@@ -130,13 +130,5 @@ void URespawnSubsystem::OnStreamLevelLoaded()
 
 void URespawnSubsystem::OnStreamLevelUnloaded()
 {
-	ULevelStreaming* loadedLevelStream =
-		UGameplayStatics::GetStreamingLevel(this, tempInfo.OriginalLevelName);
-	if (loadedLevelStream)
-	{
-		if (loadedLevelStream->GetClass()->ImplementsInterface(UStreamingLevelInterface::StaticClass()))
-		{
-			IStreamingLevelInterface::Execute_OnStreamLevelUnloaded(loadedLevelStream, tempInfo);
-		}
-	}
+	
 }

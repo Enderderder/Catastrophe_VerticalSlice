@@ -258,7 +258,7 @@ public:
 
 	/** Called for restore certain amount of kunai (but not over the max) */
 	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")
-	void RestoreTomato(int _count);
+	void RestoreTomato(int32 _count);
 
 	/** Return the current count of kunai player is holding */
 	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")

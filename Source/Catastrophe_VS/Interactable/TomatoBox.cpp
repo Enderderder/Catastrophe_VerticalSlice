@@ -2,14 +2,31 @@
 
 #include "TomatoBox.h"
 #include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+
+#include "Engine/CollisionProfile.h"
+
+#include "Interactable/BaseClasses/InteractableComponent.h"
 #include "Characters/PlayerCharacter/PlayerCharacter.h"
 
 ATomatoBox::ATomatoBox()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	TomatoBoxMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TomatoBoxMesh"));
+	TomatoBoxMesh->SetGenerateOverlapEvents(false);
+	TomatoBoxMesh->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
+	RootComponent = TomatoBoxMesh;
+
+	TriggerVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerVolume"));
+	TriggerVolume->SetGenerateOverlapEvents(true);
+	TriggerVolume->SetCollisionProfileName(TEXT("Trigger"));
+	TriggerVolume->SetupAttachment(RootComponent);
+
+	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
+	InteractableComponent->bOneTimeUse = false;
+	InteractableComponent->RegisterTriggerVolume(TriggerVolume);
+	InteractableComponent->OnInteract.AddDynamic(this, &ATomatoBox::PickUpTomato);
 }
 
 void ATomatoBox::BeginPlay()
@@ -18,21 +35,15 @@ void ATomatoBox::BeginPlay()
 
 }
 
-void ATomatoBox::PickUpTomato()
+void ATomatoBox::PickUpTomato(APlayerCharacter* _playerCharacter)
 {
-	if (PlayerReference && !PlayerReference->IsPendingKill())
+	// Restore the tomato accordingly
+	if (bRestoreAllTomatoOneTime)
 	{
-		// Give player 1 Tomato to his hand
-		PlayerReference->RestoreTomato(1);
+		_playerCharacter->RestoreAllTomatos();
 	}
-}
-
-void ATomatoBox::OnInteract_Implementation(class APlayerCharacter* _actor)
-{
-	Super::OnInteract_Implementation(_actor);
-
- 	PickUpTomato();
-	
-	// End the interaction
-	//Super::DisableStaticInteractable_Implementation(this);
+	else
+	{
+		_playerCharacter->RestoreTomato(1);
+	}
 }
