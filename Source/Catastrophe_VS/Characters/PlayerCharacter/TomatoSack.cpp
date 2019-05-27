@@ -103,3 +103,8 @@ uint8 UTomatoSack::GetSackSize()
 {
 	return(MaxTomatoAmount);
 }
+
+bool UTomatoSack::IsAbleToThrow()
+{
+	return (TomatoAmount > 0);
+}
