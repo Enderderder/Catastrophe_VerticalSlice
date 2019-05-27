@@ -31,15 +31,15 @@ public:
 	 * @param _levelLoadedInfo The information of the level loading
 	 */
 	UFUNCTION(BlueprintNativeEvent, Category = "LevelStreaming")
-	void OnLevelLoaded(FLoadStreamingLevelInfo _levelLoadedInfo);
-	virtual void OnLevelLoaded_Implementation(FLoadStreamingLevelInfo _levelLoadedInfo) = 0;
+	void OnStreamLevelLoaded(FLoadStreamingLevelInfo _levelLoadedInfo);
+	virtual void OnStreamLevelLoaded_Implementation(FLoadStreamingLevelInfo _levelLoadedInfo) = 0;
 
 	/**
 	 * Called when the levels unloaded by the respawn system
 	 * @param _levelLoadedInfo The information of the level loading
 	 */
 	UFUNCTION(BlueprintNativeEvent, Category = "LevelStreaming")
-	void OnLevelUnloaded(FLoadStreamingLevelInfo _levelLoadedInfo);
-	virtual void OnLevelUnloaded_Implementation(FLoadStreamingLevelInfo _levelLoadedInfo) = 0;
+	void OnStreamLevelUnloaded(FLoadStreamingLevelInfo _levelLoadedInfo);
+	virtual void OnStreamLevelUnloaded_Implementation(FLoadStreamingLevelInfo _levelLoadedInfo) = 0;
 
 };

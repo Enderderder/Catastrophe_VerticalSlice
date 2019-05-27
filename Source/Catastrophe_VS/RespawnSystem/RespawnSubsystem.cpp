@@ -73,7 +73,7 @@ void URespawnSubsystem::OnLevelLoaded()
 		{
 			if (loadedLevel->GetClass()->ImplementsInterface(UStreamingLevelInterface::StaticClass()))
 			{
-				IStreamingLevelInterface::Execute_OnLevelLoaded(loadedLevel, tempInfo);
+				IStreamingLevelInterface::Execute_OnStreamLevelLoaded(loadedLevel, tempInfo);
 			}
 		}
 	}
