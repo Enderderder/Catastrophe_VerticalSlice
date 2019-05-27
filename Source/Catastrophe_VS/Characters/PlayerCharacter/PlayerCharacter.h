@@ -161,8 +161,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
 	float SpringSpeedMultiplier = 1.3f;
 
-
-
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -172,6 +170,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bCanInteract = true;
+
+	/* Fish bones currency */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fish Bones")
+	int FishBonesAmount;
 
 protected:
 	// Called when the game starts or when spawned
