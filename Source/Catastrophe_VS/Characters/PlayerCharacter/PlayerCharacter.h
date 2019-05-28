@@ -162,7 +162,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
 	float SpringSpeedMultiplier = 1.3f;
 
-
+	/** Determine if the player can control the movement of the character */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Movement")
+	bool bAllowMovementInput = true;
 
 public:
 	// Sets default values for this character's properties
@@ -282,6 +284,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetStamina(float _value);
 	
+	/**
+	 * Called to stop all the movement that the player currently has
+	 * @param Option to block player movement input
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void BlockMovementAction(bool _bBlockMovementInput);
+
+	/** Allow player take movement control again */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void UnblockMovementInput();
+
 
 	/** Getter */
 	FORCEINLINE class UAIPerceptionStimuliSourceComponent* GetStimulusSourceComponent() const { 

@@ -182,7 +182,7 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 
 void APlayerCharacter::SprintBegin()
 {
-	if (CurrentStamina > 0.0f) // Only sprint player has stamina
+	if (bAllowMovementInput && CurrentStamina > 0.0f) // Only sprint player has stamina
 	{
 		bSprinting = true;
 
@@ -204,10 +204,13 @@ void APlayerCharacter::SprintEnd()
 
 void APlayerCharacter::CrouchBegin()
 {
-	Crouch();
+	if (bAllowMovementInput)
+	{
+		Crouch();
 
-	if (bSprinting)
-		SprintEnd();
+		if (bSprinting) 
+			SprintEnd();
+	}
 }
 
 void APlayerCharacter::CrouchEnd()
@@ -229,7 +232,7 @@ void APlayerCharacter::CheckTomatoInHand()
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	if ((Controller != NULL) && (Value != 0.0f) && bAllowMovementInput)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -243,7 +246,7 @@ void APlayerCharacter::MoveForward(float Value)
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	if ((Controller != nullptr) && (Value != 0.0f) && bAllowMovementInput)
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -489,5 +492,23 @@ void APlayerCharacter::RemoveInteractionTarget(class AActor* _interactTarget)
 void APlayerCharacter::SetStamina(float _value)
 {
 	CurrentStamina = FMath::Min(_value, TotalStamina);
+}
+
+void APlayerCharacter::BlockMovementAction(bool _bBlockMovementInput)
+{
+	// Reset the sprint and crouch state
+	SprintEnd();
+	CrouchEnd();	
+
+	// If choose to block input as well
+	if (_bBlockMovementInput)
+	{
+		bAllowMovementInput = false;
+	}
+}
+
+void APlayerCharacter::UnblockMovementInput()
+{
+	bAllowMovementInput = true;
 }
 
