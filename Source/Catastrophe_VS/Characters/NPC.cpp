@@ -51,15 +51,19 @@ void ANPC::Interact(class APlayerCharacter* _playerCharacter)
 {
 	if (CanNPCTalk)
 	{
+		//if (ConversationsList[CurrentQuest].IsInProgress())
+		//{}
 		Receive_Interact();
 
 		// Interaction functionality
 		if (ConversationInProgress)
 		{
+			/* Move to next line of dialogue in conversation */
 			NextDialogue();
 		}
 		else
 		{
+			/* Initialize widget and start conversation */
 			ConversationInProgress = true;
 			InitializeWidget();
 		}
@@ -68,10 +72,13 @@ void ANPC::Interact(class APlayerCharacter* _playerCharacter)
 
 void ANPC::InitializeWidget()
 {
+	/* Check if widget reference is not nullptr */
 	if (WidgetRef)
 	{
+		/* Create widget */
 		DialogueWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetRef);
 
+		/* Add widget to screen and update values in widget */
 		if (DialogueWidget)
 		{
 			DialogueWidget->AddToViewport();
@@ -86,36 +93,36 @@ void ANPC::UpdateWidget()
 	{
 		if (!IsQuestStarted)
 		{
-			if (CurrentDialogueNum < ConversationsList[CurrentQuest].StartConversation.Num())
+			if (CurrentDialogueNum < ConversationsList[CurrentQuest].StartQuestConversation.Num())
 			{
-				if (ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+				if (ConversationsList[CurrentQuest].StartQuestConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
 				{
-					CurrentNPCDialogueText = ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_Sentence;
+					CurrentNPCDialogueText = ConversationsList[CurrentQuest].StartQuestConversation[CurrentDialogueNum].m_Sentence;
 					CurrentPlayerDialogueText = "";
 					IsNPCTalking = true;
 				}
-				else if (ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
+				else if (ConversationsList[CurrentQuest].StartQuestConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
 				{
 					CurrentNPCDialogueText = "";
-					CurrentPlayerDialogueText = ConversationsList[CurrentQuest].StartConversation[CurrentDialogueNum].m_Sentence;
+					CurrentPlayerDialogueText = ConversationsList[CurrentQuest].StartQuestConversation[CurrentDialogueNum].m_Sentence;
 					IsNPCTalking = false;
 				}
 			}
 		}
 		else
 		{
-			if (CurrentDialogueNum < ConversationsList[CurrentQuest].FinishedConversation.Num())
+			if (CurrentDialogueNum < ConversationsList[CurrentQuest].FinishedQuestConversation.Num())
 			{
-				if (ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
+				if (ConversationsList[CurrentQuest].FinishedQuestConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_NPC)
 				{
-					CurrentNPCDialogueText = ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_Sentence;
+					CurrentNPCDialogueText = ConversationsList[CurrentQuest].FinishedQuestConversation[CurrentDialogueNum].m_Sentence;
 					CurrentPlayerDialogueText = "";
 					IsNPCTalking = true;
 				}
-				else if (ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
+				else if (ConversationsList[CurrentQuest].FinishedQuestConversation[CurrentDialogueNum].m_CharType == ECharacter::ECh_Player)
 				{
 					CurrentNPCDialogueText = "";
-					CurrentPlayerDialogueText = ConversationsList[CurrentQuest].FinishedConversation[CurrentDialogueNum].m_Sentence;
+					CurrentPlayerDialogueText = ConversationsList[CurrentQuest].FinishedQuestConversation[CurrentDialogueNum].m_Sentence;
 					IsNPCTalking = false;
 				}
 			}
@@ -132,16 +139,16 @@ void ANPC::NextDialogue()
 		if (!IsQuestStarted)
 		{
 			// Increment current dialogue position by 1 if not max num of sentences
-			if (CurrentDialogueNum < ConversationsList[CurrentQuest].StartConversation.Num() - 1)
+			if (CurrentDialogueNum < ConversationsList[CurrentQuest].StartQuestConversation.Num() - 1)
 			{
 				CurrentDialogueNum++;
 			}
 			else // If at end of conversation
 			{
-				if (ConversationsList[CurrentQuest].FinishedConversation.Num() > 0)
+				if (ConversationsList[CurrentQuest].FinishedQuestConversation.Num() > 0)
 				{
 					IsQuestStarted = true;
-					StartQuest();
+					FinishOldQuest();
 				}
 				FinishConversation();
 			}
@@ -149,7 +156,7 @@ void ANPC::NextDialogue()
 		else
 		{
 			// Increment current dialogue position by 1 if not max num of sentences
-			if (CurrentDialogueNum < ConversationsList[CurrentQuest].FinishedConversation.Num() - 1)
+			if (CurrentDialogueNum < ConversationsList[CurrentQuest].FinishedQuestConversation.Num() - 1)
 			{
 				CurrentDialogueNum++;
 			}
@@ -157,13 +164,10 @@ void ANPC::NextDialogue()
 			{
 				IsQuestStarted = false;
 				FinishConversation();
-				if (CurrentQuest >= ConversationsList.Num())
+				if (CurrentQuest >= ConversationsList.Num() - 1)
 				{
 					CanNPCTalk = false;
-					FinishQuest();
-				}
-				else
-				{
+					FinishNewQuest();
 					CurrentQuest++;
 				}
 			}
@@ -173,12 +177,15 @@ void ANPC::NextDialogue()
 	}
 }
 
+/* Removes the widget from the viewport */
 void ANPC::DisableDialogue()
 {
 	if (DialogueWidget != NULL)
 	{
 		DialogueWidget->RemoveFromViewport();
 	}
+
+	/* End conversation and reset variables */
 	CurrentDialogueNum = 0;
 	ConversationInProgress = false;
 }
@@ -188,30 +195,56 @@ void ANPC::FinishConversation()
 	DisableDialogue();
 }
 
-void ANPC::StartQuest()
+void ANPC::FinishOldQuest()
 {
-	Receive_StartQuest();
+	Receive_FinishQuests();
+	Receive_FinishOldQuest();
 
-	ConversationsList[CurrentQuest].Quest->ActivateObjective();
+	if (ConversationsList[CurrentQuest].bFinishOldQuest)
+	{
+		ConversationsList[CurrentQuest].OldQuest->CompleteObjective();
+	}
+	else
+	{
+		// Start StartQuest
+	}
 }
 
-void ANPC::FinishQuest()
+void ANPC::FinishNewQuest()
 {
-	Receive_FinishQuest();
+	Receive_FinishQuests();
+	Receive_FinishNewQuest();
 
-	ConversationsList[CurrentQuest - 1].Quest->CompleteObjective();
+	if (ConversationsList[CurrentQuest].bFinishNewQuest)
+	{
+		ConversationsList[CurrentQuest].NewQuest->CompleteObjective();
+	}
+	else
+	{
+		// Start EndQuest
+	}
 }
 
-void ANPC::SetConversationQuest(int _index, class UQuestObjectiveComponent* _quest)
+void ANPC::SetConversationQuests(int _index, class UQuestObjectiveComponent* _StartQuest, class UQuestObjectiveComponent* _EndQuest)
 {
-	ConversationsList[_index].Quest = _quest;
+	ConversationsList[_index].OldQuest = _StartQuest;
+	ConversationsList[_index].NewQuest = _EndQuest;
 }
 
-int ANPC::GetCurrentFishboneReward()
+int ANPC::GetCurrentFishboneReward_OldQuest()
 {
 	if (CurrentQuest < ConversationsList.Num())
 	{
-		return (ConversationsList[CurrentQuest].FishBonesReward);
+		return (ConversationsList[CurrentQuest].FishBonesReward_OldQuest);
+	}
+	return 0;
+}
+
+int ANPC::GetCurrentFishboneReward_NewQuest()
+{
+	if (CurrentQuest < ConversationsList.Num())
+	{
+		return (ConversationsList[CurrentQuest].FishBonesReward_NewQuest);
 	}
 	return 0;
 }
