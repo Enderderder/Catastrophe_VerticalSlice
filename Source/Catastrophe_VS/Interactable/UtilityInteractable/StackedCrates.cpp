@@ -2,6 +2,7 @@
 
 #include "StackedCrates.h"
 
+#include "Components/SceneComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
@@ -10,20 +11,23 @@
 // Set default values
 AStackedCrates::AStackedCrates()
 {
+	DefaultRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultRoot"));
+	RootComponent = DefaultRoot;
+
 	CratesMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CratesMesh"));
-	RootComponent = CratesMesh;
+	CratesMesh->SetupAttachment(RootComponent);
 
 	TriggerVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerVolume"));
 	TriggerVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	TriggerVolume->SetGenerateOverlapEvents(true);
-	TriggerVolume->SetupAttachment(RootComponent);
+	TriggerVolume->SetupAttachment(CratesMesh);
 
 	BlockVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("BlockVolume"));
 	BlockVolume->bAutoActivate = false;
 	BlockVolume->SetCanEverAffectNavigation(true);
 	BlockVolume->SetGenerateOverlapEvents(false);
 	//BlockVolume->SetCollisionProfileName(TEXT("Obstacle"));
-	BlockVolume->SetupAttachment(RootComponent);
+	BlockVolume->SetupAttachment(CratesMesh);
 
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
 	InteractableComponent->RegisterTriggerVolume(TriggerVolume);

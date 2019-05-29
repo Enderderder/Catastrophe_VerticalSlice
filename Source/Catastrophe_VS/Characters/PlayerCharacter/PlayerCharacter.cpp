@@ -134,7 +134,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (CurrentStamina <= 0.0f) 
 			SprintEnd();
 	}
-	else if (GetVelocity().Size() <= 1.0f)
+	else //if (GetVelocity().Size() <= 1.0f)
 	{
 		CurrentStamina = FMath::Min(TotalStamina, CurrentStamina + (StaminaDrainPerSec * DeltaTime));
 	}
