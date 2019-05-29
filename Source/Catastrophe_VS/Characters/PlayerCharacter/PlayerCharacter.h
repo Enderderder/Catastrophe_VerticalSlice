@@ -100,6 +100,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Player | General")
 	FPlayerDefaultValue PlayerDefaultValues;
 	
+	/** The main hud for the player */
+	UPROPERTY(BlueprintReadOnly, Category = "Player | General")
+	class UPlayerWidget* PlayerWidget;
+
+	/** The hud class */
+	UPROPERTY(EditDefaultsOnly, Category = "Player | General")
+	TSubclassOf<UPlayerWidget> PlayerWidgetClass;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
 	float BaseTurnRate = 45.0f;

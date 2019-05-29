@@ -18,6 +18,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 
+#include "PlayerWidget.h"
 #include "PlayerAnimInstance.h"
 #include "Interactable/InteractActor.h"
 #include "Interactable/BaseClasses/InteractableObject.h"
@@ -106,6 +107,19 @@ void APlayerCharacter::BeginPlay()
 
 
 	CheckTomatoInHand();
+
+	// Set default state for the player UI
+	if (PlayerWidgetClass)
+	{
+		PlayerWidget = CreateWidget<UPlayerWidget>(GetWorld(), PlayerWidgetClass);
+		if (PlayerWidget)
+		{
+			PlayerWidget->AddToViewport();
+
+			PlayerWidget->ToggleStamina(true);
+			PlayerWidget->ToggleCrosshair(false);
+		}
+	}
 }
 
 // Called every frame
@@ -408,6 +422,7 @@ void APlayerCharacter::HHUSecondaryActionBegin()
 		if (ZoomInTimeline)
 			ZoomInTimeline->Play();
 		PlayerAnimInstance->bAiming = true;
+		PlayerWidget->ToggleCrosshair(true);
 		break;
 	}
 
@@ -437,6 +452,7 @@ void APlayerCharacter::HHUSecondaryActionEnd()
 			if (ZoomInTimeline)
 				ZoomInTimeline->Reverse();
 			PlayerAnimInstance->bAiming = false;
+			PlayerWidget->ToggleCrosshair(false);
 			break;
 		}
 
