@@ -75,8 +75,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* AimDownSightFocusPoint;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato", meta = (AllowPrivateAccess = "true"))
+	class UTomatoSack* TomatoSack;
+
 	// Deprecated TODO: Remove reference of this component
-	/** Spawn loaction for the throwable */
+	/** Spawn location for the throwable */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill_Tomato", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* TomatoSpawnPoint;
 
@@ -145,10 +148,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "HHU | Tomato")
 	TSubclassOf<class ATomato> TomatoClass;
 
-	/** The total amount of tomato player can hold */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "HHU | Tomato")
-	int32 TomatoTotalCount = 1;
-
 	/** The force apply when player throw the tomato */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "HHU | Tomato")
 	float TomatoLaunchForce = 100.0f;
@@ -178,14 +177,15 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "HHU | Tomato")
-	int32 TomatoCurrentCount = 0;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HHU | General")
 	bool bCanUseHHU = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bCanInteract = true;
+
+	/* Fish bones currency */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fish Bones")
+	int FishBonesAmount;
 
 protected:
 	// Called when the game starts or when spawned
@@ -246,7 +246,7 @@ protected:
 	/** Check if player has tomato in his hand */
 	void CheckTomatoInHand();
 
-	/** Called for shooting shuriken */
+	/** Called for shooting tomato */
 	UFUNCTION(BlueprintCallable, Category = "Skill_Tomato")
 	void ShootTomato();
 
@@ -262,17 +262,17 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	/** Called for set the kunai count to maximum */
+	/** Called for set the tomato count to maximum */
 	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")
 	void RestoreAllTomatos();
 
-	/** Called for restore certain amount of kunai (but not over the max) */
+	/** Called for restore certain amount of tomatoes (but not over the max) */
 	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")
 	void RestoreTomato(int32 _count);
 
-	/** Return the current count of kunai player is holding */
+	/** Return the current count of tomatoes player is holding */
 	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")
-	int GetTomatoCount() { return TomatoCurrentCount; }
+	int GetTomatoCount();
 
 	UFUNCTION(BlueprintCallable, Category = "Fish")
 	void GrabbingFish();

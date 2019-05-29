@@ -33,13 +33,22 @@ struct FConversation
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FSSentence> StartConversation;
+	TArray<FSSentence> StartQuestConversation;
+	UPROPERTY(BlueprintReadWrite)
+	class UQuestObjectiveComponent* OldQuest;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bFinishOldQuest;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int FishBonesReward_OldQuest;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FSSentence> FinishedConversation;
-
+	TArray<FSSentence> FinishedQuestConversation;
 	UPROPERTY(BlueprintReadWrite)
-	class UQuestObjectiveComponent* Quest;
+	class UQuestObjectiveComponent* NewQuest;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bFinishNewQuest;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int FishBonesReward_NewQuest;
 };
 
 UCLASS()
@@ -131,17 +140,23 @@ protected:
 	void FinishConversation();
 
 	UFUNCTION(BlueprintCallable, Category = "NPC: Quests")
-	void StartQuest();
-	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnQuestStart"))
-	void Receive_StartQuest();
-
+	void FinishOldQuest();
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnFinishOldQuest"))
+	void Receive_FinishOldQuest();
 	UFUNCTION(BlueprintCallable, Category = "NPC: Quests")
-	void FinishQuest();
-	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnQuestFinish"))
-	void Receive_FinishQuest();
+	void FinishNewQuest();
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnFinishNewQuest"))
+	void Receive_FinishNewQuest();
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnQuestsFinish"))
+	void Receive_FinishQuests();
 
 	UFUNCTION(BlueprintCallable, Category = "NPC: Conversation")
-	void SetConversationQuest(int _index, class UQuestObjectiveComponent* _quest);
+	void SetConversationQuests(int _index, class UQuestObjectiveComponent* _startQuest, class UQuestObjectiveComponent* _endQuest);
+
+	UFUNCTION(BlueprintCallable, Category = "NPC: Currency")
+	int GetCurrentFishboneReward_OldQuest();
+	UFUNCTION(BlueprintCallable, Category = "NPC: Currency")
+	int GetCurrentFishboneReward_NewQuest();
 
 public:	
 	// Called every frame

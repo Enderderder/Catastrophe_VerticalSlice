@@ -24,6 +24,7 @@
 #include "Interactable/BaseClasses/InteractableObject.h"
 #include "Interactable/BaseClasses/InteractableComponent.h"
 #include "Gameplay/PlayerUtilities/Tomato.h"
+#include "TomatoSack.h"
 
 //#include "Engine.h"
 
@@ -67,6 +68,10 @@ APlayerCharacter::APlayerCharacter()
 	// Set the tomato that will show inside players hand
 	TomatoInHandMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TomatoInHandMesh"));
 	TomatoInHandMesh->SetupAttachment(GetMesh(), TEXT("RightHandSocket"));
+
+	TomatoSack = CreateDefaultSubobject<UTomatoSack>(TEXT("TomatoSack"));
+	TomatoSack->SetSackSize(1);
+	TomatoSack->SetTomatoAmount(0);
 
 	FishToCarry = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FishToCarry"));
 	FishToCarry->SetupAttachment(GetMesh(), TEXT("BackCarrySocket"));
@@ -234,7 +239,7 @@ void APlayerCharacter::CrouchEnd()
 
 void APlayerCharacter::CheckTomatoInHand()
 {
-	if (TomatoCurrentCount > 0)
+	if (TomatoSack->IsAbleToThrow())
 	{
 		TomatoInHandMesh->SetVisibility(true);
 	}
@@ -281,9 +286,9 @@ void APlayerCharacter::ShootTomato()
 	if (TomatoClass 
 		&& bHHUSecondaryActive == true
 		&& bCanUseHHU == true
-		&& TomatoCurrentCount > 0)
+		&& TomatoSack->IsAbleToThrow())
 	{
-		// Set the parameter for spawning the shuriken
+		// Set the parameter for spawning the tomato
 		FVector tomatoSpawnLocation;
 		FRotator tomatoSpawnRotation;
 		FActorSpawnParameters tomatoSpawnInfo;
@@ -297,7 +302,7 @@ void APlayerCharacter::ShootTomato()
 		SpawnedTomato = GetWorld()->SpawnActor<APawn>(TomatoClass, tomatoSpawnLocation, tomatoSpawnRotation, tomatoSpawnInfo);
 
 		// Lower the ammo
-		TomatoCurrentCount--;
+		TomatoSack->RemoveTomato();
 
 		// Check if theres tomato left in the hand
 		CheckTomatoInHand();
@@ -340,7 +345,7 @@ void APlayerCharacter::InteractEnd()
 
 void APlayerCharacter::HHUPrimaryActionBegin()
 {
-	// If cannot use HHU, just dont then
+	// If cannot use HHU, just don't then
 	if (!bCanUseHHU) return;
 
 	// Set the activation state to true
@@ -351,7 +356,7 @@ void APlayerCharacter::HHUPrimaryActionBegin()
 	case EHHUType::TOMATO: // To shoot tomato, must be zoomed in
 	{
 		if (!bHHUSecondaryActive
-			|| TomatoCurrentCount <= 0
+			|| TomatoSack->IsTomatoSackEmpty()
 			|| !TomatoClass) break; // Do the check
 		// Set the parameter for spawning the tomato
 		FVector tomatoSpawnLocation;
@@ -368,7 +373,7 @@ void APlayerCharacter::HHUPrimaryActionBegin()
 			TomatoClass, tomatoSpawnLocation, tomatoSpawnRotation, tomatoSpawnInfo);
 		SpawnedTomato->LaunchTomato(FollowCamera->GetForwardVector(), TomatoLaunchForce);
 		// Lower the tomato count
-		TomatoCurrentCount--;
+		TomatoSack->RemoveTomato();
 		break;
 	}
 
@@ -472,14 +477,19 @@ void APlayerCharacter::HHUSecondaryActionEnd()
 
 void APlayerCharacter::RestoreAllTomatos()
 {
-	TomatoCurrentCount = TomatoTotalCount;
+	TomatoSack->FillTomatoSack();
 	CheckTomatoInHand();
 }
 
 void APlayerCharacter::RestoreTomato(int32 _count)
 {
-	TomatoCurrentCount = FMath::Min(TomatoTotalCount, TomatoCurrentCount + _count);
+	TomatoSack->AddTomatoes(_count);
 	CheckTomatoInHand();
+}
+
+int APlayerCharacter::GetTomatoCount()
+{
+	return TomatoSack->GetTomatoAmount();
 }
 
 void APlayerCharacter::GrabbingFish()
