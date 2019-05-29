@@ -26,16 +26,25 @@ AGuard::AGuard()
 	GetCapsuleComponent()->CanCharacterStepUpOn = ECB_No;
 
 	HeadHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("HeadHitBox"));
+	HeadHitbox->SetGenerateOverlapEvents(true);
 	HeadHitbox->SetCollisionProfileName(TEXT("Enemy"));
 	HeadHitbox->ComponentTags.Add(TEXT("Head"));
 	HeadHitbox->CanCharacterStepUpOn = ECB_No;
 	HeadHitbox->SetupAttachment(GetMesh(), TEXT("HeadSocket"));
 
 	BodyHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyHitBox"));
+	BodyHitBox->SetGenerateOverlapEvents(true);
 	BodyHitBox->SetCollisionProfileName(TEXT("Enemy"));
-	HeadHitbox->ComponentTags.Add(TEXT("Body"));
+	BodyHitBox->ComponentTags.Add(TEXT("Body"));
 	BodyHitBox->CanCharacterStepUpOn = ECB_No;
 	BodyHitBox->SetupAttachment(GetMesh());
+
+	CatchHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CatchHitBox"));
+	CatchHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision); // No collision to begin with
+	CatchHitBox->SetGenerateOverlapEvents(true);
+	CatchHitBox->SetCollisionProfileName(TEXT("Enemy"));
+	CatchHitBox->CanCharacterStepUpOn = ECB_No;
+	CatchHitBox->SetupAttachment(GetMesh());
 
 	AlertMarkMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AlertMarkMesh"));
 	AlertMarkMesh->SetGenerateOverlapEvents(false);
@@ -216,6 +225,14 @@ void AGuard::OnStunEnd()
 	else // Or just go back to the default state
 	{
 		SetGuardState(DefaultGuardState);
+	}
+}
+
+void AGuard::OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->ActorHasTag(TEXT("Player")))
+	{
+
 	}
 }
 

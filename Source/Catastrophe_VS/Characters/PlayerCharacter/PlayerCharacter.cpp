@@ -201,7 +201,7 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 
 void APlayerCharacter::SprintBegin()
 {
-	if (bAllowMovementInput && CurrentStamina > 0.0f) // Only sprint player has stamina
+	if (bAllowMovementInput && CurrentStamina >= TotalStamina) // Only sprint player has stamina
 	{
 		bSprinting = true;
 
