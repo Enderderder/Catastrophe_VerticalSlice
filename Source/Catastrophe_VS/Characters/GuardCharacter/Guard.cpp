@@ -27,24 +27,32 @@ AGuard::AGuard()
 
 	HeadHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("HeadHitBox"));
 	HeadHitbox->SetGenerateOverlapEvents(true);
-	HeadHitbox->SetCollisionProfileName(TEXT("Enemy"));
+	HeadHitbox->SetCollisionProfileName(TEXT("EnemyBlock"));
 	HeadHitbox->ComponentTags.Add(TEXT("Head"));
 	HeadHitbox->CanCharacterStepUpOn = ECB_No;
 	HeadHitbox->SetupAttachment(GetMesh(), TEXT("HeadSocket"));
 
 	BodyHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyHitBox"));
 	BodyHitBox->SetGenerateOverlapEvents(true);
-	BodyHitBox->SetCollisionProfileName(TEXT("Enemy"));
+	BodyHitBox->SetCollisionProfileName(TEXT("EnemyBlock"));
 	BodyHitBox->ComponentTags.Add(TEXT("Body"));
 	BodyHitBox->CanCharacterStepUpOn = ECB_No;
 	BodyHitBox->SetupAttachment(GetMesh());
 
 	CatchHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CatchHitBox"));
-	CatchHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision); // No collision to begin with
 	CatchHitBox->SetGenerateOverlapEvents(true);
-	CatchHitBox->SetCollisionProfileName(TEXT("Enemy"));
+	CatchHitBox->SetCollisionProfileName(TEXT("EnemyOverlap"));
+	CatchHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision); // No collision to begin with
 	CatchHitBox->CanCharacterStepUpOn = ECB_No;
+	CatchHitBox->OnComponentBeginOverlap.AddDynamic(this, &AGuard::OnCatchHitBoxOverlap);
 	CatchHitBox->SetupAttachment(GetMesh());
+
+	// TODO: Pls remove this
+	StupidFakeBsHearingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("StupidFakeBsHearingSphere"));
+	StupidFakeBsHearingSphere->SetGenerateOverlapEvents(true);
+	StupidFakeBsHearingSphere->SetCollisionProfileName(TEXT("EnemyOverlap"));
+	StupidFakeBsHearingSphere->CanCharacterStepUpOn = ECB_No;
+	StupidFakeBsHearingSphere->SetupAttachment(GetMesh());
 
 	AlertMarkMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AlertMarkMesh"));
 	AlertMarkMesh->SetGenerateOverlapEvents(false);
@@ -128,6 +136,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 	case EGuardState::CHASING:
 		ToggleAlertIndicator(false);
+		CatchHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 	case EGuardState::SEARCHING:
 		ToggleQuestionIndicator(false);
@@ -175,6 +184,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		SetGuardMaxSpeed(ChaseSpeed);
 		GuardController->ModifySightRange(ChasingSightRange, LosingSightRange);
 		ToggleAlertIndicator(true);
+		CatchHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		break;
 
 	case EGuardState::SEARCHING:

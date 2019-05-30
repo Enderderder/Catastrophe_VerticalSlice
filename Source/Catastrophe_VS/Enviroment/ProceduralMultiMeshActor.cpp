@@ -95,19 +95,47 @@ void AProceduralMultiMeshActor::ReloadMeshes()
 	// 	// Swap out the array at the end
 	// 	StoredMeshComponents = newCompArray;
 
+
+
+	// Check if there is any random meshes
+	if (RandomMeshes.Num() <= 0)
+	{
+		return;
+	}
+
 	// Get all the static mesh components
 	TInlineComponentArray<UStaticMeshComponent*> meshComponents;
 	GetComponents<UStaticMeshComponent>(meshComponents);
 	StoredMeshComponents = meshComponents;
 
-	for (int32 index = 0;
-		index < StoredMeshComponents.Num() && index < RandomMeshes.Num(); ++index)
+	
+	for (int32 i = 0; i < RandomMeshes.Num(); ++i)
 	{
-		int32 randomMeshIndex =
-			FMath::RandRange(0, RandomMeshes[index].RandomMeshes.Num() - 1);
-		StoredMeshComponents[index]->SetStaticMesh(
-			RandomMeshes[index].RandomMeshes[randomMeshIndex]);
+		if (UStaticMeshComponent* staticMeshComponent = GetStaticMeshByName(RandomMeshes[i].MeshSlotName))
+		{
+			int32 randomMeshIndex =
+				FMath::RandRange(0, RandomMeshes[i].RandomMeshes.Num() - 1);
+			staticMeshComponent->SetStaticMesh(RandomMeshes[i].RandomMeshes[randomMeshIndex]);
+		}
+		else return;
 	}
+}
+
+UStaticMeshComponent* AProceduralMultiMeshActor::GetStaticMeshByName(FName _name) const
+{
+	UStaticMeshComponent* resultComponent = Cast<UStaticMeshComponent>(GetDefaultSubobjectByName(_name));
+
+
+	for (int32 i = 0; i < StoredMeshComponents.Num(); ++i)
+	{
+		if (StoredMeshComponents[i]->() == _name)
+		{
+			return StoredMeshComponents[i];
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Procedural Mesh Generator: Cannot find the mesh component with name"));
+	return nullptr;
 }
 
 #if WITH_EDITOR

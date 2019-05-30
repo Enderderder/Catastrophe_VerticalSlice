@@ -76,6 +76,10 @@ private:
 	/** Called to refresh the meshes */
 	void ReloadMeshes();
 
+	/** Called to find static mesh component by name */
+	class UStaticMeshComponent* GetStaticMeshByName(FName _name) const;
+
+
 	///** Called to create new component */
 	//class UStaticMeshComponent* CreateNewMeshComponent(FName _name);
 
