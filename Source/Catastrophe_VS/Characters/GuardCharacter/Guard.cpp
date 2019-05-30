@@ -16,6 +16,8 @@
 #include "GuardAiController.h"
 #include "GuardAnimInstance.h"
 
+#include "RespawnSystem/RespawnSubsystem.h"
+
 // Sets default values
 AGuard::AGuard()
 {
@@ -242,7 +244,12 @@ void AGuard::OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 {
 	if (OtherActor->ActorHasTag(TEXT("Player")))
 	{
+		//FLoadStreamingLevelInfo levelStreamInfo;
+		//levelStreamInfo.
+		//levelStreamInfo.bUnloadCurrentLevel = false;
+		//levelStreamInfo.bBlockOnLoad = false;
 
+		//URespawnSubsystem::GetInst(this)->LoadLevelStreaming()
 	}
 }
 

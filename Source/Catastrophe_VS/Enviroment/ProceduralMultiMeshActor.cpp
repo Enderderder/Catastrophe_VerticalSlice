@@ -108,7 +108,6 @@ void AProceduralMultiMeshActor::ReloadMeshes()
 	GetComponents<UStaticMeshComponent>(meshComponents);
 	StoredMeshComponents = meshComponents;
 
-	
 	for (int32 i = 0; i < RandomMeshes.Num(); ++i)
 	{
 		if (UStaticMeshComponent* staticMeshComponent = GetStaticMeshByName(RandomMeshes[i].MeshSlotName))
@@ -121,21 +120,14 @@ void AProceduralMultiMeshActor::ReloadMeshes()
 	}
 }
 
-UStaticMeshComponent* AProceduralMultiMeshActor::GetStaticMeshByName(FName _name) const
+UStaticMeshComponent* AProceduralMultiMeshActor::GetStaticMeshByName(FName _name) 
 {
 	UStaticMeshComponent* resultComponent = Cast<UStaticMeshComponent>(GetDefaultSubobjectByName(_name));
 
+	if (!resultComponent)
+		UE_LOG(LogTemp, Warning, TEXT("Procedural Mesh Generator: Cannot find the mesh component with name"));
 
-	for (int32 i = 0; i < StoredMeshComponents.Num(); ++i)
-	{
-		if (StoredMeshComponents[i]->() == _name)
-		{
-			return StoredMeshComponents[i];
-		}
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Procedural Mesh Generator: Cannot find the mesh component with name"));
-	return nullptr;
+	return resultComponent;
 }
 
 #if WITH_EDITOR
