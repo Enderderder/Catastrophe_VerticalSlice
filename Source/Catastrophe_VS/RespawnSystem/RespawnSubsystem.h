@@ -133,7 +133,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Respawn System")
 	FTransform GetFirstRespawnLocationAtDistrict(EDISTRICT _districtType);
 
-
+	/**
+	 * Relocate the player to a district
+	 * @param _districtType The location player is going to move to
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Respawn System")
+	void RespawnPlayerAtLocation(EDISTRICT _districtType);
 
 	/** Gets the instance without going through the GameInstance */
 	static URespawnSubsystem* GetInst(const UObject* _worldContextObject);

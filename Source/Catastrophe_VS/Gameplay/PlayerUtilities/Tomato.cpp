@@ -17,7 +17,6 @@ ATomato::ATomato()
 	TomatoMesh->SetGenerateOverlapEvents(true);
 	TomatoMesh->SetCollisionProfileName(TEXT("Throwable"));
 	TomatoMesh->OnComponentBeginOverlap.AddDynamic(this, &ATomato::OnTomatoOverlap);
-	//TomatoMesh->
 	RootComponent = TomatoMesh;
 
 }
@@ -36,12 +35,13 @@ void ATomato::OnTomatoOverlap(class UPrimitiveComponent* OverlappedComponent, cl
 	{
 		AGuard* guard = Cast<AGuard>(OtherActor);
 		guard->SetGuardState(EGuardState::STUNED);
+		Destroy();
 	}
-
+	else
+	{
+		Destroy();
+	}
 	// TODO: Spawn decal
-
-	// Destroy the actor
-	Destroy();
 }
 
 void ATomato::LaunchTomato(FVector _launchDirection, float _launchForce)
