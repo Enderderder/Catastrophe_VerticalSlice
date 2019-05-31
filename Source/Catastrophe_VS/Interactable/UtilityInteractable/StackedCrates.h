@@ -38,6 +38,8 @@ protected:
 	/** Called on player interact action */
 	UFUNCTION()
 	void OnPlayerInteract(class APlayerCharacter* _playerCharacter);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Interaction", meta = (DisplayName = "OnInteract"))
+	void Receive_OnPlayerInteract();
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Interaction", meta = (DisplayName = "PlayCrateAnim"))
 	void Receive_PlayCrateAnim();

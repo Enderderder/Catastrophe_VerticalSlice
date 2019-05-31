@@ -148,8 +148,8 @@ void ANPC::NextDialogue()
 				if (ConversationsList[CurrentQuest].FinishedQuestConversation.Num() > 0)
 				{
 					IsQuestStarted = true;
-					FinishOldQuest();
 				}
+				FinishOldQuest();
 				FinishConversation();
 			}
 		}
@@ -225,10 +225,10 @@ void ANPC::FinishNewQuest()
 	}
 }
 
-void ANPC::SetConversationQuests(int _index, class UQuestObjectiveComponent* _StartQuest, class UQuestObjectiveComponent* _EndQuest)
+void ANPC::SetConversationQuests(int _index, class UQuestObjectiveComponent* _OldQuest, class UQuestObjectiveComponent* _NewQuest)
 {
-	ConversationsList[_index].OldQuest = _StartQuest;
-	ConversationsList[_index].NewQuest = _EndQuest;
+	ConversationsList[_index].OldQuest = _OldQuest;
+	ConversationsList[_index].NewQuest = _NewQuest;
 }
 
 int ANPC::GetCurrentFishboneReward_OldQuest()
