@@ -308,6 +308,8 @@ public:
 	FORCEINLINE class UAIPerceptionStimuliSourceComponent* GetStimulusSourceComponent() const { 
 		return PerceptionStimuliSourceComponent; }
 	FORCEINLINE float GetTotalStamina() const { return TotalStamina; }
+	FORCEINLINE bool IsPlayerSprinting() const { return bSprinting; }
+	bool IsPlayerCrouched() const;
 	/** Getter End */
 
 };

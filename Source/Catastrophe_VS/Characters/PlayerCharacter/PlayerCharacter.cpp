@@ -538,3 +538,8 @@ void APlayerCharacter::UnblockMovementInput()
 	bAllowMovementInput = true;
 }
 
+bool APlayerCharacter::IsPlayerCrouched() const
+{
+	return GetCharacterMovement()->IsCrouching();
+}
+
