@@ -151,7 +151,7 @@ protected:
 	void Receive_FinishQuests();
 
 	UFUNCTION(BlueprintCallable, Category = "NPC: Conversation")
-	void SetConversationQuests(int _index, class UQuestObjectiveComponent* _OldQuest, class UQuestObjectiveComponent* _NewQuest);
+	void SetConversationQuests(int _index, class UQuestObjectiveComponent* _oldQuest, class UQuestObjectiveComponent* _newQuest);
 
 	UFUNCTION(BlueprintCallable, Category = "NPC: Currency")
 	int GetCurrentFishboneReward_OldQuest();

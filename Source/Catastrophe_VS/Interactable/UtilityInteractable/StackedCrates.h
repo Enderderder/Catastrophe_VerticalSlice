@@ -15,7 +15,6 @@ class CATASTROPHE_VS_API AStackedCrates : public AActor
 	GENERATED_BODY()
 	
 private:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* DefaultRoot;
 
@@ -43,7 +42,6 @@ protected:
 	void OnPlayerInteract(class APlayerCharacter* _playerCharacter);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Interaction", meta = (DisplayName = "OnInteract"))
 	void Receive_OnPlayerInteract();
-
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Interaction", meta = (DisplayName = "PlayCrateAnim"))
 	void Receive_PlayCrateAnim();

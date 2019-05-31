@@ -148,8 +148,8 @@ void ANPC::NextDialogue()
 				if (ConversationsList[CurrentQuest].FinishedQuestConversation.Num() > 0)
 				{
 					IsQuestStarted = true;
-					FinishOldQuest();
 				}
+				FinishOldQuest();
 				FinishConversation();
 			}
 		}
