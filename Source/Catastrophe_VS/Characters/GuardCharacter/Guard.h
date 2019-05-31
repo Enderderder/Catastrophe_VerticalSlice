@@ -7,6 +7,10 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "Guard.generated.h"
 
+
+class UPrimitiveComponent;
+
+
 /**
  * The enum that stores the state of the guard character
  */
@@ -39,6 +43,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* BodyHitBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* CatchHitBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* StupidFakeBsHearingSphere;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* AlertMarkMesh;
@@ -141,6 +151,11 @@ protected:
 	virtual void OnStunEnd();
 	UFUNCTION(BlueprintImplementableEvent, Category = "Guard | Behaviour | Stun", meta = (DisplayName = "OnStunEnd"))
 	void Receive_OnStunEnd();
+
+	/** Called when the catch hit box overlap */
+	UFUNCTION()
+	virtual void OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	
 public:	
 	// Called every frame

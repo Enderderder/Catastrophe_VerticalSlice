@@ -13,7 +13,9 @@ ARespawnPoint::ARespawnPoint()
 	EditorOnlyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EditorOnlyMesh"));
 	EditorOnlyMesh->bIsEditorOnly = true;
 	EditorOnlyMesh->bTickInEditor = false;
+	EditorOnlyMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	EditorOnlyMesh->SetGenerateOverlapEvents(false);
+	EditorOnlyMesh->CastShadow = false;
 	RootComponent = EditorOnlyMesh;
 
 }

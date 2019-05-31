@@ -201,7 +201,7 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 
 void APlayerCharacter::SprintBegin()
 {
-	if (bAllowMovementInput && CurrentStamina > 0.0f) // Only sprint player has stamina
+	if (bAllowMovementInput && CurrentStamina >= TotalStamina) // Only sprint player has stamina
 	{
 		bSprinting = true;
 
@@ -422,8 +422,8 @@ void APlayerCharacter::HHUSecondaryActionBegin()
 	{
 		// Let the character follow camera rotation
 		bUseControllerRotationYaw = true;
-		CameraBoom->bEnableCameraLag = false;
-		CameraBoom->bEnableCameraRotationLag = false;
+		/*CameraBoom->bEnableCameraLag = false;
+		CameraBoom->bEnableCameraRotationLag = false;*/
 		if (ZoomInTimeline)
 			ZoomInTimeline->Play();
 		PlayerAnimInstance->bAiming = true;
@@ -452,8 +452,8 @@ void APlayerCharacter::HHUSecondaryActionEnd()
 		{
 			// Let the character not follow camera rotation
 			bUseControllerRotationYaw = false;
-			CameraBoom->bEnableCameraLag = true;
-			CameraBoom->bEnableCameraRotationLag = true;
+			/*CameraBoom->bEnableCameraLag = true;
+			CameraBoom->bEnableCameraRotationLag = true;*/
 			if (ZoomInTimeline)
 				ZoomInTimeline->Reverse();
 			PlayerAnimInstance->bAiming = false;

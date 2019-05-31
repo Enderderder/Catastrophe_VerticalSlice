@@ -3,10 +3,12 @@
 
 #include "RespawnSubsystem.h"
 
+#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LevelStreaming.h"
 #include "Engine/Level.h"
+
 
 #include "StreamingLevelInterface.h"
 
@@ -98,6 +100,16 @@ FTransform URespawnSubsystem::GetFirstRespawnLocationAtDistrict(EDISTRICT _distr
 
 	// Give the transform
 	return respawnPointsInDistrict[0];
+}
+
+void URespawnSubsystem::RespawnPlayerAtLocation(EDISTRICT _districtType)
+{
+	ACharacter* player = UGameplayStatics::GetPlayerCharacter(this, 0);
+	if (player)
+	{
+		FTransform location = GetFirstRespawnLocationAtDistrict(_districtType);
+		player->SetActorTransform(location);
+	}
 }
 
 URespawnSubsystem* URespawnSubsystem::GetInst(const UObject* _worldContextObject)
