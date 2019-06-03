@@ -6,8 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "InteractableComponent.generated.h"
 
-// Delegate that has one parameter
+// Delegates
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractSingature, class APlayerCharacter*, _playerCharacter);
+
 
 /**
  * This component control and sends out signal when player is interacting
@@ -27,6 +28,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bCanInteract = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
+	float HoldingTime = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
+	float RequiredHoldTime = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
 	bool bOneTimeUse = false;
@@ -54,7 +61,10 @@ protected:
 
 public:	
 	/** Called when player interact */
-	void Interact(class APlayerCharacter* _playerCharacter);
+	void Interact(class APlayerCharacter* _playerCharacter, float _holdTime);
+
+	/** Called when the player hold the interaction */
+	void InteractHold(class APlayerCharacter* _playerCharacter, float _holdTime);
 
 	/** Register a component that has some trigger volume */
 	void RegisterTriggerVolume(class UPrimitiveComponent* _component);

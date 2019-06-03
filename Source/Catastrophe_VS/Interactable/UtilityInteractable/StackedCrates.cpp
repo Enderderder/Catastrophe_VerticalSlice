@@ -42,6 +42,8 @@ void AStackedCrates::BeginPlay()
 
 void AStackedCrates::OnPlayerInteract(class APlayerCharacter* _playerCharacter)
 {
+	Receive_OnPlayerInteract();
+
 	// This is a one time use
 	InteractableComponent->bCanInteract = false;
 
