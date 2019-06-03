@@ -122,8 +122,17 @@ protected:
 
 	/** The current interacble target */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Interaction")
-	class AActor* InteractTarget;
+	class AActor* InteractingTarget;
 
+	/** The target component that player is interacting */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Interaction")
+	class UInteractableComponent* InteractingTargetComponent;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Interaction")
+	bool bInteracting = false;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Interaction")
+	float InteractionTimeHold = 0.0f;
 
 	/** Currently activated HHU(Hand Hold Utility) */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "HHU | General")
@@ -229,6 +238,9 @@ protected:
 	/** Called when the interaction button released */
 	void InteractEnd();
 
+	/** Called each tick to do interaction stuff */
+	void InteractionTick(float _deltaTime);
+
 	/** HHD(Hand Hold Utility) primary action begin */
 	void HHUPrimaryActionBegin();
 
@@ -278,12 +290,17 @@ public:
 	void GrabbingFish();
 
 	/** Set the target to interact for the player */
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	UFUNCTION()
 	void SetInteractionTarget(class AActor* _interactTarget);
+	void SetInteractionTarget(class UInteractableComponent* _interactTargetComponent);
 
 	/** Try to remove the interaction target if it exists */
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void RemoveInteractionTarget(class AActor* _interactTarget);
+
+	/** Resets the interaction action outside the class */
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void ResetInteractionAction();
 
 	/**
 	 * Set the value of current stamina
@@ -302,7 +319,6 @@ public:
 	/** Allow player take movement control again */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void UnblockMovementInput();
-
 
 	/** Getter */
 	FORCEINLINE class UAIPerceptionStimuliSourceComponent* GetStimulusSourceComponent() const { 
