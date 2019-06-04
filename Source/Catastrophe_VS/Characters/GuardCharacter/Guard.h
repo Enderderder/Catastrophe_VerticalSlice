@@ -195,6 +195,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Guard | Animation")
 	void StopAllMontages();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Guard | Animation")
+	void LookAround();
+	virtual void LookAround_Implementation();
+
+
 	/** Setter */
 	void SetGuardControllerRef(class AGuardAiController* _controller) {
 		GuardController = _controller;

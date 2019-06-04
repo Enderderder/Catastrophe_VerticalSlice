@@ -275,3 +275,8 @@ void AGuard::StopAllMontages()
 	if (GuardAnimInstance)
 		GuardAnimInstance->StopAllMontages(0.1f);
 }
+
+void AGuard::LookAround_Implementation()
+{
+	/// Blueprint should do the thing
+}

@@ -124,6 +124,16 @@ URespawnSubsystem* URespawnSubsystem::GetInst(const UObject* _worldContextObject
 
 void URespawnSubsystem::OnStreamLevelLoaded()
 {
+	if (tempInfo.bTeleportPlayer)
+	{
+		FTransform teleportLocation = GetFirstRespawnLocationAtDistrict(tempInfo.DistrictType);
+		ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+		if (playerCharacter && !playerCharacter->IsPendingKill())
+		{
+			playerCharacter->SetActorTransform(teleportLocation);
+		}
+	}
+
 	if (tempInfo.bUnloadCurrentLevel)
 	{
 		FLatentActionInfo latenInfo;
