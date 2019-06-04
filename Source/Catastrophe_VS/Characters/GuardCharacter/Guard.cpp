@@ -256,6 +256,8 @@ void AGuard::OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 {
 	if (OtherActor->ActorHasTag(TEXT("Player")))
 	{
+		GetLevel()->GetOuter()->GetName();
+
 		//FLoadStreamingLevelInfo levelStreamInfo;
 		//levelStreamInfo.
 		//levelStreamInfo.bUnloadCurrentLevel = false;
@@ -276,7 +278,7 @@ void AGuard::StopAllMontages()
 		GuardAnimInstance->StopAllMontages(0.1f);
 }
 
-void AGuard::LookAround_Implementation()
+void AGuard::LookAround_Implementation(float& out_montageTime)
 {
 	/// Blueprint should do the thing
 }
