@@ -31,5 +31,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "PlayerWidget")
 	void ToggleStamina(bool _b);
 	virtual void ToggleStamina_Implementation(bool _b);
+
+	/**
+	 * Called to toggle stamina UI visibility
+	 * @param On/Off
+	 */
+	UFUNCTION(BlueprintNativeEvent, Category = "PlayerWidget")
+	void ToggleInventory(bool _b);
+	virtual void ToggleInventory_Implementation(bool _b);
 	
 };
