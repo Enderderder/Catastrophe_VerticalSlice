@@ -65,6 +65,24 @@ void UQuestObjectiveComponent::FailObjective()
 	OnObjectiveFailed.Broadcast();
 }
 
+bool UQuestObjectiveComponent::IsObjectiveComplete()
+{
+	if (ObjectiveState == EObjectiveState::Completed)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool UQuestObjectiveComponent::IsObjectiveActive()
+{
+	if (ObjectiveState == EObjectiveState::Active)
+	{
+		return true;
+	}
+	return false;
+}
+
 void UQuestObjectiveComponent::SetOwningQuest(class UQuest* _quest)
 {
 	OwningQuest = _quest;

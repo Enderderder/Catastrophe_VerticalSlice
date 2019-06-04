@@ -91,6 +91,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void FailObjective();
 
+	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
+	bool IsObjectiveComplete();
+	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
+	bool IsObjectiveActive();
+
 	/** Sets the quest owner */
 	void SetOwningQuest(class UQuest* _quest);
 
