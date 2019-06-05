@@ -13,7 +13,7 @@ UQuestObjectiveComponent::UQuestObjectiveComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	bWantsInitializeComponent = true;
-	bAutoActivate = true;
+	//bAutoActivate = true;
 
 }
 
@@ -52,7 +52,7 @@ void UQuestObjectiveComponent::CompleteObjective()
 	// Tell the quest that this objective is completed
 	OwningQuest->CompleteObjective(this);
 
-	// Boradcast the message
+	// Broadcast the message
 	OnObjectiveComplete.Broadcast();
 }
 
