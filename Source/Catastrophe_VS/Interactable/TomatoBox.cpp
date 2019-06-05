@@ -37,6 +37,8 @@ void ATomatoBox::BeginPlay()
 
 void ATomatoBox::PickUpTomato(APlayerCharacter* _playerCharacter)
 {
+	Receive_PickUpTomato();
+
 	// Restore the tomato accordingly
 	if (bRestoreAllTomatoOneTime)
 	{

@@ -77,7 +77,10 @@ void UItemSpawnSubsystem::RandomlySpawnItem()
 
 	// Randomly choose location to spawn item at
 	FVector randLocation;
-	randLocation = SpawnLocationsList[FMath::RandRange(0, SpawnLocationsList.Num() - 1)];
+	if (SpawnLocationsList.Num() > 0)
+	{
+		randLocation = SpawnLocationsList[FMath::RandRange(0, SpawnLocationsList.Num() - 1)];
+	}
 
 	// Calls function which spawns item
 	SpawnItemAtLocation(randLocation, randItem);

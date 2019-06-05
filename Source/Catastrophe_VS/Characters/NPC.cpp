@@ -51,8 +51,6 @@ void ANPC::Interact(class APlayerCharacter* _playerCharacter)
 {
 	if (CanNPCTalk)
 	{
-		//if (ConversationsList[CurrentQuest].IsInProgress())
-		//{}
 		Receive_Interact();
 
 		// Interaction functionality
@@ -148,6 +146,10 @@ void ANPC::NextDialogue()
 				if (ConversationsList[CurrentQuest].FinishedQuestConversation.Num() > 0)
 				{
 					IsQuestStarted = true;
+				}
+				else
+				{
+					CanNPCTalk = false;
 				}
 				FinishOldQuest();
 				FinishConversation();
