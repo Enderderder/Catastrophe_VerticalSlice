@@ -36,7 +36,7 @@ void UInteractableComponent::OnTriggerWithPlayer(class UPrimitiveComponent* Over
 	// If this component has set to auto interact, interact immediatly
 	if (bAutoInteract && PlayerRef && !PlayerRef->IsPendingKill())
 	{
-		Interact(PlayerRef);
+		Interact(PlayerRef, 0.0f);
 	}
 }
 
@@ -47,20 +47,36 @@ void UInteractableComponent::OnTriggerEndWithPlayer(class UPrimitiveComponent* O
 		TriggerCounter--;
 		if (TriggerCounter <= 0)
 		{
+			PlayerRef->ResetInteractionAction();
 			PlayerRef->RemoveInteractionTarget(GetOwner());
 		}
 	}
 }
 
-void UInteractableComponent::Interact(class APlayerCharacter* _playerCharacter)
+void UInteractableComponent::Interact(class APlayerCharacter* _playerCharacter, float _holdTime)
 {
-	if (bCanInteract)
+	HoldingTime = _holdTime;
+
+	if (bCanInteract && _holdTime >= RequiredHoldTime)
 	{
+		// Calls the interact functions
 		OnInteract.Broadcast(_playerCharacter);
+
+		// Reset the holding time
+		HoldingTime = 0.0f;
+		_playerCharacter->ResetInteractionAction();
 
 		// If the component has set to one time use, disable after interaction
 		if (bOneTimeUse)
 			bCanInteract = false;
+	}
+}
+
+void UInteractableComponent::InteractHold(class APlayerCharacter* _playerCharacter, float _holdTime)
+{
+	if (bCanInteract)
+	{
+		
 	}
 }
 

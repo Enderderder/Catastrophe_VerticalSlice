@@ -26,7 +26,7 @@
 #include "Gameplay/PlayerUtilities/Tomato.h"
 #include "TomatoSack.h"
 
-//#include "Engine.h"
+#include "Engine.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -144,11 +144,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 		CurrentStamina = FMath::Min(TotalStamina, CurrentStamina + (StaminaDrainPerSec * DeltaTime));
 	}
 
-	// Make sure to run the timeline
+	// Make sure to run the zoom in timeline
 	if (ZoomInTimeline)
 	{
 		ZoomInTimeline->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, nullptr);
 	}
+
+	// Do the interaction tick
+	InteractionTick(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -320,27 +323,39 @@ void APlayerCharacter::TimelineSetCameraZoomValue(float _alpha)
 
 void APlayerCharacter::InteractBegin()
 {
-	if (InteractTarget && !InteractTarget->IsPendingKill())
+	if (InteractingTargetComponent 
+		&& !InteractingTargetComponent->IsPendingKill())
 	{
-		// Deprecated
-		// TODO: Remove the interface function call, no interactable should use that
-		if (InteractTarget->GetClass()->ImplementsInterface(
-			UInteractableObject::StaticClass()))
-		{
-			IInteractableObject::Execute_OnInteract(InteractTarget, this);
-			RemoveInteractionTarget(InteractTarget);
-		}
-		else if (UInteractableComponent* interactableComp = 
-			InteractTarget->FindComponentByClass<UInteractableComponent>())
-		{
-			interactableComp->Interact(this);
-		}
+		bInteracting = true; // Set the holding interaction begin
+		InteractingTargetComponent->Interact(this, InteractionTimeHold);
 	}
 }
 
 void APlayerCharacter::InteractEnd()
 {
+	bInteracting = false;
+	InteractionTimeHold = 0.0f;
+}
 
+void APlayerCharacter::InteractionTick(float _deltaTime)
+{
+	if (bInteracting)
+	{
+		if (InteractingTarget && !InteractingTarget->IsPendingKill())
+		{
+			if (UInteractableComponent* interactableComp =
+				InteractingTarget->FindComponentByClass<UInteractableComponent>())
+			{
+				InteractionTimeHold += _deltaTime;
+				interactableComp->Interact(this, InteractionTimeHold);
+
+				// Debug message
+				const FString msg = "Interaction hold: " + FString::SanitizeFloat(InteractionTimeHold);
+				if (GEngine)
+					GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Green, msg);
+			}
+		}
+	}
 }
 
 void APlayerCharacter::HHUPrimaryActionBegin()
@@ -500,19 +515,37 @@ void APlayerCharacter::GrabbingFish()
 
 void APlayerCharacter::SetInteractionTarget(class AActor* _interactTarget)
 {
-	if (auto interactableInterface = Cast<IInteractableObject>(_interactTarget)
-		|| _interactTarget->FindComponentByClass<UInteractableComponent>())
+	if (!_interactTarget || _interactTarget->IsPendingKill())
+		return;
+
+	if (UInteractableComponent* targetInteractableComponent =
+		_interactTarget->FindComponentByClass<UInteractableComponent>())
 	{
-		InteractTarget = _interactTarget;
+		InteractingTarget = _interactTarget;
+		InteractingTargetComponent = targetInteractableComponent;
+	}
+}
+
+void APlayerCharacter::SetInteractionTarget(class UInteractableComponent* _interactTargetComponent)
+{
+	if (_interactTargetComponent || !_interactTargetComponent->IsPendingKill())
+	{
+		InteractingTargetComponent = _interactTargetComponent;
 	}
 }
 
 void APlayerCharacter::RemoveInteractionTarget(class AActor* _interactTarget)
 {
-	if (_interactTarget == InteractTarget)
+	if (_interactTarget == InteractingTarget)
 	{
-		InteractTarget = nullptr;
+		InteractingTarget = nullptr;
+		InteractingTargetComponent = nullptr;
 	}
+}
+
+void APlayerCharacter::ResetInteractionAction()
+{
+	InteractEnd();
 }
 
 void APlayerCharacter::SetStamina(float _value)
@@ -536,5 +569,10 @@ void APlayerCharacter::BlockMovementAction(bool _bBlockMovementInput)
 void APlayerCharacter::UnblockMovementInput()
 {
 	bAllowMovementInput = true;
+}
+
+bool APlayerCharacter::IsPlayerCrouched() const
+{
+	return GetCharacterMovement()->IsCrouching();
 }
 

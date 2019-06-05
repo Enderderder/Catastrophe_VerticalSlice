@@ -122,8 +122,28 @@ URespawnSubsystem* URespawnSubsystem::GetInst(const UObject* _worldContextObject
 	return nullptr;
 }
 
+FName URespawnSubsystem::GetStreamingLevelNameFromActor(AActor* _actor)
+{
+	if (_actor && !_actor->IsPendingKill())
+	{
+		return _actor->GetLevel()->GetOuter()->GetFName();
+	}
+
+	return NAME_None;
+}
+
 void URespawnSubsystem::OnStreamLevelLoaded()
 {
+	if (tempInfo.bTeleportPlayer)
+	{
+		FTransform teleportLocation = GetFirstRespawnLocationAtDistrict(tempInfo.DistrictType);
+		ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+		if (playerCharacter && !playerCharacter->IsPendingKill())
+		{
+			playerCharacter->SetActorTransform(teleportLocation);
+		}
+	}
+
 	if (tempInfo.bUnloadCurrentLevel)
 	{
 		FLatentActionInfo latenInfo;

@@ -192,8 +192,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Guard | Animation")
 	void ToggleQuestionIndicator(bool _b);
 
+	/** Stops all the montages that this character is playing */
 	UFUNCTION(BlueprintCallable, Category = "Guard | Animation")
 	void StopAllMontages();
+
+	/** Look around behaviour */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Guard | Animation")
+	void LookAround(float& out_montageTime);
+	virtual void LookAround_Implementation(float& out_montageTime);
+
 
 	/** Setter */
 	void SetGuardControllerRef(class AGuardAiController* _controller) {

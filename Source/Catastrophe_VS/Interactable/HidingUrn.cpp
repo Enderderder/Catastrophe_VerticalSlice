@@ -69,7 +69,7 @@ void AHidingUrn::Tick(float DeltaTime)
 
 void AHidingUrn::OnPlayerInteract(class APlayerCharacter* _playerCharacter)
 {
-	if (!bPlayerIn)
+	if (!bPlayerIn && bCanInteract)
 	{
 		JumpIn(_playerCharacter);
 	}

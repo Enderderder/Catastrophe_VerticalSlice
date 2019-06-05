@@ -7,6 +7,20 @@
 #include "RespawnSubsystem.generated.h"
 
 /**
+ *
+ */
+UENUM(BlueprintType)
+enum class EDISTRICT : uint8
+{
+	HUB = 0,
+	MARKET,
+	HOLDINGCELL,
+	JAIL,
+
+	LOCATIONCOUNT // This should always be the last
+};
+
+/**
  * 
  */
 USTRUCT(BlueprintType)
@@ -29,6 +43,9 @@ public:
 	bool bTeleportPlayer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EDISTRICT DistrictType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bBlockOnLoad;
 
 	FLoadStreamingLevelInfo() :
@@ -36,22 +53,9 @@ public:
 		LoadedLevelName(TEXT("DefaultName")),
 		bUnloadCurrentLevel(true),
 		bTeleportPlayer(true),
+		DistrictType(EDISTRICT::HUB),
 		bBlockOnLoad(false)
 	{}
-};
-
-/**
- * 
- */
-UENUM(BlueprintType)
-enum class EDISTRICT : uint8
-{
-	HUB = 0,
-	MARKET,
-	HOLDINGCELL,
-	JAIL,
-
-	LOCATIONCOUNT // This should always be the last
 };
 
 /**
@@ -142,6 +146,10 @@ public:
 
 	/** Gets the instance without going through the GameInstance */
 	static URespawnSubsystem* GetInst(const UObject* _worldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Respawn System")
+	static FName GetStreamingLevelNameFromActor(class AActor* _actor);
+
 
 protected:
 

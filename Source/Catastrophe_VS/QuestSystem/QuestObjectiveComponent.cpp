@@ -13,7 +13,7 @@ UQuestObjectiveComponent::UQuestObjectiveComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	bWantsInitializeComponent = true;
-	bAutoActivate = true;
+	//bAutoActivate = true;
 
 }
 
@@ -52,7 +52,7 @@ void UQuestObjectiveComponent::CompleteObjective()
 	// Tell the quest that this objective is completed
 	OwningQuest->CompleteObjective(this);
 
-	// Boradcast the message
+	// Broadcast the message
 	OnObjectiveComplete.Broadcast();
 }
 
@@ -63,6 +63,24 @@ void UQuestObjectiveComponent::FailObjective()
 
 	// Broadcast the message
 	OnObjectiveFailed.Broadcast();
+}
+
+bool UQuestObjectiveComponent::IsObjectiveComplete()
+{
+	if (ObjectiveState == EObjectiveState::Completed)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool UQuestObjectiveComponent::IsObjectiveActive()
+{
+	if (ObjectiveState == EObjectiveState::Active)
+	{
+		return true;
+	}
+	return false;
 }
 
 void UQuestObjectiveComponent::SetOwningQuest(class UQuest* _quest)

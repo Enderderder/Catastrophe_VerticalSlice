@@ -9,9 +9,11 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Classes/BehaviorTree/BlackboardComponent.h"
 
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "GuardAiController.h"
 #include "GuardAnimInstance.h"
@@ -205,11 +207,15 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 void AGuard::OnStunBegin()
 {
 	// Make sure this bi** doesnt move
-	//SetGuardMaxSpeed(0.0f);
 	GuardController->StopMovement();
 
 	// Sight goes dark for guard
 	GuardController->ModifySightRange(0.0f);
+	if (ACharacter* player = UGameplayStatics::GetPlayerCharacter(this, 0))
+	{
+		GuardController->GetBlackboardComponent()->SetValueAsVector(
+			TEXT("PlayerLastSeenLocation"), player->GetActorLocation());
+	}
 
 	if (GuardAnimInstance)
 		GuardAnimInstance->bStuned = true;
@@ -223,6 +229,9 @@ void AGuard::OnStunBegin()
 	// Set a timer to call OnStunEnd()
 	GetWorld()->GetTimerManager().SetTimer(
 		StunTimerHnadle, this, &AGuard::OnStunEnd, MaxStunTime, false);
+
+	// Call the blueprint implementation
+	Receive_OnStunBegin();
 }
 
 void AGuard::OnStunEnd()
@@ -238,12 +247,17 @@ void AGuard::OnStunEnd()
 	{
 		SetGuardState(DefaultGuardState);
 	}
+
+	// Call the blueprint implementation
+	Receive_OnStunEnd();
 }
 
 void AGuard::OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->ActorHasTag(TEXT("Player")))
 	{
+		GetLevel()->GetOuter()->GetName();
+
 		//FLoadStreamingLevelInfo levelStreamInfo;
 		//levelStreamInfo.
 		//levelStreamInfo.bUnloadCurrentLevel = false;
@@ -262,4 +276,9 @@ void AGuard::StopAllMontages()
 {
 	if (GuardAnimInstance)
 		GuardAnimInstance->StopAllMontages(0.1f);
+}
+
+void AGuard::LookAround_Implementation(float& out_montageTime)
+{
+	/// Blueprint should do the thing
 }
