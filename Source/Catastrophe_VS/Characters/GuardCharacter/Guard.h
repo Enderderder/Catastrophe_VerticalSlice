@@ -80,6 +80,9 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour | General")
 	bool bPlayerInSight = false;
 
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour | Sleep")
+	bool bPlayerInSleepDetectRange = false;
+
 protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Guard | Controller")

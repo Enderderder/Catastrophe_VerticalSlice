@@ -77,12 +77,18 @@ void AGuard::BeginPlay()
 	
 	// Sets the anim instance
 	GuardAnimInstance = Cast<UGuardAnimInstance>(GetMesh()->GetAnimInstance());
+	if (!GuardAnimInstance)
+		UE_LOG(LogTemp, Error, TEXT("Failed to initiate guard anim instance"));
 }
 
 // Called every frame
 void AGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+
+
 
 }
 
