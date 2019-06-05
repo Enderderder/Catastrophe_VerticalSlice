@@ -122,6 +122,16 @@ URespawnSubsystem* URespawnSubsystem::GetInst(const UObject* _worldContextObject
 	return nullptr;
 }
 
+FName URespawnSubsystem::GetStreamingLevelNameFromActor(AActor* _actor)
+{
+	if (_actor && !_actor->IsPendingKill())
+	{
+		return _actor->GetLevel()->GetOuter()->GetFName();
+	}
+
+	return NAME_None;
+}
+
 void URespawnSubsystem::OnStreamLevelLoaded()
 {
 	if (tempInfo.bTeleportPlayer)

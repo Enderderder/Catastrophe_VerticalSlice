@@ -71,6 +71,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Urn")
 	bool bPlayerIn = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Urn")
+	bool bCanInteract = true;
+
 	/** If the player is allowed to be out manually */
 	bool bAllowManualJumpOut = false;
 

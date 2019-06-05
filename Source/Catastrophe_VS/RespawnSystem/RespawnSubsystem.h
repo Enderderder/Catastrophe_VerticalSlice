@@ -147,6 +147,10 @@ public:
 	/** Gets the instance without going through the GameInstance */
 	static URespawnSubsystem* GetInst(const UObject* _worldContextObject);
 
+	UFUNCTION(BlueprintCallable, Category = "Respawn System")
+	static FName GetStreamingLevelNameFromActor(class AActor* _actor);
+
+
 protected:
 
 	/** Called when an level is loaded */
