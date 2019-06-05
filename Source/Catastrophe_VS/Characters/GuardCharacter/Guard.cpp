@@ -16,6 +16,8 @@
 #include "GuardAiController.h"
 #include "GuardAnimInstance.h"
 
+#include "RespawnSystem/RespawnSubsystem.h"
+
 // Sets default values
 AGuard::AGuard()
 {
@@ -26,16 +28,33 @@ AGuard::AGuard()
 	GetCapsuleComponent()->CanCharacterStepUpOn = ECB_No;
 
 	HeadHitbox = CreateDefaultSubobject<USphereComponent>(TEXT("HeadHitBox"));
-	HeadHitbox->SetCollisionProfileName(TEXT("Enemy"));
+	HeadHitbox->SetGenerateOverlapEvents(true);
+	HeadHitbox->SetCollisionProfileName(TEXT("EnemyBlock"));
 	HeadHitbox->ComponentTags.Add(TEXT("Head"));
 	HeadHitbox->CanCharacterStepUpOn = ECB_No;
 	HeadHitbox->SetupAttachment(GetMesh(), TEXT("HeadSocket"));
 
 	BodyHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyHitBox"));
-	BodyHitBox->SetCollisionProfileName(TEXT("Enemy"));
-	HeadHitbox->ComponentTags.Add(TEXT("Body"));
+	BodyHitBox->SetGenerateOverlapEvents(true);
+	BodyHitBox->SetCollisionProfileName(TEXT("EnemyBlock"));
+	BodyHitBox->ComponentTags.Add(TEXT("Body"));
 	BodyHitBox->CanCharacterStepUpOn = ECB_No;
 	BodyHitBox->SetupAttachment(GetMesh());
+
+	CatchHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CatchHitBox"));
+	CatchHitBox->SetGenerateOverlapEvents(true);
+	CatchHitBox->SetCollisionProfileName(TEXT("EnemyOverlap"));
+	CatchHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision); // No collision to begin with
+	CatchHitBox->CanCharacterStepUpOn = ECB_No;
+	CatchHitBox->OnComponentBeginOverlap.AddDynamic(this, &AGuard::OnCatchHitBoxOverlap);
+	CatchHitBox->SetupAttachment(GetMesh());
+
+	// TODO: Pls remove this
+	StupidFakeBsHearingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("StupidFakeBsHearingSphere"));
+	StupidFakeBsHearingSphere->SetGenerateOverlapEvents(true);
+	StupidFakeBsHearingSphere->SetCollisionProfileName(TEXT("EnemyOverlap"));
+	StupidFakeBsHearingSphere->CanCharacterStepUpOn = ECB_No;
+	StupidFakeBsHearingSphere->SetupAttachment(GetMesh());
 
 	AlertMarkMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AlertMarkMesh"));
 	AlertMarkMesh->SetGenerateOverlapEvents(false);
@@ -119,6 +138,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 	case EGuardState::CHASING:
 		ToggleAlertIndicator(false);
+		CatchHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 	case EGuardState::SEARCHING:
 		ToggleQuestionIndicator(false);
@@ -166,6 +186,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		SetGuardMaxSpeed(ChaseSpeed);
 		GuardController->ModifySightRange(ChasingSightRange, LosingSightRange);
 		ToggleAlertIndicator(true);
+		CatchHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		break;
 
 	case EGuardState::SEARCHING:
@@ -216,6 +237,19 @@ void AGuard::OnStunEnd()
 	else // Or just go back to the default state
 	{
 		SetGuardState(DefaultGuardState);
+	}
+}
+
+void AGuard::OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->ActorHasTag(TEXT("Player")))
+	{
+		//FLoadStreamingLevelInfo levelStreamInfo;
+		//levelStreamInfo.
+		//levelStreamInfo.bUnloadCurrentLevel = false;
+		//levelStreamInfo.bBlockOnLoad = false;
+
+		//URespawnSubsystem::GetInst(this)->LoadLevelStreaming()
 	}
 }
 
