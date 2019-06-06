@@ -17,6 +17,7 @@
 
 #include "GuardAiController.h"
 #include "GuardAnimInstance.h"
+#include "Characters/PlayerCharacter/PlayerCharacter.h"
 
 #include "RespawnSystem/RespawnSubsystem.h"
 
@@ -79,6 +80,10 @@ void AGuard::BeginPlay()
 	GuardAnimInstance = Cast<UGuardAnimInstance>(GetMesh()->GetAnimInstance());
 	if (!GuardAnimInstance)
 		UE_LOG(LogTemp, Error, TEXT("Failed to initiate guard anim instance"));
+
+	PlayerRef = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (!PlayerRef)
+		UE_LOG(LogTemp, Error, TEXT("Failed to get player reference"));
 }
 
 // Called every frame
@@ -87,9 +92,28 @@ void AGuard::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
+	if (bPlayerInSleepDetectRange)
+	{
+		switch (GuardState)
+		{
+		case EGuardState::SLEEPING:
+		{
+			if (PlayerRef && PlayerRef->IsPlayerSprinting())
+			{
+				SetGuardState(EGuardState::WAKEUPSTATEONE);
+			}
 
+			break;
+		}
+		case EGuardState::WAKEUPSTATEONE:
+			break;
 
+		case EGuardState::WAKEUPSTATETWO:
+			break;
 
+		default: break;
+		}
+	}
 }
 
 void AGuard::GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const

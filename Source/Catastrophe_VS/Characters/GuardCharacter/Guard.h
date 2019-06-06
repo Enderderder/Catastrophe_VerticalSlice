@@ -91,6 +91,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Guard | Animation")
 	class UGuardAnimInstance* GuardAnimInstance;
 
+	/**  */
+	UPROPERTY(BlueprintReadWrite, Category = "Guard | General")
+	class APlayerCharacter* PlayerRef;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Movement")
 	float PatrolSpeed = 300.0f;
 
@@ -128,6 +132,7 @@ private:
 	/** The timer handle for stun mechanic */
 	UPROPERTY(BlueprintReadOnly, Category = "Guard | Behaviour | Stun", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle StunTimerHnadle;
+
 
 protected:
 	// Called when the game starts or when spawned
