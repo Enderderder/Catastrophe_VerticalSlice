@@ -91,8 +91,8 @@ void AGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-	if (bPlayerInSleepDetectRange)
+	// Hearing detection
+	/*if (bPlayerInSleepDetectRange)
 	{
 		switch (GuardState)
 		{
@@ -113,7 +113,7 @@ void AGuard::Tick(float DeltaTime)
 
 		default: break;
 		}
-	}
+	}*/
 }
 
 void AGuard::GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const
@@ -159,9 +159,9 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 	case EGuardState::SLEEPING:
 		break;
-	case EGuardState::WAKEUPSTATEONE:
+	case EGuardState::WAKEUP_STAGEONE:
 		break;
-	case EGuardState::WAKEUPSTATETWO:
+	case EGuardState::WAKEUP_STAGETWO:
 		break;
 	case EGuardState::PATROLLING:
 		break;
@@ -193,10 +193,11 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		GuardController->ModifySightRange(0.0f, LosingSightRange);
 		break;
 
-	case EGuardState::WAKEUPSTATEONE:
+	case EGuardState::WAKEUP_STAGEONE:
+		GuardController->ModifySightRange(PatrolSightRange, LosingSightRange);
 		break;
 
-	case EGuardState::WAKEUPSTATETWO:
+	case EGuardState::WAKEUP_STAGETWO:
 		break;
 
 	case EGuardState::PATROLLING:

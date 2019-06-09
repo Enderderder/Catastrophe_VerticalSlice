@@ -202,7 +202,7 @@ public:
 
 	/* Fish bones currency */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fish Bones")
-	int FishBonesAmount;
+	int32 FishBonesAmount;
 
 protected:
 	// Called when the game starts or when spawned
