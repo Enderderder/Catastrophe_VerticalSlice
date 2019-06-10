@@ -69,6 +69,10 @@ AGuard::AGuard()
 	QuestionMarkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	QuestionMarkMesh->SetupAttachment(GetMesh());
 
+	ZzzMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ZzzMesh"));
+	ZzzMesh->SetGenerateOverlapEvents(false);
+	ZzzMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ZzzMesh->SetupAttachment(GetMesh());
 }
 
 // Called when the game starts or when spawned
@@ -91,7 +95,7 @@ void AGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Hearing detection
+	// TODO: Hearing detection
 	/*if (bPlayerInSleepDetectRange)
 	{
 		switch (GuardState)

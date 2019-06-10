@@ -453,8 +453,8 @@ void APlayerCharacter::HHUSecondaryActionBegin()
 	{
 		// Let the character follow camera rotation
 		bUseControllerRotationYaw = true;
-		/*CameraBoom->bEnableCameraLag = false;
-		CameraBoom->bEnableCameraRotationLag = false;*/
+		CameraBoom->bEnableCameraLag = false;
+		CameraBoom->bEnableCameraRotationLag = false;
 		if (ZoomInTimeline)
 			ZoomInTimeline->Play();
 		PlayerAnimInstance->bAiming = true;
@@ -483,8 +483,8 @@ void APlayerCharacter::HHUSecondaryActionEnd()
 		{
 			// Let the character not follow camera rotation
 			bUseControllerRotationYaw = false;
-			/*CameraBoom->bEnableCameraLag = true;
-			CameraBoom->bEnableCameraRotationLag = true;*/
+			CameraBoom->bEnableCameraLag = true;
+			CameraBoom->bEnableCameraRotationLag = true;
 			if (ZoomInTimeline)
 				ZoomInTimeline->Reverse();
 			PlayerAnimInstance->bAiming = false;
