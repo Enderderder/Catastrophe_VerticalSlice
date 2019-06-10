@@ -39,4 +39,7 @@ protected:
 	/** Called when the player interact, restore tomato to the player */
 	UFUNCTION()
 	void PickUpTomato(class APlayerCharacter* _playerCharacter);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "TomatoBox", meta = (DisplayName = "OnPickupTomato"))
+	void Receive_PickUpTomato();
 };

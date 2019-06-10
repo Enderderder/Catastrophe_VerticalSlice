@@ -28,8 +28,6 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "DoorTrigger", meta = (DisplayName = "OnDoorActivation"))
 	void Receive_ActivateDoorTrigger();
 
-	UFUNCTION()
-	void SetDoorActive(bool _b);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "DoorTrigger", meta = (DisplayName = "OnSetDoorActive"))
 	void Recieve_SetDoorActive(bool _b);
 
@@ -37,4 +35,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetDoorActive(bool _b);
 };

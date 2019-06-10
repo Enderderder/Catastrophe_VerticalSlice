@@ -34,13 +34,9 @@ void ADoorTrigger::Tick(float DeltaTime)
 void ADoorTrigger::ActivateDoor()
 {
 	Receive_ActivateDoorTrigger();
-
-
 }
 
 void ADoorTrigger::SetDoorActive(bool _b)
 {
 	Recieve_SetDoorActive(_b);
-
-
 }
