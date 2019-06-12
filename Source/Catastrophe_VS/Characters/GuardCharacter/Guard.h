@@ -59,6 +59,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* ZzzMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
+	class USpotLightComponent* HeadLight;
+
 public:
 	// Sets default values for this character's properties
 	AGuard();
@@ -125,6 +128,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Searching")
 	float SearchRadiusMax = 150.0f;
 
+	/** Head light color at normal state */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | General")
+	FColor NormalHeadLightColor = FColor::White;
+
+	/** Head light color at alert state */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | General")
+	FColor AlertedHeadLightColor = FColor::Yellow;
+
+	/** Head light color at spotted state */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | General")
+	FColor SpottedHeadLightColor = FColor::Red;
+
 
 private:
 
@@ -166,7 +181,7 @@ protected:
 	/** Called when the catch hit box overlap */
 	UFUNCTION()
 	virtual void OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+	
 	
 public:	
 	// Called every frame

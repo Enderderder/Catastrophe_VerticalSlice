@@ -9,6 +9,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "Classes/BehaviorTree/BlackboardComponent.h"
 
 #include "Engine/World.h"
@@ -73,6 +74,12 @@ AGuard::AGuard()
 	ZzzMesh->SetGenerateOverlapEvents(false);
 	ZzzMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ZzzMesh->SetupAttachment(GetMesh());
+
+	HeadLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("HeadLight"));
+	HeadLight->SetRelativeLocation(FVector(16.0f, 0.0f, 0.0f));
+	HeadLight->InnerConeAngle = 10.0f;
+	HeadLight->OuterConeAngle = 30.0f;
+	HeadLight->SetupAttachment(GetMesh(), TEXT("HeadSocket"));
 }
 
 // Called when the game starts or when spawned
@@ -163,6 +170,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 	case EGuardState::SLEEPING:
 		ToggleZzzIndicator(false);
+		HeadLight->SetVisibility(true);
 		break;
 	case EGuardState::WAKEUP_STAGEONE:
 		break;
@@ -197,6 +205,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 	case EGuardState::SLEEPING:
 		GuardController->ModifySightRange(0.0f, LosingSightRange);
 		ToggleZzzIndicator(true);
+		HeadLight->SetVisibility(false);
 		break;
 
 	case EGuardState::WAKEUP_STAGEONE:
@@ -207,6 +216,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 
 	case EGuardState::PATROLLING:
+		HeadLight->SetLightColor(NormalHeadLightColor);
 		if (bPatrolBehaviour && PatrolLocations.Num() > 0)
 		{
 			SetGuardMaxSpeed(PatrolSpeed);
@@ -219,17 +229,20 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		SetGuardMaxSpeed(PatrolSpeed);
 		GuardController->ModifySightRange(PatrolSightRange, LosingSightRange);
 		ToggleQuestionIndicator(true);
+		HeadLight->SetLightColor(NormalHeadLightColor);
 		break;
 
 	case EGuardState::CHASING:
 		SetGuardMaxSpeed(ChaseSpeed);
 		GuardController->ModifySightRange(ChasingSightRange, LosingSightRange);
 		ToggleAlertIndicator(true);
+		HeadLight->SetLightColor(SpottedHeadLightColor);
 		CatchHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		break;
 
 	case EGuardState::SEARCHING:
 		SetGuardMaxSpeed(ChaseSpeed);
+		HeadLight->SetLightColor(AlertedHeadLightColor);
 		break;
 
 	case EGuardState::STUNED:
@@ -254,6 +267,9 @@ void AGuard::OnStunBegin()
 			TEXT("PlayerLastSeenLocation"), player->GetActorLocation());
 	}
 
+	// Turn off head light
+	HeadLight->SetVisibility(false);
+
 	if (GuardAnimInstance)
 		GuardAnimInstance->bStuned = true;
 	else
@@ -261,6 +277,7 @@ void AGuard::OnStunBegin()
 		// Force the animation
 		Cast<UGuardAnimInstance>(GetMesh()->GetAnimInstance())->bStuned = true;
 	}
+
 	// Clear the old timer
 	GetWorld()->GetTimerManager().ClearTimer(StunTimerHnadle);
 	// Set a timer to call OnStunEnd()
@@ -274,6 +291,9 @@ void AGuard::OnStunBegin()
 void AGuard::OnStunEnd()
 {
 	GuardAnimInstance->bStuned = false;
+
+	// Turn the head light back on
+	HeadLight->SetVisibility(true);
 
 	// Go search the player if he saw the player
 	if (bPlayerWasInSight)
@@ -293,14 +313,7 @@ void AGuard::OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 {
 	if (OtherActor->ActorHasTag(TEXT("Player")))
 	{
-		GetLevel()->GetOuter()->GetName();
-
-		//FLoadStreamingLevelInfo levelStreamInfo;
-		//levelStreamInfo.
-		//levelStreamInfo.bUnloadCurrentLevel = false;
-		//levelStreamInfo.bBlockOnLoad = false;
-
-		//URespawnSubsystem::GetInst(this)->LoadLevelStreaming()
+		
 	}
 }
 

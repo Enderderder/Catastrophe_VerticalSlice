@@ -455,6 +455,7 @@ void APlayerCharacter::HHUSecondaryActionBegin()
 		bUseControllerRotationYaw = true;
 		CameraBoom->bEnableCameraLag = false;
 		CameraBoom->bEnableCameraRotationLag = false;
+		CameraBoom->AttachTo(AimDownSightFocusPoint);
 		if (ZoomInTimeline)
 			ZoomInTimeline->Play();
 		PlayerAnimInstance->bAiming = true;
@@ -485,6 +486,7 @@ void APlayerCharacter::HHUSecondaryActionEnd()
 			bUseControllerRotationYaw = false;
 			CameraBoom->bEnableCameraLag = true;
 			CameraBoom->bEnableCameraRotationLag = true;
+			CameraBoom->AttachTo(CamFocusPoint);
 			if (ZoomInTimeline)
 				ZoomInTimeline->Reverse();
 			PlayerAnimInstance->bAiming = false;
