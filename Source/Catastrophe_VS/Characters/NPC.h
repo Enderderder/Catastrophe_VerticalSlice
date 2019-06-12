@@ -135,6 +135,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "NPC")
 	void DisableDialogue();
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC", meta = (DisplayName = "OnDisableDialogue"))
+	void Receive_DisableDialogue();
 
 	UFUNCTION(BlueprintCallable, Category = "NPC")
 	void FinishConversation();
