@@ -19,8 +19,8 @@ enum class EGuardState : uint8
 {
 	STATIONARY = 0,
 	SLEEPING,
-	WAKEUPSTATEONE,
-	WAKEUPSTATETWO,
+	WAKEUP_STAGEONE,
+	WAKEUP_STAGETWO,
 	PATROLLING,
 	INVESTATING,
 	CHASING,
@@ -56,6 +56,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* QuestionMarkMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GuardComponents", meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* ZzzMesh;
+
 public:
 	// Sets default values for this character's properties
 	AGuard();
@@ -80,6 +83,9 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour | General")
 	bool bPlayerInSight = false;
 
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Guard | Behaviour | Sleep")
+	bool bPlayerInSleepDetectRange = false;
+
 protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Guard | Controller")
@@ -87,6 +93,10 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Guard | Animation")
 	class UGuardAnimInstance* GuardAnimInstance;
+
+	/**  */
+	UPROPERTY(BlueprintReadWrite, Category = "Guard | General")
+	class APlayerCharacter* PlayerRef;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Movement")
 	float PatrolSpeed = 300.0f;
@@ -125,6 +135,7 @@ private:
 	/** The timer handle for stun mechanic */
 	UPROPERTY(BlueprintReadOnly, Category = "Guard | Behaviour | Stun", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle StunTimerHnadle;
+
 
 protected:
 	// Called when the game starts or when spawned

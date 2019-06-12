@@ -90,6 +90,14 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GoalFish", meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* FishToCarry;
 
+	// The anchor of the interactable UI
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* WorldUiAnchor;
+
+	// The interactable UI that appears on the player
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* InteractableUiComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UAIPerceptionStimuliSourceComponent* PerceptionStimuliSourceComponent;
 
@@ -194,7 +202,7 @@ public:
 
 	/* Fish bones currency */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Fish Bones")
-	int FishBonesAmount;
+	int32 FishBonesAmount;
 
 protected:
 	// Called when the game starts or when spawned
@@ -319,6 +327,18 @@ public:
 	/** Allow player take movement control again */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void UnblockMovementInput();
+
+	/**
+	 * 
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Player | General")
+	void TogglePlayerHUD(bool _b);
+
+	/**
+	 * 
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void ToggleInteractUI(bool _b);
 
 	/** Getter */
 	FORCEINLINE class UAIPerceptionStimuliSourceComponent* GetStimulusSourceComponent() const { 

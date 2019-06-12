@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -76,6 +77,13 @@ APlayerCharacter::APlayerCharacter()
 	FishToCarry = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FishToCarry"));
 	FishToCarry->SetupAttachment(GetMesh(), TEXT("BackCarrySocket"));
 
+	WorldUiAnchor = CreateDefaultSubobject<USceneComponent>(TEXT("InteractableWidgetAnchor"));
+	WorldUiAnchor->SetupAttachment(RootComponent);
+
+	InteractableUiComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractableUiComponent"));
+	InteractableUiComponent->bVisible = false;
+	InteractableUiComponent->SetupAttachment(WorldUiAnchor);
+
 	// Create stimuli
 	PerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("PerceptionStimuliSource"));
 }
@@ -125,6 +133,10 @@ void APlayerCharacter::BeginPlay()
 			PlayerWidget->ToggleCrosshair(false);
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Missing Player hud widget class, failed to initiate player widget"));
+	}
 }
 
 // Called every frame
@@ -152,6 +164,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	// Do the interaction tick
 	InteractionTick(DeltaTime);
+
+	// Need to get the ui always face the camera
+	FRotator uiRot = (FollowCamera->GetComponentLocation() - WorldUiAnchor->GetComponentLocation()).Rotation();
+	WorldUiAnchor->SetWorldRotation(uiRot);
 }
 
 // Called to bind functionality to input
@@ -437,12 +453,12 @@ void APlayerCharacter::HHUSecondaryActionBegin()
 	{
 		// Let the character follow camera rotation
 		bUseControllerRotationYaw = true;
-		/*CameraBoom->bEnableCameraLag = false;
-		CameraBoom->bEnableCameraRotationLag = false;*/
+		CameraBoom->bEnableCameraLag = false;
+		CameraBoom->bEnableCameraRotationLag = false;
 		if (ZoomInTimeline)
 			ZoomInTimeline->Play();
 		PlayerAnimInstance->bAiming = true;
-		PlayerWidget->ToggleCrosshair(true);
+		if (PlayerWidget) PlayerWidget->ToggleCrosshair(true);
 		break;
 	}
 
@@ -467,8 +483,8 @@ void APlayerCharacter::HHUSecondaryActionEnd()
 		{
 			// Let the character not follow camera rotation
 			bUseControllerRotationYaw = false;
-			/*CameraBoom->bEnableCameraLag = true;
-			CameraBoom->bEnableCameraRotationLag = true;*/
+			CameraBoom->bEnableCameraLag = true;
+			CameraBoom->bEnableCameraRotationLag = true;
 			if (ZoomInTimeline)
 				ZoomInTimeline->Reverse();
 			PlayerAnimInstance->bAiming = false;
@@ -569,6 +585,27 @@ void APlayerCharacter::BlockMovementAction(bool _bBlockMovementInput)
 void APlayerCharacter::UnblockMovementInput()
 {
 	bAllowMovementInput = true;
+}
+
+void APlayerCharacter::TogglePlayerHUD(bool _b)
+{
+	if (PlayerWidget)
+	{
+		if (_b)
+		{
+			PlayerWidget->RemoveFromParent();
+			PlayerWidget->AddToViewport(0);
+		}
+		else
+		{
+			PlayerWidget->RemoveFromParent();
+		}
+	}
+}
+
+void APlayerCharacter::ToggleInteractUI(bool _b)
+{
+	InteractableUiComponent->SetVisibility(_b);
 }
 
 bool APlayerCharacter::IsPlayerCrouched() const

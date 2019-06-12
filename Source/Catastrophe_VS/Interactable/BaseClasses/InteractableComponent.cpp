@@ -17,20 +17,23 @@ UInteractableComponent::UInteractableComponent()
 
 void UInteractableComponent::OnTriggerWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!PlayerRef && OtherActor->IsA<APlayerCharacter>())
+	{
+		PlayerRef = Cast<APlayerCharacter>(OtherActor);
+	}
+
 	// See if we already holds the player character pointer
 	if (PlayerRef && !PlayerRef->IsPendingKill())
 	{
 		if (PlayerRef == OtherActor)
 		{
-			PlayerRef->SetInteractionTarget(GetOwner());
+			if (bCanInteract)
+			{
+				PlayerRef->SetInteractionTarget(GetOwner());
+				PlayerRef->ToggleInteractUI(true);
+			}
 			TriggerCounter++;
 		}
-	}
-	else if (OtherActor->IsA<APlayerCharacter>())
-	{
-		PlayerRef = Cast<APlayerCharacter>(OtherActor);
-		PlayerRef->SetInteractionTarget(GetOwner());
-		TriggerCounter++;
 	}
 
 	// If this component has set to auto interact, interact immediatly
@@ -49,6 +52,7 @@ void UInteractableComponent::OnTriggerEndWithPlayer(class UPrimitiveComponent* O
 		{
 			PlayerRef->ResetInteractionAction();
 			PlayerRef->RemoveInteractionTarget(GetOwner());
+			PlayerRef->ToggleInteractUI(false);
 		}
 	}
 }

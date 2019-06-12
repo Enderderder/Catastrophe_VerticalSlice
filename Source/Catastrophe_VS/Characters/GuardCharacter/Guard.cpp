@@ -17,6 +17,7 @@
 
 #include "GuardAiController.h"
 #include "GuardAnimInstance.h"
+#include "Characters/PlayerCharacter/PlayerCharacter.h"
 
 #include "RespawnSystem/RespawnSubsystem.h"
 
@@ -68,6 +69,10 @@ AGuard::AGuard()
 	QuestionMarkMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	QuestionMarkMesh->SetupAttachment(GetMesh());
 
+	ZzzMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ZzzMesh"));
+	ZzzMesh->SetGenerateOverlapEvents(false);
+	ZzzMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ZzzMesh->SetupAttachment(GetMesh());
 }
 
 // Called when the game starts or when spawned
@@ -77,6 +82,12 @@ void AGuard::BeginPlay()
 	
 	// Sets the anim instance
 	GuardAnimInstance = Cast<UGuardAnimInstance>(GetMesh()->GetAnimInstance());
+	if (!GuardAnimInstance)
+		UE_LOG(LogTemp, Error, TEXT("Failed to initiate guard anim instance"));
+
+	PlayerRef = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (!PlayerRef)
+		UE_LOG(LogTemp, Error, TEXT("Failed to get player reference"));
 }
 
 // Called every frame
@@ -84,6 +95,29 @@ void AGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// TODO: Hearing detection
+	/*if (bPlayerInSleepDetectRange)
+	{
+		switch (GuardState)
+		{
+		case EGuardState::SLEEPING:
+		{
+			if (PlayerRef && PlayerRef->IsPlayerSprinting())
+			{
+				SetGuardState(EGuardState::WAKEUPSTATEONE);
+			}
+
+			break;
+		}
+		case EGuardState::WAKEUPSTATEONE:
+			break;
+
+		case EGuardState::WAKEUPSTATETWO:
+			break;
+
+		default: break;
+		}
+	}*/
 }
 
 void AGuard::GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const
@@ -129,9 +163,9 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		break;
 	case EGuardState::SLEEPING:
 		break;
-	case EGuardState::WAKEUPSTATEONE:
+	case EGuardState::WAKEUP_STAGEONE:
 		break;
-	case EGuardState::WAKEUPSTATETWO:
+	case EGuardState::WAKEUP_STAGETWO:
 		break;
 	case EGuardState::PATROLLING:
 		break;
@@ -163,10 +197,11 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		GuardController->ModifySightRange(0.0f, LosingSightRange);
 		break;
 
-	case EGuardState::WAKEUPSTATEONE:
+	case EGuardState::WAKEUP_STAGEONE:
+		GuardController->ModifySightRange(PatrolSightRange, LosingSightRange);
 		break;
 
-	case EGuardState::WAKEUPSTATETWO:
+	case EGuardState::WAKEUP_STAGETWO:
 		break;
 
 	case EGuardState::PATROLLING:
