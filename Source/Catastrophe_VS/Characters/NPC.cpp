@@ -182,6 +182,7 @@ void ANPC::NextDialogue()
 /* Removes the widget from the viewport */
 void ANPC::DisableDialogue()
 {
+	Receive_DisableDialogue();
 	if (DialogueWidget != NULL)
 	{
 		DialogueWidget->RemoveFromViewport();
