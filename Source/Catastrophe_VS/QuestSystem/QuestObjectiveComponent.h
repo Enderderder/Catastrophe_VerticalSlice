@@ -81,20 +81,23 @@ public:
 	/** Called when the component is initialized */
 	virtual void InitializeComponent() override;
 
-	/**
-	 * Objective actions
-	 */
+	/** Objective action | Activates the objective */
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void ActivateObjective();
+
+	/** Objective action | Completes the objective */
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void CompleteObjective();
+
+	/** Objective action | Failes the objective */
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
 	void FailObjective();
 
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
-	bool IsObjectiveComplete();
+	bool IsObjectiveComplete() const;
+
 	UFUNCTION(BlueprintCallable, Category = "QuestSystem")
-	bool IsObjectiveActive();
+	bool IsObjectiveActive() const;
 
 	/** Sets the quest owner */
 	void SetOwningQuest(class UQuest* _quest);
