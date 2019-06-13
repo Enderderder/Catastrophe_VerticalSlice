@@ -17,8 +17,10 @@ public:
 	UTomatoSack();
 
 protected:
+	
 	UPROPERTY(EditDefaultsOnly)
 	uint8 TomatoAmount;
+
 	UPROPERTY(EditDefaultsOnly)
 	uint8 MaxTomatoAmount;
 
@@ -27,38 +29,44 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	/** Addes one tomato into the sack, does not over flow */
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	void AddTomato();
+
+	/** Addes certain amount of tomato into the sack, does not overflow */
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	void AddTomatoes(uint8 _Amount);
 
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	void FillTomatoSack();
+
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
-	bool IsTomatoSackFull();
+	bool IsTomatoSackFull() const;
 
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	void RemoveTomato();
+
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	void RemoveTomatoes(uint8 _Amount);
 
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	void EmptyTomatoSack();
+
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
-	bool IsTomatoSackEmpty();
+	bool IsTomatoSackEmpty() const;
 
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	void SetTomatoAmount(uint8 _Amount);
+
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
-	uint8 GetTomatoAmount();
+	uint8 GetTomatoAmount() const;
 
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	void SetSackSize(uint8 _Size);
+
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
-	uint8 GetSackSize();
+	uint8 GetSackSize() const;
 
 	UFUNCTION(BlueprintCallable, Category = "TomatoSack")
 	bool IsAbleToThrow();

@@ -1,18 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "TomatoSack.h"
 
 // Sets default values for this component's properties
 UTomatoSack::UTomatoSack()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	// No tick component
+	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
 }
-
 
 // Called when the game starts
 void UTomatoSack::BeginPlay()
@@ -23,15 +19,6 @@ void UTomatoSack::BeginPlay()
 	
 }
 
-
-// Called every frame
-void UTomatoSack::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
 void UTomatoSack::AddTomato()
 {
 	if (TomatoAmount < MaxTomatoAmount)
@@ -40,12 +27,10 @@ void UTomatoSack::AddTomato()
 	}
 }
 
-void UTomatoSack::AddTomatoes(uint8 _Amount)
+void UTomatoSack::AddTomatoes(uint8 _amount)
 {
-	if (TomatoAmount + _Amount <= MaxTomatoAmount)
-	{
-		TomatoAmount += _Amount;
-	}
+	TomatoAmount = (uint8)FMath::Min(
+		(int32)(TomatoAmount + _amount), (int32)MaxTomatoAmount);
 }
 
 void UTomatoSack::FillTomatoSack()
@@ -53,7 +38,7 @@ void UTomatoSack::FillTomatoSack()
 	TomatoAmount = MaxTomatoAmount;
 }
 
-bool UTomatoSack::IsTomatoSackFull()
+bool UTomatoSack::IsTomatoSackFull() const
 {
 	return (TomatoAmount == MaxTomatoAmount);
 }
@@ -66,12 +51,10 @@ void UTomatoSack::RemoveTomato()
 	}
 }
 
-void UTomatoSack::RemoveTomatoes(uint8 _Amount)
+void UTomatoSack::RemoveTomatoes(uint8 _amount)
 {
-	if (TomatoAmount - _Amount >= 0)
-	{
-		TomatoAmount -= _Amount;
-	}
+	TomatoAmount = (uint8)FMath::Max(
+		(int32)(TomatoAmount - _amount), 0);
 }
 
 void UTomatoSack::EmptyTomatoSack()
@@ -79,29 +62,29 @@ void UTomatoSack::EmptyTomatoSack()
 	TomatoAmount = 0;
 }
 
-bool UTomatoSack::IsTomatoSackEmpty()
-{
-	return (TomatoAmount == 0);
+bool UTomatoSack::IsTomatoSackEmpty() const
+{ 
+	return (TomatoAmount <= 0);
 }
 
-void UTomatoSack::SetTomatoAmount(uint8 _Amount)
+void UTomatoSack::SetTomatoAmount(uint8 _amount)
 {
-	TomatoAmount = _Amount;
+	TomatoAmount = _amount;
 }
 
-uint8 UTomatoSack::GetTomatoAmount()
+uint8 UTomatoSack::GetTomatoAmount() const
 {
 	return (TomatoAmount);
 }
 
-void UTomatoSack::SetSackSize(uint8 _Size)
+void UTomatoSack::SetSackSize(uint8 _size)
 {
-	MaxTomatoAmount = _Size;
+	MaxTomatoAmount = _size;
 }
 
-uint8 UTomatoSack::GetSackSize()
+uint8 UTomatoSack::GetSackSize() const
 {
-	return(MaxTomatoAmount);
+	return (MaxTomatoAmount);
 }
 
 bool UTomatoSack::IsAbleToThrow()
