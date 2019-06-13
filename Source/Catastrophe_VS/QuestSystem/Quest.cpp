@@ -133,8 +133,9 @@ void UQuest::RegisterObjective(class UQuestObjectiveComponent* _objective)
 			if (GEngine)
 			{
 				FString msg = 
-					"Objective " + _objective->GetDescription() + 
-					" has overlapped order of " + FString::FromInt(_objective->GetOrder());
+					"Objective: " + _objective->GetDescription() + 
+					" has overlapped order of " + FString::FromInt(_objective->GetOrder()) + 
+					" with objective: " + QuestObjectives[i]->GetDescription();
 				GEngine->AddOnScreenDebugMessage(-1, 50.0f, FColor::Red, msg);
 			}
 			return;
