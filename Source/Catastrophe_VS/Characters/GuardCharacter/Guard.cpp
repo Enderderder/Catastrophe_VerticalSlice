@@ -162,6 +162,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 	case EGuardState::STATIONARY:
 		break;
 	case EGuardState::SLEEPING:
+		ToggleZzzIndicator(false);
 		break;
 	case EGuardState::WAKEUP_STAGEONE:
 		break;
@@ -195,6 +196,7 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 
 	case EGuardState::SLEEPING:
 		GuardController->ModifySightRange(0.0f, LosingSightRange);
+		ToggleZzzIndicator(true);
 		break;
 
 	case EGuardState::WAKEUP_STAGEONE:

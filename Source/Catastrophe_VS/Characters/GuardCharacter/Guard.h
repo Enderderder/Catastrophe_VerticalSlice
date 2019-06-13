@@ -199,9 +199,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Guard | Animation")
 	void ToggleAlertIndicator(bool _b);
 
-	/** BLueprint function, Show the question mark indicator or not */
+	/** BLueprint function, Show the  question mark indicator or not */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Guard | Animation")
 	void ToggleQuestionIndicator(bool _b);
+
+	/** Blueprint function, Show the Zzz indicator or not */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Guard | Animation")
+	void ToggleZzzIndicator(bool _b);
 
 	/** Stops all the montages that this character is playing */
 	UFUNCTION(BlueprintCallable, Category = "Guard | Animation")
