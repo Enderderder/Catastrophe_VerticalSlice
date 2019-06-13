@@ -142,6 +142,11 @@ protected:
 	void FinishConversation();
 
 	UFUNCTION(BlueprintCallable, Category = "NPC: Quests")
+	void StartNewQuest();
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnStartNewQuest"))
+	void Receive_StartNewQuest();
+
+	UFUNCTION(BlueprintCallable, Category = "NPC: Quests")
 	void FinishOldQuest();
 	UFUNCTION(BlueprintImplementableEvent, Category = "NPC: Quests", meta = (DisplayName = "OnFinishOldQuest"))
 	void Receive_FinishOldQuest();

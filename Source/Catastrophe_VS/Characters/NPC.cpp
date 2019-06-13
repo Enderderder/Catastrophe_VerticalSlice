@@ -154,6 +154,7 @@ void ANPC::NextDialogue()
 				FinishOldQuest();
 				FinishConversation();
 			}
+			StartNewQuest();
 		}
 		else
 		{
@@ -196,6 +197,11 @@ void ANPC::DisableDialogue()
 void ANPC::FinishConversation()
 {
 	DisableDialogue();
+}
+
+void ANPC::StartNewQuest()
+{
+	Receive_FinishNewQuest();
 }
 
 void ANPC::FinishOldQuest()

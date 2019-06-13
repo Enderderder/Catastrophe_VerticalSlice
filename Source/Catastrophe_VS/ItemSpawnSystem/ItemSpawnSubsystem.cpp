@@ -60,16 +60,17 @@ void UItemSpawnSubsystem::SetSpawnLocations(TArray<FVector> _newLocations)
 	}
 }
 
-void UItemSpawnSubsystem::SpawnItemAtLocation(FVector _location, TSubclassOf<AItemPickup> _itemClass)
+AItemPickup* UItemSpawnSubsystem::SpawnItemAtLocation(FVector _location, TSubclassOf<AItemPickup> _itemClass)
 {
 	// Setting rotation values of item to spawn
 	FRotator rotation(0.0f, 0.0f, 0.0f);
 
 	// Spawn item
 	AItemPickup* newItem = GetWorld()->SpawnActor<AItemPickup>(_itemClass, _location, rotation);
+	return newItem;
 }
 
-void UItemSpawnSubsystem::RandomlySpawnItem()
+AItemPickup* UItemSpawnSubsystem::RandomlySpawnItem()
 {
 	// Randomly choose item to spawn
 	TSubclassOf<AItemPickup> randItem;
@@ -83,5 +84,5 @@ void UItemSpawnSubsystem::RandomlySpawnItem()
 	}
 
 	// Calls function which spawns item
-	SpawnItemAtLocation(randLocation, randItem);
+	return SpawnItemAtLocation(randLocation, randItem);
 }

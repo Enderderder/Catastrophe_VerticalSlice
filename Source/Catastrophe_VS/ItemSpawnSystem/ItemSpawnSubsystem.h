@@ -73,7 +73,7 @@ public:
 	 * @note This will spawn a selected item type at a selected location
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Item Spawning")
-	void SpawnItemAtLocation(FVector _location, TSubclassOf<AItemPickup> _itemClass);
+	AItemPickup* SpawnItemAtLocation(FVector _location, TSubclassOf<AItemPickup> _itemClass);
 
 	/**
 	 * Randomly choose location and item and spawn it
@@ -81,5 +81,5 @@ public:
 	 * @note This will randomly choose a location and item to spawn and spawn it
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Item Spawning")
-	void RandomlySpawnItem();
+	AItemPickup* RandomlySpawnItem();
 };
