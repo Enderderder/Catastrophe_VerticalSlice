@@ -102,29 +102,34 @@ void AGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// TODO: Hearing detection
-	/*if (bPlayerInSleepDetectRange)
+	if (bPlayerInSleepDetectRange)
 	{
 		switch (GuardState)
 		{
 		case EGuardState::SLEEPING:
 		{
-			if (PlayerRef && PlayerRef->IsPlayerSprinting())
+			if (PlayerRef && bPlayerInSleepDetectRange)
 			{
-				SetGuardState(EGuardState::WAKEUPSTATEONE);
+				if (PlayerRef->GetVelocity().Size() >= 50.0f
+					&& !PlayerRef->GetCharacterMovement()->IsCrouching())
+				{
+					SetGuardState(EGuardState::WAKEUP_STAGEONE);
+					float time;
+					LookAround(time);
+				}
 			}
 
 			break;
 		}
-		case EGuardState::WAKEUPSTATEONE:
+		case EGuardState::WAKEUP_STAGEONE:
 			break;
 
-		case EGuardState::WAKEUPSTATETWO:
+		case EGuardState::WAKEUP_STAGETWO:
 			break;
 
 		default: break;
 		}
-	}*/
+	}
 }
 
 void AGuard::GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const
@@ -171,6 +176,8 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 	case EGuardState::SLEEPING:
 		ToggleZzzIndicator(false);
 		HeadLight->SetVisibility(true);
+		if (GuardAnimInstance)
+			GuardAnimInstance->bSleeping = false;
 		break;
 	case EGuardState::WAKEUP_STAGEONE:
 		break;
@@ -206,6 +213,8 @@ void AGuard::OnGuardStateChange_Implementation(EGuardState _oldState, EGuardStat
 		GuardController->ModifySightRange(0.0f, LosingSightRange);
 		ToggleZzzIndicator(true);
 		HeadLight->SetVisibility(false);
+		if (GuardAnimInstance)
+			GuardAnimInstance->bSleeping = true;
 		break;
 
 	case EGuardState::WAKEUP_STAGEONE:

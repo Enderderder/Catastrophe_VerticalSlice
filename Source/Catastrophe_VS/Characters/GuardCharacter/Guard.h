@@ -140,7 +140,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | General")
 	FColor SpottedHeadLightColor = FColor::Red;
 
-
 private:
 
 	/** Store the state of the guard */
@@ -148,9 +147,12 @@ private:
 	EGuardState GuardState;
 
 	/** The timer handle for stun mechanic */
-	UPROPERTY(BlueprintReadOnly, Category = "Guard | Behaviour | Stun", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, Category = "Guard | Behaviour | Stun", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle StunTimerHnadle;
-
+	
+	/** The timer handle for wake up stage one */
+	UPROPERTY(BlueprintReadWrite, Category = "Guard | Behaviour | Sleep", meta = (AllowPrivateAccess = "true"))
+	FTimerHandle WakeUpStageOneTimerHandle;
 
 protected:
 	// Called when the game starts or when spawned
