@@ -20,8 +20,10 @@ public:
 	float MoveSpeed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GuardAnim")
-	bool bStuned;
+	bool bStuned = false;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GuardAnim")
+	bool bSleeping = false;
 
 protected:
 
