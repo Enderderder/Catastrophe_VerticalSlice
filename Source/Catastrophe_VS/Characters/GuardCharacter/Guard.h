@@ -9,7 +9,7 @@
 
 
 class UPrimitiveComponent;
-
+class APlayerCharacter;
 
 /**
  * The enum that stores the state of the guard character
@@ -233,6 +233,10 @@ public:
 	void LookAround(float& out_montageTime);
 	virtual void LookAround_Implementation(float& out_montageTime);
 
+	/** Called when the guard caught the player */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Guard | General")
+	void OnCatchPlayer(APlayerCharacter* _player);
+	virtual void OnCatchPlayer_Implementation(APlayerCharacter* _player);
 
 	/** Setter */
 	void SetGuardControllerRef(class AGuardAiController* _controller) {

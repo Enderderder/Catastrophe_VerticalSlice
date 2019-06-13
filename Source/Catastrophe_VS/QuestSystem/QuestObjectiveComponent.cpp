@@ -13,8 +13,6 @@ UQuestObjectiveComponent::UQuestObjectiveComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	bWantsInitializeComponent = true;
-	//bAutoActivate = true;
-
 }
 
 // Called when the game starts
@@ -65,27 +63,17 @@ void UQuestObjectiveComponent::FailObjective()
 	OnObjectiveFailed.Broadcast();
 }
 
-bool UQuestObjectiveComponent::IsObjectiveComplete()
+bool UQuestObjectiveComponent::IsObjectiveComplete() const
 {
-	if (ObjectiveState == EObjectiveState::Completed)
-	{
-		return true;
-	}
-	return false;
+	return ObjectiveState == EObjectiveState::Completed;
 }
 
-bool UQuestObjectiveComponent::IsObjectiveActive()
+bool UQuestObjectiveComponent::IsObjectiveActive() const
 {
-	if (ObjectiveState == EObjectiveState::Active)
-	{
-		return true;
-	}
-	return false;
+	return ObjectiveState == EObjectiveState::Active;
 }
 
 void UQuestObjectiveComponent::SetOwningQuest(class UQuest* _quest)
 {
 	OwningQuest = _quest;
 }
-
-

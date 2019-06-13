@@ -320,9 +320,14 @@ void AGuard::OnStunEnd()
 
 void AGuard::OnCatchHitBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	// If player get caught
 	if (OtherActor->ActorHasTag(TEXT("Player")))
 	{
-		
+		APlayerCharacter* player = Cast<APlayerCharacter>(OtherActor);
+		if (player)
+		{
+			OnCatchPlayer(player);
+		}
 	}
 }
 
@@ -340,4 +345,11 @@ void AGuard::StopAllMontages()
 void AGuard::LookAround_Implementation(float& out_montageTime)
 {
 	/// Blueprint should do the thing
+}
+
+void AGuard::OnCatchPlayer_Implementation(APlayerCharacter* _player)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Player caught"));
+
+	/// Should be implement in derived class
 }

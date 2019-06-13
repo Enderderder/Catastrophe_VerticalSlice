@@ -125,6 +125,22 @@ void UQuest::SetQuestState(EQuestState _questState)
 
 void UQuest::RegisterObjective(class UQuestObjectiveComponent* _objective)
 {
+	// If there is overrlapped objective order, quit
+	for (int32 i = 0; i < QuestObjectives.Num(); ++i)
+	{
+		if (_objective->GetOrder() == QuestObjectives[i]->GetOrder())
+		{
+			if (GEngine)
+			{
+				FString msg = 
+					"Objective " + _objective->GetDescription() + 
+					" has overlapped order of " + FString::FromInt(_objective->GetOrder());
+				GEngine->AddOnScreenDebugMessage(-1, 50.0f, FColor::Red, msg);
+			}
+			return;
+		}
+	}
+
 	QuestObjectives.Add(_objective);
 	QuestObjectives.Sort([](const UQuestObjectiveComponent& A, const UQuestObjectiveComponent& B) {
 		return A.GetOrder() < B.GetOrder();
