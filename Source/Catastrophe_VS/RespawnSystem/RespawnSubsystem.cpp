@@ -105,7 +105,7 @@ FTransform URespawnSubsystem::GetFirstRespawnLocationAtDistrict(EDISTRICT _distr
 void URespawnSubsystem::RespawnPlayerAtLocation(EDISTRICT _districtType)
 {
 	ACharacter* player = UGameplayStatics::GetPlayerCharacter(this, 0);
-	if (player)
+	if (player && !player->IsPendingKill())
 	{
 		FTransform location = GetFirstRespawnLocationAtDistrict(_districtType);
 		player->SetActorTransform(location);
@@ -136,12 +136,7 @@ void URespawnSubsystem::OnStreamLevelLoaded()
 {
 	if (tempInfo.bTeleportPlayer)
 	{
-		FTransform teleportLocation = GetFirstRespawnLocationAtDistrict(tempInfo.DistrictType);
-		ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
-		if (playerCharacter && !playerCharacter->IsPendingKill())
-		{
-			playerCharacter->SetActorTransform(teleportLocation);
-		}
+		RespawnPlayerAtLocation(tempInfo.DistrictType);
 	}
 
 	if (tempInfo.bUnloadCurrentLevel)

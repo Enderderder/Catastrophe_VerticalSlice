@@ -5,13 +5,15 @@
 
 #include "Components/StaticMeshComponent.h"
 
+#include "Engine.h"
+
 // Sets default values
 ARespawnPoint::ARespawnPoint()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
 	EditorOnlyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EditorOnlyMesh"));
-	EditorOnlyMesh->bIsEditorOnly = true;
+	//EditorOnlyMesh->bIsEditorOnly = true;
 	EditorOnlyMesh->bTickInEditor = false;
 	EditorOnlyMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	EditorOnlyMesh->SetGenerateOverlapEvents(false);
@@ -24,7 +26,7 @@ ARespawnPoint::ARespawnPoint()
 void ARespawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void ARespawnPoint::PostInitializeComponents()
@@ -35,5 +37,12 @@ void ARespawnPoint::PostInitializeComponents()
 	if (respawnSystem)
 	{
 		respawnSystem->RegisterRespawnLocation(District, GetTransform());
+		
+		if (District == EDISTRICT::HOLDINGCELL)
+		{
+			FString msg = GetActorLocation().ToString();
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, msg);
+		}
 	}
 }
