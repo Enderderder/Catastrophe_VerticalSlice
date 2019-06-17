@@ -42,6 +42,7 @@ void AItemPickup::Tick(float DeltaTime)
 
 void AItemPickup::PickUpItem(class APlayerCharacter* _playerCharacter)
 {
+	Receive_PrePickup();
 	Recieve_PickUpItem();
 }
 
