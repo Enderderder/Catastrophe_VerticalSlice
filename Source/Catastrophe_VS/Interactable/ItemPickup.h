@@ -35,6 +35,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta = (DisplayName = "OnPrePickup"))
+	void Receive_PrePickup();
+
 	UFUNCTION()
 	void PickUpItem(class APlayerCharacter* _playerCharacter);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta = (DisplayName = "OnPickUp"))
