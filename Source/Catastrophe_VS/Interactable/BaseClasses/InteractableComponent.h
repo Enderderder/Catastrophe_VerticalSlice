@@ -49,6 +49,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
 	class APlayerCharacter* PlayerRef;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	class USceneComponent* InteractableUI;
+
 protected:
 
 	/** Called when registered component overlap event triggers */
