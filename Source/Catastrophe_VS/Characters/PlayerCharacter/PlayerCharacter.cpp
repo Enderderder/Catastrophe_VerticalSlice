@@ -405,6 +405,7 @@ void APlayerCharacter::HHUPrimaryActionBegin()
 		SpawnedTomato->LaunchTomato(FollowCamera->GetForwardVector(), TomatoLaunchForce);
 		// Lower the tomato count
 		TomatoSack->RemoveTomato();
+		CheckTomatoInHand();
 		break;
 	}
 
