@@ -101,6 +101,8 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Guard | General")
 	class APlayerCharacter* PlayerRef;
 
+	FTransform DefaultTransform;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Movement")
 	float PatrolSpeed = 300.0f;
 
@@ -237,6 +239,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Guard | General")
 	void OnCatchPlayer(APlayerCharacter* _player);
 	virtual void OnCatchPlayer_Implementation(APlayerCharacter* _player);
+
+	/** Called to reset everything of the guard */
+	UFUNCTION(BlueprintCallable, Category = "Guard | General")
+	void ResetGuard();
 
 	/** Setter */
 	void SetGuardControllerRef(class AGuardAiController* _controller) {

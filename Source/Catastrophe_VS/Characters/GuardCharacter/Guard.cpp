@@ -86,12 +86,16 @@ AGuard::AGuard()
 void AGuard::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Sets default values
+	DefaultTransform = GetActorTransform();
 	
 	// Sets the anim instance
 	GuardAnimInstance = Cast<UGuardAnimInstance>(GetMesh()->GetAnimInstance());
 	if (!GuardAnimInstance)
 		UE_LOG(LogTemp, Error, TEXT("Failed to initiate guard anim instance"));
 
+	// Gets reference from the player
 	PlayerRef = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
 	if (!PlayerRef)
 		UE_LOG(LogTemp, Error, TEXT("Failed to get player reference"));
@@ -352,4 +356,13 @@ void AGuard::OnCatchPlayer_Implementation(APlayerCharacter* _player)
 	UE_LOG(LogTemp, Warning, TEXT("Player caught"));
 
 	/// Should be implement in derived class
+}
+
+void AGuard::ResetGuard()
+{
+	StopAllMontages();
+
+	SetActorTransform(DefaultTransform);
+
+	SetGuardState(DefaultGuardState);
 }
