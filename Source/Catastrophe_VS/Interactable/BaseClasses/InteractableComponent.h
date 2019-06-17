@@ -38,6 +38,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
 	bool bOneTimeUse = false;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
+	float UIShowingDistance = 500.0f;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Interaction")
+	bool bShowingUI = false;
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
@@ -52,6 +58,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	class USceneComponent* InteractableUI;
 
+private:
+
+	UPROPERTY()
+	bool bWantToShowUI = false;
+
 protected:
 
 	/** Called when registered component overlap event triggers */
@@ -63,14 +74,27 @@ protected:
 	void OnTriggerEndWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:	
+	/** Called each frame */
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	/** Called when player interact */
 	void Interact(class APlayerCharacter* _playerCharacter, float _holdTime);
 
 	/** Called when the player hold the interaction */
 	void InteractHold(class APlayerCharacter* _playerCharacter, float _holdTime);
 
-	/** Register a component that has some trigger volume */
+	/**
+	 * Register a component that has some trigger volume
+	 * @note This function is prefer to be called in constructor
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void RegisterTriggerVolume(class UPrimitiveComponent* _component);
 
-	
+	/**
+	 * Register a ui component to be shown while player is able to interact with
+	 * @note This function is prefer to be called in constructor
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void RegisterUiComponent(class USceneComponent* _uiComponent);
+
 };

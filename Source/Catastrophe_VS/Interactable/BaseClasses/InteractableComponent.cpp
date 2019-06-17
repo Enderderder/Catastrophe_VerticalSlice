@@ -4,6 +4,9 @@
 #include "InteractableComponent.h"
 
 #include "Components/PrimitiveComponent.h"
+#include "Components/SceneComponent.h"
+
+#include "Kismet/GameplayStatics.h"
 
 #include "Characters/PlayerCharacter/PlayerCharacter.h"
 
@@ -12,7 +15,51 @@
 UInteractableComponent::UInteractableComponent()
 {
 	// This component will not tick
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UInteractableComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Checks if we should show the interactable UI
+	APawn* playerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (playerPawn && InteractableUI)
+	{
+		// Distance check
+		float distanceToPlayer;
+		distanceToPlayer = FVector::Dist(
+			GetOwner()->GetActorLocation(), playerPawn->GetActorLocation());
+		if (distanceToPlayer <= UIShowingDistance)
+		{
+			bWantToShowUI = true;
+		}
+		else
+		{
+			bWantToShowUI = false;
+		}
+
+		// Toggle the UI if needed
+		if (!bShowingUI && bWantToShowUI) // Not showing but need to show
+		{
+			bShowingUI = true;
+			InteractableUI->SetVisibility(true);
+		}
+		else if (bShowingUI && !bWantToShowUI) // Showing but need to hide
+		{
+			bShowingUI = false;
+			InteractableUI->SetVisibility(false);
+		}
+
+		// Rotate the ui towards camera when it is showing
+		if (bShowingUI)
+		{
+			FVector cameraLoc = UGameplayStatics::GetPlayerCameraManager(
+				this, 0)->GetCameraLocation();
+			FRotator uiRot = (cameraLoc - InteractableUI->GetComponentLocation()).Rotation();
+			InteractableUI->SetWorldRotation(uiRot);
+		}
+	}
 }
 
 void UInteractableComponent::OnTriggerWithPlayer(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -30,7 +77,7 @@ void UInteractableComponent::OnTriggerWithPlayer(class UPrimitiveComponent* Over
 			if (bCanInteract)
 			{
 				PlayerRef->SetInteractionTarget(GetOwner());
-				PlayerRef->ToggleInteractUI(true);
+				//PlayerRef->ToggleInteractUI(true); // Enable later for testing player ui
 			}
 			TriggerCounter++;
 		}
@@ -96,3 +143,11 @@ void UInteractableComponent::RegisterTriggerVolume(class UPrimitiveComponent* _c
 		this, &UInteractableComponent::OnTriggerEndWithPlayer);
 }
 
+void UInteractableComponent::RegisterUiComponent(class USceneComponent* _uiComponent)
+{
+	if (_uiComponent)
+	{
+		InteractableUI = _uiComponent;
+		InteractableUI->SetVisibility(false);
+	}
+}

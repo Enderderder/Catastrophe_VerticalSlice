@@ -3,6 +3,7 @@
 #include "TomatoBox.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 
 #include "Engine/CollisionProfile.h"
 
@@ -27,6 +28,9 @@ ATomatoBox::ATomatoBox()
 	InteractableComponent->bOneTimeUse = false;
 	InteractableComponent->RegisterTriggerVolume(TriggerVolume);
 	InteractableComponent->OnInteract.AddDynamic(this, &ATomatoBox::PickUpTomato);
+
+	InteractionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
+
 }
 
 void ATomatoBox::BeginPlay()
