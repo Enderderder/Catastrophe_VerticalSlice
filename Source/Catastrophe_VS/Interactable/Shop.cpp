@@ -78,7 +78,7 @@ void AShop::DisableShop()
 	if (ShopWidget)
 	{
 		Receive_DisableShop();
-		ShopWidget->RemoveFromViewport();
+		ShopWidget->RemoveFromParent();
 		bIsActivated = false;
 	}
 }
