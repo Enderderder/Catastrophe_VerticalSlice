@@ -47,6 +47,13 @@ void ANPC::Tick(float DeltaTime)
 
 }
 
+void ANPC::InitialInteract()
+{
+	Receive_InitialInteract();
+
+
+}
+
 void ANPC::Interact(class APlayerCharacter* _playerCharacter)
 {
 	if (CanNPCTalk)
@@ -62,6 +69,7 @@ void ANPC::Interact(class APlayerCharacter* _playerCharacter)
 		else
 		{
 			/* Initialize widget and start conversation */
+			InitialInteract();
 			ConversationInProgress = true;
 			InitializeWidget();
 		}
@@ -154,6 +162,7 @@ void ANPC::NextDialogue()
 				FinishOldQuest();
 				FinishConversation();
 			}
+
 			StartNewQuest();
 		}
 		else
@@ -201,7 +210,7 @@ void ANPC::FinishConversation()
 
 void ANPC::StartNewQuest()
 {
-	Receive_FinishNewQuest();
+	Receive_StartNewQuest();
 }
 
 void ANPC::FinishOldQuest()

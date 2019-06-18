@@ -118,6 +118,11 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "NPC")
+	void InitialInteract();
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC", meta = (DisplayName = "OnInitialInteract"))
+	void Receive_InitialInteract();
+
+	UFUNCTION(BlueprintCallable, Category = "NPC")
 	void Interact(class APlayerCharacter* _playerCharacter);
 	UFUNCTION(BlueprintImplementableEvent, Category = "NPC", meta = (DisplayName = "OnInteract"))
 	void Receive_Interact();
