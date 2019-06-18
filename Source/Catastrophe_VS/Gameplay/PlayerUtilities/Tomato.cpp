@@ -37,14 +37,20 @@ void ATomato::OnTomatoOverlap(class UPrimitiveComponent* OverlappedComponent, cl
 		{
 			AGuard* guard = Cast<AGuard>(OtherActor);
 			guard->SetGuardState(EGuardState::STUNED);
-			Destroy();
+			DestroyTomato(OtherActor);
 		}
 	}
 	else
 	{
-		Destroy();
+		DestroyTomato(OtherActor);
 	}
 	// TODO: Spawn decal
+}
+
+void ATomato::DestroyTomato(class AActor* _otherActor)
+{
+	Receive_OnTomatoSplash(_otherActor);
+	Destroy();
 }
 
 void ATomato::LaunchTomato(FVector _launchDirection, float _launchForce)

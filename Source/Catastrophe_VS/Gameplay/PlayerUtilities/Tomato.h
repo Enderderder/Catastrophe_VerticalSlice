@@ -28,6 +28,13 @@ protected:
 	UFUNCTION()
 	void OnTomatoOverlap(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	/** Called to destroy the tomato */
+	UFUNCTION()
+	void DestroyTomato(class AActor* _otherActor);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Tomato")
+	void Receive_OnTomatoSplash(class AActor* _otherActor);
+
 public:	
 
 	/** Lauch tomato in certain direction */

@@ -235,9 +235,8 @@ void APlayerCharacter::SprintEnd()
 	{
 		FollowCamera->SetFieldOfView(PlayerDefaultValues.CameraFOV);
 		GetCharacterMovement()->MaxWalkSpeed = PlayerDefaultValues.WalkSpeed;
-
-		bSprinting = false;
 	}
+	bSprinting = false;
 }
 
 void APlayerCharacter::CrouchBegin()
@@ -402,7 +401,8 @@ void APlayerCharacter::HHUPrimaryActionBegin()
 		ATomato* SpawnedTomato;
 		SpawnedTomato = GetWorld()->SpawnActor<ATomato>(
 			TomatoClass, tomatoSpawnLocation, tomatoSpawnRotation, tomatoSpawnInfo);
-		SpawnedTomato->LaunchTomato(FollowCamera->GetForwardVector(), TomatoLaunchForce);
+		if (SpawnedTomato)
+			SpawnedTomato->LaunchTomato(FollowCamera->GetForwardVector(), TomatoLaunchForce);
 		// Lower the tomato count
 		TomatoSack->RemoveTomato();
 		CheckTomatoInHand();
