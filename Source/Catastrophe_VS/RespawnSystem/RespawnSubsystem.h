@@ -121,6 +121,13 @@ public:
 	void LoadLevelStreaming(FLoadStreamingLevelInfo _loadLevelInfo);
 
 	/**
+	 * Unload certain level by name
+	 * @param _levelName The name of the streaming level
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Respawn System")
+	void UnloadStreamingLevel(FName _levelName);
+
+	/**
 	 * Called to store spawn locations at certain district
 	 * @param _districtType
 	 * @param _transform

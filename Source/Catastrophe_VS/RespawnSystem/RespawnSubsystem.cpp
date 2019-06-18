@@ -33,8 +33,6 @@ void URespawnSubsystem::PostInitialize()
 {
 	Super::PostInitialize();
 
-	
-
 }
 
 void URespawnSubsystem::Deinitialize()
@@ -60,6 +58,12 @@ void URespawnSubsystem::LoadLevelStreaming(FLoadStreamingLevelInfo _loadLevelInf
 		true,
 		_loadLevelInfo.bBlockOnLoad,
 		latenInfo);
+}
+
+void URespawnSubsystem::UnloadStreamingLevel(FName _levelName)
+{
+	FLatentActionInfo latenInfo;
+	UGameplayStatics::UnloadStreamLevel(this, _levelName, latenInfo, false);
 }
 
 void URespawnSubsystem::RegisterRespawnLocation(EDISTRICT _districtType, FTransform _transform)
