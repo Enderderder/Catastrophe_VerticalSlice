@@ -134,6 +134,11 @@ void AGuard::Tick(float DeltaTime)
 		default: break;
 		}
 	}
+
+	if (GuardState == EGuardState::CHASING)
+	{
+
+	}
 }
 
 void AGuard::GetPerceptionLocRot_Implementation(FVector& Location, FRotator& Rotation) const

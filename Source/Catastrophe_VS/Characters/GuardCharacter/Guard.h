@@ -101,6 +101,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Guard | General")
 	class APlayerCharacter* PlayerRef;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Guard | General")
 	FTransform DefaultTransform;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard | Stats | Movement")
