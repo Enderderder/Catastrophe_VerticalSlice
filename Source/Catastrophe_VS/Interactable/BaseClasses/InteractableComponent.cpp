@@ -29,7 +29,7 @@ void UInteractableComponent::TickComponent(float DeltaTime, enum ELevelTick Tick
 		// Distance check
 		float distanceToPlayer;
 		distanceToPlayer = FVector::Dist(
-			GetOwner()->GetActorLocation(), playerPawn->GetActorLocation());
+			InteractableUI->GetComponentLocation(), playerPawn->GetActorLocation());
 		if (distanceToPlayer <= UIShowingDistance
 			&& bCanInteract)
 		{
