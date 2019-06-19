@@ -111,7 +111,7 @@ void AHidingUrn::JumpIn(class APlayerCharacter* _playerCharacter)
 	UrnOutline->SetVisibility(false);
 
 	// Re-register self as an interactable
-	_playerCharacter->SetInteractionTarget(this);
+	_playerCharacter->SetInteractionTarget(InteractableComponent);
 
 	// Call the blueprint version of the function
 	Receive_JumpIn(_playerCharacter);
@@ -148,4 +148,5 @@ void AHidingUrn::JumpOut(class APlayerCharacter* _playerCharacter)
 void AHidingUrn::AllowManualJumpOut()
 {
 	bAllowManualJumpOut = true;
+	InteractableComponent->bCanInteract = true;
 }

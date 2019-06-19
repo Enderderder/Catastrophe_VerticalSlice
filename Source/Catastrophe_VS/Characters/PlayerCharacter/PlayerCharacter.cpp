@@ -166,8 +166,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 	InteractionTick(DeltaTime);
 
 	// Need to get the ui always face the camera
-	FRotator uiRot = (FollowCamera->GetComponentLocation() - WorldUiAnchor->GetComponentLocation()).Rotation();
-	WorldUiAnchor->SetWorldRotation(uiRot);
+	//FRotator uiRot = (FollowCamera->GetComponentLocation() - WorldUiAnchor->GetComponentLocation()).Rotation();
+	//WorldUiAnchor->SetWorldRotation(uiRot);
 }
 
 // Called to bind functionality to input
@@ -354,22 +354,17 @@ void APlayerCharacter::InteractEnd()
 
 void APlayerCharacter::InteractionTick(float _deltaTime)
 {
-	if (bInteracting)
+	if (bInteracting
+		&& InteractingTargetComponent
+		&& !InteractingTargetComponent->IsPendingKill())
 	{
-		if (InteractingTarget && !InteractingTarget->IsPendingKill())
-		{
-			if (UInteractableComponent* interactableComp =
-				InteractingTarget->FindComponentByClass<UInteractableComponent>())
-			{
-				InteractionTimeHold += _deltaTime;
-				interactableComp->Interact(this, InteractionTimeHold);
+		InteractionTimeHold += _deltaTime;
+		InteractingTargetComponent->Interact(this, InteractionTimeHold);
 
-				// Debug message
-				const FString msg = "Interaction hold: " + FString::SanitizeFloat(InteractionTimeHold);
-				if (GEngine)
-					GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Green, msg);
-			}
-		}
+		// Debug message
+		const FString msg = "Interaction hold: " + FString::SanitizeFloat(InteractionTimeHold);
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Green, msg);
 	}
 }
 
@@ -534,19 +529,6 @@ void APlayerCharacter::GrabbingFish()
 	FishToCarry->SetVisibility(true);
 }
 
-void APlayerCharacter::SetInteractionTarget(class AActor* _interactTarget)
-{
-	if (!_interactTarget || _interactTarget->IsPendingKill())
-		return;
-
-	if (UInteractableComponent* targetInteractableComponent =
-		_interactTarget->FindComponentByClass<UInteractableComponent>())
-	{
-		InteractingTarget = _interactTarget;
-		InteractingTargetComponent = targetInteractableComponent;
-	}
-}
-
 void APlayerCharacter::SetInteractionTarget(class UInteractableComponent* _interactTargetComponent)
 {
 	if (_interactTargetComponent || !_interactTargetComponent->IsPendingKill())
@@ -555,11 +537,10 @@ void APlayerCharacter::SetInteractionTarget(class UInteractableComponent* _inter
 	}
 }
 
-void APlayerCharacter::RemoveInteractionTarget(class AActor* _interactTarget)
+void APlayerCharacter::RemoveInteractionTarget(class UInteractableComponent* _interactTargetComponent)
 {
-	if (_interactTarget == InteractingTarget)
+	if (_interactTargetComponent == InteractingTargetComponent)
 	{
-		InteractingTarget = nullptr;
 		InteractingTargetComponent = nullptr;
 	}
 }
@@ -577,7 +558,7 @@ void APlayerCharacter::SetStamina(float _value)
 void APlayerCharacter::BlockMovementAction(bool _bBlockMovementInput)
 {
 	// Reset the sprint and crouch state
-	SprintEnd();
+	ForceSprintEnd();
 	CrouchEnd();	
 
 	// If choose to block input as well
@@ -590,6 +571,13 @@ void APlayerCharacter::BlockMovementAction(bool _bBlockMovementInput)
 void APlayerCharacter::UnblockMovementInput()
 {
 	bAllowMovementInput = true;
+}
+
+void APlayerCharacter::ForceSprintEnd()
+{
+	bSprinting = false;
+	FollowCamera->SetFieldOfView(PlayerDefaultValues.CameraFOV);
+	GetCharacterMovement()->MaxWalkSpeed = PlayerDefaultValues.WalkSpeed;
 }
 
 void APlayerCharacter::TogglePlayerHUD(bool _b)

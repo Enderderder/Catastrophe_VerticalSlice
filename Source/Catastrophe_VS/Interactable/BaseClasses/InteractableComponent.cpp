@@ -77,7 +77,7 @@ void UInteractableComponent::OnTriggerWithPlayer(class UPrimitiveComponent* Over
 		{
 			if (bCanInteract)
 			{
-				PlayerRef->SetInteractionTarget(GetOwner());
+				PlayerRef->SetInteractionTarget(this);
 				//PlayerRef->ToggleInteractUI(true); // Enable later for testing player ui
 			}
 			TriggerCounter++;
@@ -99,8 +99,8 @@ void UInteractableComponent::OnTriggerEndWithPlayer(class UPrimitiveComponent* O
 		if (TriggerCounter <= 0)
 		{
 			PlayerRef->ResetInteractionAction();
-			PlayerRef->RemoveInteractionTarget(GetOwner());
-			PlayerRef->ToggleInteractUI(false);
+			PlayerRef->RemoveInteractionTarget(this);
+			//PlayerRef->ToggleInteractUI(false);
 		}
 	}
 }
