@@ -369,6 +369,7 @@ void AGuard::ResetGuard()
 {
 	GetCharacterMovement()->DisableMovement();
 	GuardController->ModifySightRange(0.0f);
+	GuardController->StopMovement();
 	bPlayerWasInSight = false;
 	bPlayerInSight = false;
 	SetGuardState(DefaultGuardState);
