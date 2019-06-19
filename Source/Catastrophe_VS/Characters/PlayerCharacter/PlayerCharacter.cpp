@@ -448,6 +448,8 @@ void APlayerCharacter::HHUSecondaryActionBegin()
 	case EHHUType::TOMATO:
 	{
 		// Let the character follow camera rotation
+		if (bSprinting)
+			ForceSprintEnd();
 		bUseControllerRotationYaw = true;
 		CameraBoom->bEnableCameraLag = false;
 		CameraBoom->bEnableCameraRotationLag = false;
