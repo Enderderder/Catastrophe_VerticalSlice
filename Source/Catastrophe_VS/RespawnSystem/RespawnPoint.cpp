@@ -5,8 +5,6 @@
 
 #include "Components/StaticMeshComponent.h"
 
-#include "Engine.h"
-
 // Sets default values
 ARespawnPoint::ARespawnPoint()
 {
@@ -37,12 +35,5 @@ void ARespawnPoint::PostInitializeComponents()
 	if (respawnSystem)
 	{
 		respawnSystem->RegisterRespawnLocation(District, GetTransform());
-		
-		if (District == EDISTRICT::HOLDINGCELL)
-		{
-			FString msg = GetActorLocation().ToString();
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, msg);
-		}
 	}
 }
