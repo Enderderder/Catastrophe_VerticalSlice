@@ -111,9 +111,13 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 	{
 		if (_stimulus.WasSuccessfullySensed())
 		{
-			ControllingGuard->bPlayerWasInSight = true;
 			ControllingGuard->bPlayerInSight = true;
-			ControllingGuard->SetGuardState(EGuardState::CHASING);
+			if (!ControllingGuard->bPlayerWasInSight)
+			{
+				ControllingGuard->bPlayerWasInSight = true;
+				ControllingGuard->SetGuardState(EGuardState::CHASING);
+				UE_LOG(LogTemp, Warning, TEXT("I can see uuuuu biotch"));
+			}	
 		}
 		else
 		{
@@ -125,7 +129,7 @@ void AGuardAiController::OnSightPerceptionUpdate(AActor* _actor, FAIStimulus _st
 					TEXT("PlayerlastSeenLocation"), _stimulus.StimulusLocation);
 
 				ControllingGuard->SetGuardState(EGuardState::SEARCHING);
-
+				ControllingGuard->bPlayerWasInSight = false;
 			}
 			else
 			{
