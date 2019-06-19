@@ -128,7 +128,7 @@ void AClimbableStall::InteractionStarting(class APlayerCharacter* _playerCharact
 
 		// Disable the player action
 		PlayerReference->DisableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-		PlayerReference->RemoveInteractionTarget(this);
+		PlayerReference->RemoveInteractionTarget(InteractableComponent);
 	}
 }
 

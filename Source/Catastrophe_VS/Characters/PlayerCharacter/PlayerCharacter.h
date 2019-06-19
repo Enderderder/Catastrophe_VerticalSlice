@@ -293,19 +293,19 @@ public:
 	/** Return the current count of tomatoes player is holding */
 	UFUNCTION(BlueprintCallable, Category = "HHU | Tomato")
 	int GetTomatoCount();
-
+	
+	// DEPRECATED TODO: Remove this function
 	UFUNCTION(BlueprintCallable, Category = "Fish")
 	void GrabbingFish();
 
 	/** Set the target to interact for the player */
 	UFUNCTION()
-	void SetInteractionTarget(class AActor* _interactTarget);
 	void SetInteractionTarget(class UInteractableComponent* _interactTargetComponent);
 
 	/** Try to remove the interaction target if it exists */
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	void RemoveInteractionTarget(class AActor* _interactTarget);
-
+	void RemoveInteractionTarget(class UInteractableComponent* _interactTargetComponent);
+	
 	/** Resets the interaction action outside the class */
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void ResetInteractionAction();
@@ -327,6 +327,10 @@ public:
 	/** Allow player take movement control again */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void UnblockMovementInput();
+
+	/** Force player to exit spinting action */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void ForceSprintEnd();
 
 	/**
 	 * 

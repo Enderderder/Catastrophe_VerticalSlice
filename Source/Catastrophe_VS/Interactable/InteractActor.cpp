@@ -54,7 +54,7 @@ void AInteractActor::OnTriggerEnterCheck(class AActor* _otherActor)
 {
 	if (PlayerReference && Cast<APlayerCharacter>(_otherActor) == PlayerReference && bUseable)
 	{
-		PlayerReference->SetInteractionTarget(this);
+		//PlayerReference->SetInteractionTarget(this);
 	}
 }
 
@@ -62,7 +62,7 @@ void AInteractActor::OnTriggerrExitCheck(class AActor* _otherActor)
 {
 	if (PlayerReference && Cast<APlayerCharacter>(_otherActor) == PlayerReference)
 	{
-		PlayerReference->RemoveInteractionTarget(this);
+		//PlayerReference->RemoveInteractionTarget(this);
 	}
 }
 

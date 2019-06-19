@@ -30,7 +30,7 @@ void ASimpleInteractableAnimated::OnInteractionTriggerOverlapBegin(class UPrimit
 {
 	if (auto player = Cast<APlayerCharacter>(_otherActor)) 
 	{
-		player->SetInteractionTarget(this);
+		//player->SetInteractionTarget(InteractableComponent);
 	}
 }
 
@@ -38,6 +38,6 @@ void ASimpleInteractableAnimated::OnInteractionTriggerOverlapEnd(class UPrimitiv
 {
 	if (auto player = Cast<APlayerCharacter>(_otherActor))
 	{
-		player->RemoveInteractionTarget(this);
+		//player->RemoveInteractionTarget(this);
 	}
 }
