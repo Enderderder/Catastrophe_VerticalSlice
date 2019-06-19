@@ -22,6 +22,8 @@
 
 #include "RespawnSystem/RespawnSubsystem.h"
 
+#include "Engine.h"
+
 // Sets default values
 AGuard::AGuard()
 {
@@ -365,9 +367,14 @@ void AGuard::OnCatchPlayer_Implementation(APlayerCharacter* _player)
 
 void AGuard::ResetGuard()
 {
-	StopAllMontages();
-
-	SetActorTransform(DefaultTransform);
-
+	GetCharacterMovement()->DisableMovement();
+	GuardController->ModifySightRange(0.0f);
+	bPlayerWasInSight = false;
+	bPlayerInSight = false;
 	SetGuardState(DefaultGuardState);
+	StopAllMontages();
+	//SetActorTransform(DefaultTransform, false, nullptr, ETeleportType::ResetPhysics
+	SetActorLocationAndRotation(DefaultTransform.GetLocation(), DefaultTransform.GetRotation());
+
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }

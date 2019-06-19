@@ -118,7 +118,7 @@ void APlayerCharacter::BeginPlay()
 	PlayerDefaultValues.CameraFOV = FollowCamera->FieldOfView;
 	PlayerDefaultValues.CameraArmLength = CameraBoom->TargetArmLength;
 
-
+	// Check if theres tomato in player's hand
 	CheckTomatoInHand();
 
 	// Set default state for the player UI
@@ -220,7 +220,9 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 
 void APlayerCharacter::SprintBegin()
 {
-	if (bAllowMovementInput && CurrentStamina >= TotalStamina) // Only sprint player has stamina
+	if (bAllowMovementInput 
+		&& CurrentStamina >= TotalStamina // Only sprint player has stamina
+		&& !bHHUSecondaryActive) // Cant sprint while aiming lol
 	{
 		bSprinting = true;
 
@@ -244,6 +246,7 @@ void APlayerCharacter::CrouchBegin()
 	if (bAllowMovementInput)
 	{
 		Crouch();
+		HHUSecondaryActionEnd();
 
 		if (bSprinting) 
 			SprintEnd();
